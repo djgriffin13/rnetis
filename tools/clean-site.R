@@ -91,6 +91,11 @@ expected <- c("index.html", "404.html", "authors.html", "LICENSE.html",
               # unnoticed in the 2026-11-07 build even though it was named.
               "index.md", "404.md", "authors.md", "LICENSE-text.md",
               "favicon.svg", "favicon-96x96.png",
+              # pkgdown >= 2.2 also emits a progressive-web-app manifest with
+              # its two icons, and a tutorials/ directory (empty here, since
+              # the package has no tutorials). Generated output, same as above.
+              "site.webmanifest", "web-app-manifest-192x192.png",
+              "web-app-manifest-512x512.png", "tutorials",
               "pkgdown.yml", "link.svg", "logo.png", "favicon.ico",
               "apple-touch-icon.png", "apple-touch-icon-120x120.png",
               "apple-touch-icon-152x152.png", "apple-touch-icon-180x180.png",
