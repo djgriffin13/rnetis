@@ -1,0 +1,15 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^\.github$
+^tests/testthat/comprehensive$
+^tests/testthat/manual$
+^CLAUDE\.md$
+^\.claude$
+^LICENSE\.md$
+^cran-comments\.md$
+^_pkgdown\.yml$
+^docs$
+^\.Rhistory$
+^Rplots\.pdf$
+^data-raw$
+^tools$

@@ -1,0 +1,345 @@
+# The documented specification of the hierarchical multi-group Selection
+# model. Documentation only: this file defines no code. It exists so that the
+# model a user fits through `selection_pooling()` is written down in one place,
+# at the level of the likelihood, the identification constraints, the priors and
+# the sampler.
+
+#' The hierarchical multi-group Selection model
+#'
+#' @description
+#' What [fit_selection()] fits when `pooling = selection_pooling(...)` is
+#' supplied: an additive and multiplicative effects (AME) network model for
+#' every team, with a hierarchy over the teams' coefficients, estimated in one
+#' Markov chain over all teams. This page states the model, its identification
+#' constraints, its priors and the sampling algorithm exactly. For how to use
+#' it, see `vignette("selection")`; for what a fit reports, see
+#' [netis_hierarchy()].
+#'
+#' @section What the coefficients mean:
+#' Selection coefficients are **conditional associations on the model's link
+#' scale**: the latent probit scale for `family = "bin"`, the tie-value scale for
+#' `family = "nrm"`. Each describes how tie propensity differs with a predictor,
+#' holding the other predictors, the actors' sender and receiver effects and the
+#' latent factors fixed. Nothing in the model identifies a causal effect of a
+#' predictor on tie formation, and the name "Selection" does not imply one.
+#'
+#' @section The within-team model (every regime):
+#' Team \eqn{g} has \eqn{n_g} actors and directed ties \eqn{y_{ij}} for ordered
+#' pairs \eqn{i \neq j}. Self-ties are excluded and missing dyads are left out of
+#' the likelihood (never treated as observed zeros). For each observed dyad,
+#' following Hoff (2021),
+#'
+#' \deqn{z_{ij} = x_{ij}'\theta_g + a_i + b_j + u_i'v_j + \epsilon_{ij},}
+#'
+#' with \eqn{y_{ij} = 1(z_{ij} > 0)} under the probit (`"bin"`) and
+#' \eqn{y_{ij} = z_{ij}} under the normal model (`"nrm"`). The terms are:
+#'
+#' * \eqn{x_{ij}'\theta_g}: the **team's coefficients** on the design -- an
+#'   intercept, sender and receiver covariates, dyadic covariates, and lagged
+#'   network terms such as `prior_tie()`.
+#' * \eqn{a_i, b_j}: **actor-level sender and receiver effects** -- how much
+#'   more or less an individual sends or receives ties than the team's linear
+#'   predictor implies, \eqn{(a_i, b_i) \sim N(0, \Sigma_{ab,g})}.
+#' * \eqn{u_i'v_j}: **multiplicative latent factors** of dimension `R`
+#'   (default `R = 0`), capturing third-order dependence such as transitivity
+#'   and clustering.
+#' * \eqn{\epsilon_{ij}}: dyadic residuals with **reciprocal dependence**,
+#'   \eqn{(\epsilon_{ij}, \epsilon_{ji}) \sim N(0, \sigma^2_g [1, \rho_g;
+#'   \rho_g, 1])}.
+#'
+#' **Team-level random coefficients are not actor-level effects.** A random
+#' intercept lets each TEAM's baseline tie propensity differ from the population
+#' mean; the sender and receiver effects let each ACTOR within a team differ
+#' from that team's baseline. They are different levels of the hierarchy and are
+#' estimated together.
+#'
+#' **These stay team-specific in every regime** and are never pooled across
+#' teams: \eqn{\Sigma_{ab,g}} (sender variance, receiver variance and their
+#' covariance), \eqn{\rho_g}, \eqn{\sigma^2_g} (`"nrm"` only), and the latent
+#' factors with their covariance. Their priors are what `amen::ame()` uses for
+#' the team's network. Under the probit the actor-effect and factor priors are
+#' `amen`'s construction from the team's own ties; under `"nrm"` they are its
+#' fixed defaults (`Sab0 = I`, `eta0 = 4`, `Suv0 = I`, `kappa0 = 2 + 2R`). The
+#' residual variance and \eqn{\rho_g} take `amen`'s defaults in both.
+#'
+#' @section Identification:
+#' * **Probit scale.** \eqn{\sigma^2_g = 1} under the probit; coefficients are
+#'   in latent standard-deviation units.
+#' * **Location.** The team intercept and the mean of the team's sender and
+#'   receiver effects are separated only by the mean-zero prior on
+#'   \eqn{(a_i, b_i)}: their sum is what the data determine. This is the usual
+#'   AME location constraint, and it is why sender and receiver effects are not
+#'   reported as level estimates of the intercept.
+#' * **Latent factors.** \eqn{u_i'v_j} is identified only up to rotation and
+#'   scale of the factors, so only functionals of \eqn{UV'} are reported.
+#' * **A coefficient with no within-team variation** in its predictor is not
+#'   identified from that team's data. Under the `"random"` regime the team's
+#'   coefficient comes from the hierarchy (partial pooling) and the team is
+#'   flagged as uninformative. Under `"group"` it is refused: the team's
+#'   g-prior is built from the team's own design and carries no information in
+#'   that direction either.
+#'
+#' @section The hierarchy over team coefficients:
+#' Every coefficient \eqn{k} -- the intercept included -- takes one of three
+#' regimes, set by [selection_pooling()]:
+#'
+#' * **shared**: \eqn{\theta_{kg} = \beta_k} in every team. Prior: `amen`'s
+#'   g-prior expression applied to the pooled design (see **This package's own
+#'   constructions**), marginalized to the shared columns and added once.
+#' * **unpooled** (`unpooled =`): \eqn{\theta_{kg}} estimated separately in each
+#'   team, under that team's own g-prior, marginalized to the unpooled columns.
+#' * **random** (`random =`): \eqn{\theta_{kg} = m_{kg} + \zeta_{kg}}, where the
+#'   team deviations \eqn{\zeta_g = (\zeta_{kg})_k \sim N(0, \Sigma)} and the
+#'   hierarchical mean \eqn{m_{kg}} is either a population mean \eqn{\mu_k} or,
+#'   with moderators, \eqn{z_g'\gamma_k}.
+#'
+#' Anything not named in `random` or `unpooled` is shared. A random intercept
+#' is the intercept under the random regime; a random slope is any other
+#' coefficient under it.
+#'
+#' **Between-team covariance.**
+#' * `covariance = "diagonal"` (the default): \eqn{\Sigma = diag(\tau_k^2)}.
+#'   Each random coefficient varies across teams independently of the others.
+#' * `covariance = "unstructured"`: \eqn{\Sigma = diag(\tau)\,\Omega\,
+#'   diag(\tau)} with a correlation matrix \eqn{\Omega}.
+#'
+#' **What an intercept-slope correlation means.** \eqn{\Omega_{0k}} is the
+#' correlation, across teams, between a team's deviation in baseline tie
+#' propensity and its deviation in the effect of predictor \eqn{k}, both from
+#' their hierarchical means. It is a property of the team-level deviations, not
+#' of individuals. Because the intercept is the propensity at \eqn{x_k = 0}, the
+#' correlation changes when \eqn{x_k} is re-centered; it is interpretable only
+#' relative to the predictor's zero point.
+#'
+#' @section Moderators of the intercept versus moderators of slopes:
+#' Team-level predictors \eqn{z_g} (`moderators =`) enter the hierarchical mean
+#' of **every** random coefficient:
+#' \eqn{m_{kg} = \gamma_{k0} + \sum_m \gamma_{km} z_{gm}}.
+#'
+#' * For the **intercept**, \eqn{\gamma_{0m}} is a team-level main effect: how
+#'   baseline tie propensity differs between teams with different \eqn{z}.
+#' * For a **slope**, \eqn{\gamma_{km}} is a cross-level interaction: how the
+#'   effect of predictor \eqn{k} differs between teams with different \eqn{z}.
+#'
+#' In this version a moderator cannot be attached to one random coefficient
+#' only. To estimate a cross-level interaction while keeping the team-level main
+#' effect of the same moderator in the model, make the intercept random as well;
+#' a shared-intercept fit with a moderated slope omits that main effect. A
+#' `group()` main-effect term is not accepted on this route; the moderated
+#' random intercept is the supported way to enter a team-level predictor.
+#' \eqn{\gamma_{k0}} is the hierarchical mean at \eqn{z = 0}, which equals a
+#' population mean only when the moderators are centered.
+#'
+#' @section Priors:
+#' Write \eqn{s_y} for the outcome scale (1 under the probit; the SD of the
+#' observed tie values under `"nrm"`) and \eqn{\delta_k} for random coefficient
+#' \eqn{k}'s reference change (below).
+#'
+#' * \eqn{\mu_k}, and \eqn{\gamma_{k0}} with moderators: \eqn{N(0, (10 s_y)^2)}.
+#'   This scale is fixed; no argument changes it.
+#' * Between-team SD: \eqn{\tau_k \sim} half-\eqn{t(\nu, A_k)} with
+#'   \eqn{A_k = A_0 s_y / \delta_k}; equivalently \eqn{\tau_k \delta_k \sim}
+#'   half-\eqn{t(\nu, A_0 s_y)}. Defaults \eqn{\nu = 3}, \eqn{A_0 = 0.5}.
+#' * Moderator coefficients: \eqn{\gamma_{km} \sim N(0, (A_0^Z s_y /
+#'   (\delta_k \delta^Z_m))^2)}, default \eqn{A_0^Z = 0.5}.
+#' * Correlations: \eqn{\Omega \sim} LKJ(\eqn{\eta}), default \eqn{\eta = 1}.
+#'
+#' **The reference change \eqn{\delta_k}.** 1 for the intercept and for a binary
+#' predictor (the 0-to-1 contrast). For a continuous predictor, the median of
+#' the informative teams' within-team SDs, computed over actors for a sender or
+#' receiver covariate and over observed off-diagonal dyads for a dyadic one. A
+#' team is informative for a slope when its SD is at least 1% of the median of
+#' the teams' nonzero SDs, and for the intercept when it has an observed dyad. A
+#' user-declared `delta` overrides the rule. A
+#' moderator's \eqn{\delta^Z_m} is 1 for a binary moderator and otherwise the SD
+#' of its \eqn{G} team values, flagged on the fit because it rests on \eqn{G}
+#' numbers.
+#'
+#' **The \eqn{A_0} grid.** 0.25 (stronger regularization), **0.5 (default)**, 1.0
+#' (diffuse sensitivity). The prior is on the standardized contrast
+#' \eqn{\tau_k\delta_k}, so it does not change meaning when a predictor is
+#' rescaled; it was not tuned to any simulated truth.
+#'
+#' **LKJ(1)** is uniform over correlation matrices. That is not the same as
+#' uniform pairwise correlations: with \eqn{q} random coefficients each
+#' correlation's marginal prior is Beta\eqn{(\eta - 1 + q/2, \eta - 1 + q/2)}
+#' on \eqn{(-1, 1)}, uniform only when \eqn{q = 2} and increasingly concentrated
+#' toward zero as \eqn{q} grows.
+#'
+#' **Few teams.** With few teams \eqn{\tau} and \eqn{\Omega} are weakly
+#' identified and their posteriors depend materially on these priors; a
+#' posterior mean of \eqn{\tau} is pulled upward by right skew, and an interval
+#' reaching down near zero means the data are consistent with no between-team
+#' variation, whatever the point estimate says. Re-fit along the
+#' \eqn{A_0} grid (and \eqn{\eta = 2} for a correlated model) to see how much.
+#' Fit the diagonal model first; a correlated model needs enough teams to inform
+#' \eqn{q(q-1)/2} correlations.
+#'
+#' @section Teams with no tie variation (binary ties):
+#' A team whose observed ties are all 0, or all 1, is admitted only when the
+#' intercept is random and no coefficient is unpooled; otherwise the fit is
+#' refused, naming the team. This is rnetis's supported admission rule, not a
+#' claim that no Bayesian model could use such a team.
+#'
+#' Under the rule the team's likelihood is bounded and monotone in its
+#' intercept, and every parameter it touches has a proper prior, so the
+#' posterior is proper. The team's intercept is pulled below its hierarchical
+#' mean (above, for all-1): the direction is definite. Its size is not
+#' determined by the data alone, because the team's low (or high) tie rate is
+#' shared between the intercept and the team's own sender and receiver
+#' effects. Those effects' prior is `amen`'s fixed default for such a team
+#' (`Sab0 = I`, `eta0 = 4`) -- `amen`'s data-derived construction is undefined
+#' without tie variation -- and
+#' it is more diffuse than the data-derived priors of other teams, so the actor
+#' effects typically carry much of the tie rate. Read such a team's intercept
+#' as a direction, not a calibrated magnitude.
+#'
+#' A team with no observed dyads at all is always refused: it contributes no
+#' data. Neither kind of team is ever dropped silently.
+#'
+#' @section The algorithm:
+#' One Gibbs sampler (Metropolis-within-Gibbs for the correlated covariance)
+#' over all teams. Each scan:
+#'
+#' 1. Per team, `amen`'s conditionals in `amen::ame()`'s own order: the latent
+#'    \eqn{z} (truncated normal under the probit), \eqn{\sigma^2_g} (`"nrm"`),
+#'    and \eqn{\rho_g}.
+#' 2. **Every coefficient in every team in one exact Gaussian draw**: shared
+#'    coefficients, hierarchical means and moderator coefficients, unpooled
+#'    team coefficients and random-coefficient deviations, given each team's
+#'    latent network and nuisance state, marginal over the sender and receiver
+#'    effects. Team coefficients are therefore updated against their own
+#'    network likelihood inside this one sampler; there is no two-stage
+#'    estimation and no approximation beyond Monte Carlo error.
+#' 3. Between-team parameters: under a diagonal covariance, exact Gibbs draws
+#'    of \eqn{\tau_k} through the half-t scale mixture (Wand et al., 2011);
+#'    under an unstructured covariance, random-walk Metropolis on
+#'    \eqn{\log \tau} and on the unconstrained canonical-partial-correlation
+#'    parameters of \eqn{\Omega}, with proposal scales adapted during burn-in
+#'    only and frozen before any draw is retained (the rule is stated under
+#'    **This package's own constructions**).
+#' 4. Per team: sender and receiver effects given the coefficients, the latent
+#'    factors (if `R > 0`), and their covariance matrices, again with `amen`'s
+#'    conditionals, including its extra update of the sender effects and their
+#'    covariance under the probit.
+#'
+#' Chains run in sequence with seeds `seed`, `seed + 1`, ...; chains after the
+#' first start from deterministically dispersed values, so R-hat compares chains
+#' that began apart; with one chain it can detect only drift within the run.
+#' Convergence is reported per parameter with rank-normalized, folded split R-hat
+#' and bulk and tail effective sample sizes (Vehtari et al., 2021).
+#'
+#' @section Established components:
+#' The AME model and its conditional updates (Hoff, 2005, 2021; `amen`);
+#' hierarchical partial pooling of regression coefficients (Gelman & Hill, 2007);
+#' the half-t prior on a hierarchical SD (Gelman, 2006) and its scale-mixture
+#' Gibbs step (Wand et al., 2011); the LKJ prior and its canonical
+#' partial-correlation parameterization (Lewandowski, Kurowicka & Joe, 2009); the
+#' limiting acceptance rates for a Gaussian random walk (Roberts, Gelman & Gilks,
+#' 1997; Roberts & Rosenthal, 2001); and the convergence diagnostics (Vehtari et
+#' al., 2021).
+#'
+#' @section This package's own constructions:
+#' Everything below is this package's own and has no published validation.
+#' Statistical performance (bias, interval coverage, behavior with few teams) is
+#' not established by the package's tests. Only the settings named as arguments
+#' can be changed.
+#'
+#' * **One sampler with per-coefficient regimes**: the combination of the
+#'   established components above over all teams.
+#' * **The pooled g-prior** on shared coefficients. `amen` defines its g-prior
+#'   for one network. Here its expression takes \eqn{X'X} summed over teams,
+#'   \eqn{g} summed over teams, and the total design cell count
+#'   \eqn{\sum_g n_g^2}, where a team's \eqn{g} is `amen`'s: the number of
+#'   observed dyads under the probit, that number times the tie variance under
+#'   `"nrm"`.
+#' * **The pseudo-inverse in the g-prior.** `amen`'s expression inverts its matrix
+#'   twice. Here both inversions are Moore-Penrose, dropping singular values below
+#'   `sqrt(.Machine$double.eps)` (about \eqn{1.5 \times 10^{-8}}) times the
+#'   largest, so a design column that is all zero in a team contributes no prior
+#'   precision rather than an error. At full rank this is `amen`'s expression.
+#' * **The default \eqn{\nu = 3}**, and \eqn{A_0 = 0.5} with its grid.
+#' * **\eqn{\mu_k, \gamma_{k0} \sim N(0, (10 s_y)^2)}**: the scale of 10 outcome
+#'   units.
+#' * **The \eqn{\delta} calibration**: expressing the \eqn{\tau} prior through
+#'   \eqn{A_k = A_0 s_y / \delta_k}, and the \eqn{\gamma} prior through
+#'   \eqn{A_0^Z s_y / (\delta_k \delta^Z_m)} with default \eqn{A_0^Z = 0.5},
+#'   using the rules for \eqn{\delta_k} and \eqn{\delta^Z_m} under **Priors**.
+#' * **The 1% threshold** (`informative_tol = 0.01` on the fit's hierarchical
+#'   layer), a package convention: information about a slope scales with
+#'   \eqn{SD^2}, so a team at 1% of the median carries about \eqn{10^{-4}} of a
+#'   typical team's. A random coefficient with fewer than two informative teams
+#'   is refused. An unpooled coefficient is refused when any team is not
+#'   informative for it.
+#' * **`own_data_weight`**, in [netis_hierarchy()]: \eqn{\tau_k^2 Q_{g} / (1 +
+#'   \tau_k^2 Q_{g})} averaged over draws, where \eqn{Q_{g}} is the data precision
+#'   of team \eqn{g}'s deviation in that draw. Reported under a diagonal covariance
+#'   only.
+#' * **The default LKJ(\eqn{\eta = 1})** and the sensitivity setting
+#'   \eqn{\eta = 2}.
+#' * **Starting values.** Chain 1 uses `amen::ame()`'s start for each team, with
+#'   \eqn{\rho_g} set to 0 when that start is undefined or at least 0.99 in absolute
+#'   value. A team with no tie variation starts every observed latent value at
+#'   \eqn{\Phi^{-1}(0.5 / (m + 1))}, negated for an all-1 team, with \eqn{m} its
+#'   observed dyads. Between-team states start at \eqn{\tau_k} equal to the larger
+#'   of the SD of the teams' starting coefficients and \eqn{0.1 s_y}, and at
+#'   \eqn{\Omega = I}.
+#' * **Dispersed starts for chains after the first.** Each team's starting
+#'   coefficient \eqn{k} gets normal noise with SD equal to twice the spread of the
+#'   teams' starts, held between \eqn{0.5 r_k} and \eqn{5 r_k}, where \eqn{r_k = s_y
+#'   / SD(x_k)} over observed dyads (\eqn{s_y} for a constant column; \eqn{r_k}
+#'   itself when no spread is defined). \eqn{\tau_k} is multiplied by
+#'   \eqn{\exp(N(0, 1))}, and the unconstrained correlation parameters are drawn
+#'   from \eqn{N(0, 0.5^2)}. These widen what R-hat can detect; they do not
+#'   guarantee that the starts bracket the posterior.
+#' * **The adaptation rule.** Both Metropolis blocks are isotropic random walks
+#'   with one scale, starting at 0.3. With `burn` of at least 50, after every 50
+#'   burn-in sweeps each block's log scale moves by (batch acceptance - target)
+#'   \eqn{\times \min(1, 2 / \sqrt{j})} for batch \eqn{j}, with the scale kept in
+#'   \eqn{[0.001, 10]}. The target for a block of dimension \eqn{d} (\eqn{q} for
+#'   \eqn{\log \tau}, \eqn{q(q-1)/2} for the correlations) is \eqn{0.234 + 0.206 /
+#'   d}, a linear interpolation in \eqn{1/d} between the established limits 0.44
+#'   and 0.234. With `burn` below 50 the scales stay at 0.3.
+#' * **Unavailable diagnostics.** A quantity with fewer than 4 draws per half-chain
+#'   has `NA` diagnostics and status `"too_few_draws"`, a package convention.
+#' * **The admission rule** for teams with no tie variation, above.
+#'
+#' @references
+#' Gelman, A. (2006). Prior distributions for variance parameters in
+#' hierarchical models. *Bayesian Analysis*, 1(3), 515-534.
+#'
+#' Gelman, A., & Hill, J. (2007). *Data analysis using regression and
+#' multilevel/hierarchical models*. Cambridge University Press.
+#'
+#' Hoff, P. D. (2005). Bilinear mixed-effects models for dyadic data. *Journal of
+#' the American Statistical Association*, 100(469), 286-295.
+#'
+#' Hoff, P. D. (2021). Additive and multiplicative effects network models.
+#' *Statistical Science*, 36(1), 34-50.
+#'
+#' Hoff, P., Fosdick, B., & Volfovsky, A. (2024). *amen: Additive and
+#' Multiplicative Effects Models for Networks and Relational Data*. R package
+#' version 1.4.5.
+#'
+#' Lewandowski, D., Kurowicka, D., & Joe, H. (2009). Generating random
+#' correlation matrices based on vines and extended onion method. *Journal of
+#' Multivariate Analysis*, 100(9), 1989-2001.
+#'
+#' Roberts, G. O., Gelman, A., & Gilks, W. R. (1997). Weak convergence and optimal
+#' scaling of random walk Metropolis algorithms. *The Annals of Applied
+#' Probability*, 7(1), 110-120.
+#'
+#' Roberts, G. O., & Rosenthal, J. S. (2001). Optimal scaling for various
+#' Metropolis-Hastings algorithms. *Statistical Science*, 16(4), 351-367.
+#'
+#' Vehtari, A., Gelman, A., Simpson, D., Carpenter, B., & Bürkner, P.-C. (2021).
+#' Rank-normalization, folding, and localization: An improved R-hat for
+#' assessing convergence of MCMC. *Bayesian Analysis*, 16(2), 667-718.
+#'
+#' Wand, M. P., Ormerod, J. T., Padoan, S. A., & Frühwirth, R. (2011). Mean
+#' field variational Bayes for elaborate distributions. *Bayesian Analysis*,
+#' 6(4), 847-900.
+#'
+#' @seealso [selection_pooling()], [netis_hierarchy()], [fit_selection()]
+#' @name hierarchical_selection
+NULL

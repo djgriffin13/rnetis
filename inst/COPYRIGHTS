@@ -1,0 +1,22 @@
+rnetis is distributed under the GNU Affero General Public License, version 3.
+
+Copyright (c) 2026 Griffin Dynamics LLC, except as stated below. rnetis is
+developed and owned by Griffin Dynamics LLC as part of its ongoing research and
+development.
+
+Derived code
+------------
+Parts of the following files derive from the R package amen (version 1.4.5),
+Copyright (c) Peter Hoff, Bailey Fosdick, Alex Volfovsky and Yanjun He, licensed
+under the GNU General Public License, version 3:
+
+  R/mgc-stats.R     from amen::rbeta_ab_fc()
+  R/mgc-prior.R     from the prior block of amen::ame() and amen::rbeta_ab_fc()
+  R/mgc-sampler.R   from the starting values and scan order of amen::ame()
+
+These parts were modified in 2026 for the hierarchical multi-group Selection
+model: the coefficient step is replaced and the additive-effect step is split
+from it. The sampler also calls functions exported by amen at run time.
+
+Section 13 of the GNU GPL version 3 and of the GNU AGPL version 3 permits the
+combination. The GPL version 3 terms continue to apply to the amen-derived parts.

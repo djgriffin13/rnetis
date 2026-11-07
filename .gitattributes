@@ -1,0 +1,26 @@
+# Normalize line endings to LF in the repository.
+#
+# R CMD check verifies LF line endings in source files, and CI runs on Linux and
+# macOS. Without this, a Windows checkout with core.autocrlf=true can introduce
+# CRLF into committed sources.
+* text=auto eol=lf
+
+# Explicitly text
+*.R      text eol=lf
+*.Rd     text eol=lf
+*.Rmd    text eol=lf
+*.md     text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+*.csv    text eol=lf
+DESCRIPTION   text eol=lf
+NAMESPACE     text eol=lf
+.Rbuildignore text eol=lf
+
+# Binary — never touch
+*.rda    binary
+*.RData  binary
+*.rds    binary
+*.png    binary
+*.jpg    binary
+*.pdf    binary

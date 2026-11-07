@@ -1,0 +1,197 @@
+---
+title: "Influence models"
+output:
+  rmarkdown::html_vignette:
+    pandoc_args: ["--metadata", "title="]
+vignette: >
+  %\VignetteIndexEntry{Influence models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<!-- `--metadata title=` turns off pandoc's title block so the banner comes first;
+`title:` stays because rmarkdown checks it against the index entry. Keep the style
+block free of CSS comments, which pandoc misreads. -->
+<style>
+img.rnetis-logo {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+}
+</style>
+
+<div style="text-align: center; margin: 0 0 1.5em;">
+<img class="rnetis-logo" src="../man/figures/logo_banner.png"
+     alt="rnetis -- Network analytics for influence and selection processes"
+     width="333"/>
+</div>
+
+# Influence models
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(rnetis)
+```
+
+An Influence model asks whether a node's characteristic changes with its own
+prior state and with what the nodes around it were doing. This vignette builds
+a data object, constructs exposure, fits a model and reads the results.
+
+## Build a data object
+
+`netis_data()` takes a node table and a tie table. Each row of the node table is
+a node, each row of the tie table is a tie, and `group` names the network.
+
+```{r}
+nodes <- data.frame(group = 1, node = c("a", "b", "c"), x = c(10, 20, 30))
+ties  <- data.frame(group = 1, source = c("b", "c"), target = c("a", "a"),
+                    w = c(1, 3))
+nd <- netis_data(nodes, ties)
+nd
+```
+
+For repeated observation, add a wave column to both tables and name it with
+`wave_col`. The printed summary says what was inferred about each tie variable;
+`?netis_data` covers declaring it yourself.
+
+The importers build the same object from other shapes and record anything a
+conversion could not keep (`netis_losses()`):
+
+| You have | Use |
+|---|---|
+| An adjacency matrix | `netis_data_from_adjacency()` |
+| One adjacency matrix per wave | `netis_data_from_adjacency_series()` |
+| An edge list | `netis_data_from_edgelist()` |
+| An `igraph` graph, or a list of them | `netis_data_from_igraph()`, `netis_data_from_igraph_list()` |
+| A `network` object | `netis_data_from_network()` |
+| Separate static and dynamic tables | `netis_data_from_split()` |
+
+`as_igraph()`, `as_network()` and `netis_adjacency()` convert back.
+
+## What exposure is
+
+Exposure is how much of a characteristic reaches a node through its ties. The
+default is the weighted sum (Friedkin & Johnsen 1990; Marsden & Friedkin 1993):
+
+$$E_i = \sum_j W_{ij} X_j$$
+
+`W[i, j]` is the strength with which `j` influences `i`. By default a row with
+`source = "b"` and `target = "a"` means `b` influences `a`; the `direction`
+argument reverses that reading.
+
+```{r}
+compute_exposure(nd, content = "x", via = "w")
+```
+
+`a` receives from `b` with weight 1 and from `c` with weight 3, so its exposure
+is `1 * 20 + 3 * 30 = 110`. `b` and `c` receive from nobody, and their exposure
+is 0.
+
+Row normalization divides by the node's total tie weight (Leenders 2002), which
+gives the average of its alters rather than the total:
+
+```{r}
+compute_exposure(nd, content = "x", via = "w", normalize = "row")
+```
+
+`a` is now `110 / 4 = 27.5`. The total rises with the number of ties and the
+average does not, so the two answer different questions. A node that receives no
+ties has no average, so its value is `NA`; `isolate_rule` lets you choose `"zero"`
+or `"error"` instead.
+
+Influence can also travel along paths across waves. For that model, the
+balance-information mechanism of Frank & Fahrbach (1999), see `?bi`.
+
+## Fit a model
+
+`demo_influence` is a small simulated network observed at two waves.
+
+```{r}
+fit <- fit_influence(
+  y ~ ar() + exposure(y, via = tie, normalize = "row"),
+  data = demo_influence
+)
+fit
+```
+
+* `ar()` is the outcome's own prior value, so the exposure coefficient is about
+  change rather than level.
+* `exposure(y, via = tie)` is the alters' prior outcome carried through the
+  `tie` network.
+* A bare covariate is read at the outcome wave, and `lagged()` reads an earlier
+  one.
+
+A fit analyzes one transition between two waves. With more than two waves,
+`fit_influence()` refuses to choose and `waves = c(from, to)` names the pair.
+
+Several networks need a random intercept, `(1 | group)`. Without one, the fit
+would pool separate networks into one intercept, and it is refused.
+
+```{r}
+mg <- fit_influence(
+  y ~ ar() + exposure(x, via = tie) + (1 | group),
+  data = demo_influence_groups
+)
+netis_variance_components(mg)
+```
+
+## Read the results
+
+`summary()` adds what the fit is assuming:
+
+```{r}
+summary(fit)
+```
+
+`netis_estimates()` returns the same coefficients as a data frame:
+
+```{r}
+netis_estimates(fit)
+```
+
+`influence_effect()` turns the coefficient into a change in the outcome over a
+stated range of exposure, by default the observed 10th to 90th percentile. The
+interval covers uncertainty in the coefficient, and the range is treated as
+fixed.
+
+```{r}
+eff <- influence_effect(fit)
+eff$exposures[["ex_y_tie"]][c("coefficient", "contrast_low", "contrast_high",
+                              "predicted_change")]
+influence_effect(fit, probs = c(0.25, 0.75))$exposures[["ex_y_tie"]]$predicted_change
+```
+
+A simultaneous fit, with the outcome's own `x_lag = 0` exposure on the right-hand
+side, is different. A predictor there reaches the outcome through
+`(I - rho * W1)^-1`, so `influence_effect()` reports
+`coefficient_times_contrast`, a coefficient-scale quantity with
+`scale = "coefficient"` and `excludes_network_feedback = TRUE`. It is not the
+change in the outcome, and rnetis does not compute that change.
+
+The exposure coefficient is an association, not an established effect of
+influence. `vignette("model-fit")` covers what a fit assumes, and
+`vignette("latent-space")` covers one adjustment for an unobserved trait.
+
+## References
+
+Frank, K. A. and Fahrbach, K. (1999) Organization culture as a complex system:
+balance and information in models of influence and selection. *Organization
+Science* **10**(3), 253–277.
+
+Friedkin, N. E. and Johnsen, E. C. (1990) Social influence and opinions.
+*Journal of Mathematical Sociology* **15**(3–4), 193–206.
+
+Leenders, R. Th. A. J. (2002) Modeling social influence through network
+autocorrelation: constructing the weight matrix. *Social Networks* **24**(1),
+21–47.
+
+Marsden, P. V. and Friedkin, N. E. (1993) Network studies of social influence.
+*Sociological Methods & Research* **22**(1), 127–151.
+
+<hr/>
+<div style="display: flex; justify-content: center; gap: 2.5em; align-items: center; margin-top: 2em;">
+<img class="rnetis-logo" src="../man/figures/logo.png" alt="rnetis" height="48"/>
+<img class="rnetis-logo" src="../man/figures/lab_logo.png" alt="T.A.C.T.I.C.S Lab, University of South Florida" height="48"/>
+</div>

@@ -1,0 +1,86 @@
+Package: rnetis
+Title: Network Influence and Selection Models
+Version: 0.1.0
+Authors@R: c(
+    person(given = "Griffin Dynamics LLC",
+           role = c("cph", "fnd")),
+    person(given = c("Daniel", "J."),
+           family = "Griffin",
+           role = c("aut", "cre"),
+           email = "danieljgriffin618@gmail.com",
+           comment = c(ORCID = "0000-0001-5093-3536",
+                       affiliation = "Griffin Dynamics LLC & University of South Florida")),
+    person(given = "Ajay",
+           family = "Somaraju",
+           role = "ctb",
+           comment = c(ORCID = "0000-0001-6441-7233",
+                       affiliation = "SUNY Binghamton")),
+    person(given = "Ryan",
+           family = "Hemsley",
+           role = "ctb",
+           comment = c(ORCID = "0000-0002-1711-6507",
+                       affiliation = "Wayne State University")),
+    person(given = "Peter",
+           family = "Hoff",
+           role = "cph",
+           comment = "author of amen, from which part of the hierarchical sampler is derived"),
+    person(given = "Bailey",
+           family = "Fosdick",
+           role = "cph",
+           comment = "author of amen, from which part of the hierarchical sampler is derived"),
+    person(given = "Alex",
+           family = "Volfovsky",
+           role = "cph",
+           comment = "author of amen, from which part of the hierarchical sampler is derived"),
+    person(given = "Yanjun",
+           family = "He",
+           role = "cph",
+           comment = "contributor to amen, from which part of the hierarchical sampler is derived"))
+Description: A single, consistent interface to established models of social
+    network processes. Influence models describe how a node characteristic
+    changes as a function of its prior state and of network exposure to the
+    characteristics of connected others. Selection models describe how network
+    ties change as a function of sender, receiver, dyadic, and higher-order
+    structural effects. The package provides a canonical data
+    structure for node, tie, and group data, a modular exposure engine, a
+    formula grammar spanning both model families, design and estimation
+    diagnostics, effect sizes, and a visualization layer. It implements,
+    integrates, and operationalizes published methods. Its main extension is
+    its own construction from published components: a hierarchical multi-group
+    Selection model with random intercepts and slopes across groups. This and
+    the package's smaller constructions are documented as such. Developed and
+    owned by Griffin Dynamics LLC as part of its ongoing research and
+    development, with research conducted in partnership with the T.A.C.T.I.C.S
+    Lab at the University of South Florida. The authors acknowledge Ken Frank
+    for his support and insights.
+License: AGPL-3
+Copyright: See inst/COPYRIGHTS
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Depends:
+    R (>= 4.1)
+Imports:
+    generics,
+    ggplot2,
+    lme4,
+    reformulas
+Suggests:
+    amen,
+    clubSandwich,
+    igraph,
+    knitr,
+    lame,
+    latentnet,
+    network,
+    numDeriv,
+    rmarkdown,
+    RSiena,
+    sna,
+    testthat (>= 3.0.0),
+    tibble
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+URL: https://github.com/djgriffin13/rnetis
+BugReports: https://github.com/djgriffin13/rnetis/issues
+Config/roxygen2/version: 8.1.0
+LazyData: true

@@ -1,0 +1,193 @@
+---
+title: "Checking a model"
+output:
+  rmarkdown::html_vignette:
+    pandoc_args: ["--metadata", "title="]
+vignette: >
+  %\VignetteIndexEntry{Checking a model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<!-- `--metadata title=` turns off pandoc's title block so the banner comes first;
+`title:` stays because rmarkdown checks it against the index entry. Keep the style
+block free of CSS comments, which pandoc misreads. -->
+<style>
+img.rnetis-logo {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+}
+</style>
+
+<div style="text-align: center; margin: 0 0 1.5em;">
+<img class="rnetis-logo" src="../man/figures/logo_banner.png"
+     alt="rnetis -- Network analytics for influence and selection processes"
+     width="333"/>
+</div>
+
+# Checking a model
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(rnetis)
+```
+
+rnetis reports quantities, not verdicts. Nothing here prints "good fit" or
+"assumption satisfied". This vignette uses one fit on one network and one on
+several.
+
+```{r}
+fit <- fit_influence(
+  y ~ ar() + exposure(y, via = tie, normalize = "row"),
+  data = demo_influence
+)
+mg <- fit_influence(
+  y ~ ar() + exposure(x, via = tie) + (1 | group),
+  data = demo_influence_groups
+)
+```
+
+## List what the fit assumes
+
+```{r}
+netis_assumptions(fit)
+```
+
+Each row reports three things:
+
+| Field | Question it answers |
+|---|---|
+| `source` | Is this maintained by the model, rnetis's default, or your declaration? |
+| `handling` | Does anything in the fit address it? |
+| `diagnostic_evidence` | `"not_testable"`, with the reason, where no statistic from a fit can bear on the row; otherwise `"none"`. |
+
+Most rows read `unaddressed`. The dynamic-panel estimators that address sequential
+exogeneity and persistent actor heterogeneity need more than the one transition a
+fit analyzes, so none of the package's estimators has a device for them.
+
+Two things about the design are yours to declare. A declaration changes what the
+fit reports and no estimate:
+
+```{r}
+declared <- fit_influence(
+  y ~ ar() + exposure(y, via = tie, normalize = "row"),
+  data = demo_influence,
+  network_exogeneity = "exogenous",
+  exposure_orthogonal_to_actor_effect = TRUE
+)
+netis_assumptions(declared)$network$exogeneity
+all.equal(coef(fit), coef(declared))
+```
+
+## Look at residual dependence
+
+`netis_dependence()` needs the data as well as the fit, because it rebuilds the
+network from the data.
+
+```{r}
+netis_dependence(fit, demo_influence)
+```
+
+The Moran-type statistic is reported without a reference distribution, because
+the usual analytical moments are not derived for a directed `W`. It is not
+confined to `[-1, 1]`. Within-unit serial correlation reads "not applicable",
+since each actor has one outcome row.
+
+With at least five networks the record also reports `residual_eta_squared`, the
+between-group sum of squares of the residuals over the total. This eta-squared is
+above zero in expectation with no group effect at all: `(J - 1) / (N - 1)` for `J`
+groups and `N` rows, and larger when groups are small (Bliese & Halverson 1998).
+
+## Compare standard errors
+
+`influence_se_comparison()` sets the model's standard errors beside clustered
+ones (Liang & Zeger 1986; Bell & McCaffrey 2002).
+
+```{r message = FALSE}
+influence_se_comparison(mg, by = "group")
+attr(influence_se_comparison(mg, by = "group"), "addresses")
+```
+
+`by = "group"` clusters on the network. It permits arbitrary residual dependence
+within each network and assumes independence between them, so it needs several
+networks and is refused on one:
+
+```{r error = TRUE}
+influence_se_comparison(fit, by = "group")
+```
+
+`by = "node"` clusters on the actor. It is a different correction, is never
+network-robust, and is refused on a mixed fit:
+
+```{r}
+attr(influence_se_comparison(fit, by = "node"), "addresses")
+```
+
+## Check agreement before aggregating
+
+Where a construct is aggregated to the group, ask whether the group mean is
+reliable. `icc1()` is the one-way ANOVA ICC(1) of Bliese (2000), on the rows the
+fit used, and it differs from the conditional share in
+`netis_variance_components()`. `icc2()` is the reliability of the group mean.
+
+```{r}
+icc1(mg)
+icc2(mg)
+```
+
+For rater agreement on a scale, `rwg()` and `rwg_j()` implement James, Demaree &
+Wolf (1984). `rwg()` takes one item and `rwg_j()` a matrix of items. The null
+decides the answer, so it has no default.
+
+```{r}
+set.seed(1)
+ratings <- matrix(stats::rnorm(60, 4, 0.4), ncol = 3)
+teams <- rep(c("a", "b"), each = 10)
+rwg(ratings[, 1], teams, null = list(dist = "uniform", n_options = 5))
+rwg_j(ratings, teams, null = list(dist = "uniform", n_options = 5))
+```
+
+## What none of this establishes
+
+No surface here tells you the model is right, or that an association is influence.
+Homophilous selection on an unobserved trait produces the same pattern, and no
+diagnostic here distinguishes them (`vignette("latent-space")`). Together these
+tools tell you:
+
+* what the fit takes for granted, and which of those nothing addresses;
+* what the residuals look like with respect to the network and the groups, as
+  numbers without a reference distribution;
+* what a different variance assumption does to the standard errors;
+* whether a group-level aggregate is reliable enough to model.
+
+The step from "no adverse evidence" to "the assumption holds" is yours.
+
+## References
+
+Bell, R. M. and McCaffrey, D. F. (2002) Bias reduction in standard errors for
+linear regression with multi-stage samples. *Survey Methodology* **28**(2), 169–181.
+
+Bliese, P. D. (2000) Within-group agreement, non-independence, and reliability:
+implications for data aggregation and analysis. In K. J. Klein and S. W. J.
+Kozlowski (eds), *Multilevel Theory, Research, and Methods in Organizations*,
+349–381. Jossey-Bass, San Francisco.
+
+Bliese, P. D. and Halverson, R. R. (1998) Group size and measures of group-level
+properties: an examination of eta-squared and ICC values. *Journal of Management*
+**24**(2), 157–172.
+
+James, L. R., Demaree, R. G. and Wolf, G. (1984) Estimating within-group
+interrater reliability with and without response bias. *Journal of Applied
+Psychology* **69**(1), 85–98.
+
+Liang, K.-Y. and Zeger, S. L. (1986) Longitudinal data analysis using
+generalized linear models. *Biometrika* **73**(1), 13–22.
+
+<hr/>
+<div style="display: flex; justify-content: center; gap: 2.5em; align-items: center; margin-top: 2em;">
+<img class="rnetis-logo" src="../man/figures/logo.png" alt="rnetis" height="48"/>
+<img class="rnetis-logo" src="../man/figures/lab_logo.png" alt="T.A.C.T.I.C.S Lab, University of South Florida" height="48"/>
+</div>

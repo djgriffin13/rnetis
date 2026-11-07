@@ -1,0 +1,153 @@
+---
+title: "Latent space adjustment"
+output:
+  rmarkdown::html_vignette:
+    pandoc_args: ["--metadata", "title="]
+vignette: >
+  %\VignetteIndexEntry{Latent space adjustment}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<!-- `--metadata title=` turns off pandoc's title block so the banner comes first;
+`title:` stays because rmarkdown checks it against the index entry. Keep the style
+block free of CSS comments, which pandoc misreads. -->
+<style>
+img.rnetis-logo {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+}
+</style>
+
+<div style="text-align: center; margin: 0 0 1.5em;">
+<img class="rnetis-logo" src="../man/figures/logo_banner.png"
+     alt="rnetis -- Network analytics for influence and selection processes"
+     width="333"/>
+</div>
+
+# Latent space adjustment
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(rnetis)
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+If an unobserved trait makes people both choose similar friends and behave a
+certain way, an influence coefficient absorbs part of that trait. Shalizi and
+Thomas (2011) show that influence and homophily are generically confounded this
+way. `latent()` implements the adjustment Xu (2018, 2021) proposes for this case.
+**The fits below are not run when this vignette is built**, because the first
+stage is a Markov chain.
+
+## The two stages
+
+If the trait drives who befriends whom, the network carries information about it.
+A latent-space model of tie formation (Hoff, Raftery & Handcock 2002) places each
+actor so that closer actors are likelier to be tied:
+
+$$\text{logodds}(Z_{ij} = 1 \mid c_i, c_j, x_{ij}) = \alpha + \beta' x_{ij} - |c_i - c_j|$$
+
+1. Fit that model, conditioning on the selection mechanisms you can observe.
+2. Put the estimated positions, the Minimum Kullback-Leibler positions of Shortreed,
+   Handcock & Hoff (2006), into the influence model as ordinary actor-level
+   covariates.
+
+## One network
+
+```{r}
+fit <- fit_influence(
+  y ~ ar() + exposure(y, via = tie, normalize = "row") +
+    latent(tie, d = 1, homophily = c("y", "x"),
+           control = list(sample.size = 5000, burnin = 20000, interval = 10)),
+  data = demo_influence
+)
+summary(fit)
+```
+
+`homophily` conditions the first stage on observed similarity through `absdiff()`
+terms, so this term gives `latentnet::ergmm()` (Krivitsky & Handcock 2008) the
+right-hand side
+`euclidean(d = 1) + absdiff("y") + absdiff("x")`. `terms` adds anything else,
+such as transitivity or ego and alter effects. Neither has a default, because what
+belongs in the selection model is a question about your design. `summary()`
+reports the selection model that produced the positions.
+
+## Its limits
+
+**It addresses a trait present in both processes.** Xu (2021, p. 60) states that
+the adjustment does not improve the estimate when the trait is present in only
+one process. If the trait affects behavior but not tie formation, or the reverse,
+the network carries no information about it. A fit will still produce numbers.
+
+**Positions are treated as known.** They enter as ordinary covariates. rnetis
+does not propagate first-stage uncertainty into the second stage, and neither
+does Xu's procedure. It also does not jointly estimate the two stages or correct
+for generated regressors.
+
+**A position has no substantive scale.** A latent space is identified only up to
+rotation, reflection and translation. Actors close in position should be close in
+the trait, but a position coefficient is not the effect of the trait.
+
+## Several networks
+
+**With several groups, the form is experimental.** Xu's procedure is defined for
+one network. The multi-group form is this package's own extension of it, has no
+published validation, and has not been validated for statistical performance, so
+`fit_influence()` warns whenever it fits one. Separate per-network fits are the
+recommended primary analysis, and a multi-group fit is something to compare
+against them.
+
+```{r}
+per_group <- fit_influence(
+  y ~ ar() + exposure(x, via = tie) + latent(tie, d = 1, homophily = "x") +
+    (1 | group),
+  data = demo_influence_groups
+)
+summary(per_group)
+```
+
+Each group is fitted separately in the first stage. Its positions are centered on
+the group's mean and enter as that group's own columns, zero on other groups'
+rows: `lat_tie_1__a`, `lat_tie_1__b` and so on. One model across networks still
+imposes a good deal:
+
+* one shared exposure coefficient, and shared `ar()` and other terms;
+* one residual variance;
+* the same `d` and the same stage-one specification;
+* position coefficients that are per group and not comparable across groups.
+
+Adjustment quality can differ between networks, and the output does not show this.
+Small groups spend `d` of their rows on the adjustment (`?latent`).
+
+## References
+
+Hoff, P. D., Raftery, A. E. and Handcock, M. S. (2002) Latent space approaches
+to social network analysis. *JASA* **97**(460), 1090–1098.
+
+Krivitsky, P. N. and Handcock, M. S. (2008) Fitting position latent cluster
+models for social networks with latentnet. *Journal of Statistical Software*
+**24**(5).
+
+Shalizi, C. R. and Thomas, A. C. (2011) Homophily and contagion are generically
+confounded in observational social network studies. *Sociological Methods &
+Research* **40**(2), 211–239.
+
+Shortreed, S., Handcock, M. S. and Hoff, P. (2006) Positional estimation within
+a latent space model for networks. *Methodology* **2**(1), 24–33.
+
+Xu, R. (2018) Alternative estimation methods for identifying contagion effects
+in dynamic social networks: A latent-space adjusted approach. *Social Networks*
+**54**, 101–117.
+
+Xu, R. (2021) Estimating social influence effects in networks using a latent
+space adjusted approach in R. *The R Journal* **13**(2), 57–69.
+
+<hr/>
+<div style="display: flex; justify-content: center; gap: 2.5em; align-items: center; margin-top: 2em;">
+<img class="rnetis-logo" src="../man/figures/logo.png" alt="rnetis" height="48"/>
+<img class="rnetis-logo" src="../man/figures/lab_logo.png" alt="T.A.C.T.I.C.S Lab, University of South Florida" height="48"/>
+</div>

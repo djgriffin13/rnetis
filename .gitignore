@@ -1,0 +1,18 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+docs/
+*.Rcheck/
+*.tar.gz
+inst/doc
+/doc/
+/Meta/
+.DS_Store
+Rplots.pdf
+
+# Local development notes; never tracked.
+CLAUDE.md
+plans/
+*.log

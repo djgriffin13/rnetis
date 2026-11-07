@@ -1,0 +1,226 @@
+# ---------------------------------------------------------------------------
+# DO NOT BUILD THIS SITE WITH A BARE pkgdown::build_site().
+#
+# pkgdown renders every .md file at the package root, including untracked
+# local development notes, which are not public documents. `.Rbuildignore`
+# does not prevent it; pkgdown never consults it, and there is no configuration
+# option here that does. The fix is a post-build step:
+#
+#   Rscript tools/build-site.R
+#
+# which builds and then runs tools/clean-site.R. That script fails loudly if
+# anything survives, and reports any unexpected file at the site root, so a
+# local document added later is caught rather than silently published.
+#
+# ---------------------------------------------------------------------------
+
+# No `url:` yet, and DESCRIPTION carries no pages URL either. Setting one
+# announces a deployed site: pkgdown writes absolute links and a sitemap, and
+# R CMD check follows the DESCRIPTION URL and NOTEs it as unreachable. There is
+# no pkgdown deploy workflow here (CI is workflow_dispatch-only), so the site
+# is a local artifact for now. Add `url:` here and to DESCRIPTION's URL field
+# in the same commit that enables deployment -- not before.
+
+template:
+  bootstrap: 5
+
+reference:
+- title: The package
+  contents:
+  - rnetis-package
+
+- title: Building a netis_data object
+  desc: >
+    The canonical node/tie/group structure every model reads. Nothing is
+    transposed, normalised, imputed or dropped silently; what an import did is
+    recoverable from the object.
+  contents:
+  - netis_data
+  - as_netis_data
+  - netis_tables
+  - netis-accessors
+  - netis-data-methods
+  - plot.netis_data
+
+- title: Importing from other formats
+  contents:
+  - netis_data_from_adjacency
+  - netis_data_from_adjacency_series
+  - netis_data_from_edgelist
+  - netis_data_from_igraph
+  - netis_data_from_igraph_list
+  - netis_data_from_network
+  - netis_data_from_split
+
+- title: Exporting to other formats
+  contents:
+  - as_igraph
+  - as_igraph_list
+  - as_network
+  - as_network_list
+  - netis_adjacency
+
+- title: What the data object records
+  desc: >
+    Provenance, not metadata. Each of these answers a question you would
+    otherwise have to reconstruct from memory.
+  contents:
+  - netis_schema
+  - netis_time_index
+  - netis_boundary
+  - netis_boundary_rules
+  - print.netis_boundary
+  - netis_losses
+
+- title: Derived variables
+  contents:
+  - add_centering
+  - add_decomposition
+
+- title: Checking the data and the design
+  contents:
+  - diagnose_data
+  - diagnose_design
+  - netis-diagnostics
+  - netis-diagnostics-methods
+  - plot.netis_diagnostics
+
+- title: Exposure
+  desc: >
+    How alters' characteristics reach ego. `exposure()` is the general form;
+    `bi()` is the Frank & Fahrbach (1999) balance-information mechanism.
+  contents:
+  - exposure
+  - compute_exposure
+  - bi
+  - bi_components
+  - bi_sweep
+  - add_baseline_provenance
+
+- title: Derived networks
+  desc: >
+    Transformations of a tie variable into the conduit an exposure term reads.
+  contents:
+  - binarize
+  - symmetrize
+  - multiplex
+  - inverse
+
+- title: Binarization rules
+  desc: >
+    Objects, not arguments, so what counted as a tie travels with the fit.
+  contents:
+  - above_mean
+  - above_median
+  - abs_threshold
+  - quantile_threshold
+  - threshold
+  - nonzero
+  - positive
+  - presence
+  - custom_binarize_rule
+
+- title: Influence formula terms
+  contents:
+  - ar
+  - lagged
+  - centrality
+  - network_stat
+  - latent
+
+- title: Selection formula terms
+  contents:
+  - sender
+  - receiver
+  - dyad
+  - group
+  - prior_tie
+  - prior_reciprocity
+
+- title: Fitting
+  contents:
+  - fit_influence
+  - fit_selection
+  - simulate_influence
+
+- title: Hierarchical multi-group Selection
+  desc: >
+    One model over every group: random intercepts and random slopes, a diagonal
+    or correlated between-group covariance, and group-level moderators. Built by
+    rnetis from published components; the model, priors and algorithm are
+    specified on the hierarchical_selection page.
+  contents:
+  - hierarchical_selection
+  - selection_pooling
+  - netis_hierarchy
+
+- title: Working with a fit
+  contents:
+  - netis-influence-methods
+  - netis-selection-methods
+  - print.netis_influence
+  - print.netis_selection
+  - summary.netis_influence
+  - summary.netis_selection
+  - plot.netis_influence
+  - plot.netis_selection
+  - plot_data
+
+- title: Results as data
+  contents:
+  - netis_estimates
+  - netis_glance
+  - netis-tidiers
+  - netis_estimand
+  - netis_diagnostics
+  - netis_variance_components
+
+- title: What the fit assumes, and what it has not established
+  desc: >
+    rnetis reports profiles, never verdicts. No surface here prints "good fit"
+    or "assumption satisfied".
+  contents:
+  - netis_assumptions
+  - netis_dependence
+  - netis-dependence-methods
+  - netis-dependence-plot
+  - influence_se_comparison
+
+- title: Effect sizes and explained variation
+  contents:
+  - influence_effect
+  - selection_effect
+  - pseudo_r2
+
+- title: Aggregation reliability and agreement
+  contents:
+  - icc1
+  - icc2
+  - rwg
+  - rwg_j
+  - netis_reliability
+
+- title: Computing features outside a model
+  contents:
+  - compute_centrality
+  - compute_network_stat
+
+- title: Example data
+  desc: >
+    All synthetic, all generated by `data-raw/demo-datasets.R`. rnetis
+    redistributes no one else's data.
+  contents:
+  - demo_influence
+  - demo_influence_groups
+  - demo_selection
+
+articles:
+- title: The models
+  contents:
+  - influence
+  - selection
+  - latent-space
+
+- title: Checking
+  contents:
+  - model-fit

@@ -1,0 +1,228 @@
+---
+title: "Selection models"
+output:
+  rmarkdown::html_vignette:
+    pandoc_args: ["--metadata", "title="]
+vignette: >
+  %\VignetteIndexEntry{Selection models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<!-- `--metadata title=` turns off pandoc's title block so the banner comes first;
+`title:` stays because rmarkdown checks it against the index entry. Keep the style
+block free of CSS comments, which pandoc misreads. -->
+<style>
+img.rnetis-logo {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+}
+</style>
+
+<div style="text-align: center; margin: 0 0 1.5em;">
+<img class="rnetis-logo" src="../man/figures/logo_banner.png"
+     alt="rnetis -- Network analytics for influence and selection processes"
+     width="333"/>
+</div>
+
+# Selection models
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(rnetis)
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+A Selection model asks what predicts a tie. `fit_selection()` fits an additive
+and multiplicative effects model (Hoff 2005, 2021) through `amen::ame()`. **No
+model below is fitted when this vignette is built**, because each fit is a Markov
+chain that takes longer than a vignette build should. The code that builds data
+and the refusals do run.
+
+## Specify a model
+
+Every predictor names its role, and a bare covariate is an error.
+
+* `sender(tenure)`: does a longer-tenured actor send more ties?
+* `receiver(tenure)`: does one receive more?
+* `dyad(same_unit)`: a property of the pair, held as a tie variable.
+* `prior_tie()`: did the relation exist at the previous wave?
+
+`demo_selection` has one node variable and one relation, so this adds a pair
+attribute for `dyad()` to read:
+
+```{r eval = TRUE}
+nodes <- netis_nodes(demo_selection)
+ties <- netis_ties(demo_selection)
+unit <- rep(c("u1", "u2"), length.out = nrow(nodes))
+names(unit) <- nodes$node
+ties$same_unit <- as.numeric(unit[ties$source] == unit[ties$target])
+staff <- netis_data(nodes, ties, wave_col = "wave", tie_meta = list(
+  tie = list(zero_meaning = "measured_zero"),
+  same_unit = list(zero_meaning = "measured_zero")
+))
+```
+
+```{r}
+fit <- fit_selection(
+  tie ~ sender(tenure) + receiver(tenure) + dyad(same_unit) + prior_tie(),
+  data = staff,
+  nscan = 5000, burn = 1000, odens = 10, seed = 1
+)
+summary(fit)
+netis_diagnostics(fit)
+```
+
+A term read at the outcome wave is fitted and recorded with a design warning,
+which `netis_diagnostics()` lists. `lag = 1` reads the previous wave instead.
+
+## What two waves mean
+
+`prior_tie()` uses the earlier wave as an initial condition, so two waves give
+one modeled outcome:
+
+```{r}
+fit$waves$initial_waves
+fit$waves$outcome_waves
+```
+
+Without a lagged relation term both waves would supply an outcome, treating
+repeated observations of the same actors as independent. That is refused:
+
+```{r eval = TRUE, error = TRUE}
+fit_selection(tie ~ sender(tenure), data = demo_selection,
+              nscan = 50, burn = 10)
+```
+
+With more than two waves, `waves = c(from, to)` names the transition.
+
+## Effect sizes
+
+A probit coefficient is not a magnitude anyone can read directly.
+`selection_effect()` converts one to a contrast in predicted tie probability:
+
+```{r}
+selection_effect(fit, "prior_tie")
+selection_effect(fit, "snd_tenure", delta = 1, type = "population")
+```
+
+A binary term is compared as presence against absence, and a continuous one moves
+each dyad from its observed value by `delta`. `type` chooses the dyad:
+
+* `"conditional"` averages over the observed dyads, with each actor's effect at
+  its fitted value. The interval reflects uncertainty in the coefficients only.
+* `"population"` is a randomly drawn dyad, integrated over the actor effects.
+* `"reference"` is a hypothetical pair with actor effects at zero.
+
+`pseudo_r2()` reports explained variation; read `?pseudo_r2` before quoting it.
+
+## Several groups
+
+With several groups, each is fitted on its own and the coefficients are then
+combined by inverse-variance weighting (Cochran 1954; Hedges & Olkin 1985).
+
+```{r eval = TRUE}
+two_groups <- netis_data(
+  node_data = rbind(transform(netis_nodes(demo_selection), group = "a"),
+                    transform(netis_nodes(demo_selection), group = "b")),
+  tie_data = rbind(transform(netis_ties(demo_selection), group = "a"),
+                   transform(netis_ties(demo_selection), group = "b")),
+  group_data = data.frame(group = c("a", "b"), size = c(8, 30)),
+  wave_col = "wave",
+  tie_meta = list(tie = list(zero_meaning = "measured_zero"))
+)
+```
+
+```{r}
+pooled <- fit_selection(tie ~ sender(tenure) + prior_tie(), data = two_groups,
+                        nscan = 5000, burn = 1000, odens = 10, seed = 1)
+summary(pooled)
+selection_effect(pooled, "prior_tie", group = "a")
+
+separate <- fit_selection(tie ~ sender(tenure) + prior_tie(), data = two_groups,
+                          pool_beta = FALSE, nscan = 5000, burn = 1000, odens = 10, seed = 1)
+coef(separate)
+```
+
+Pooling assumes a coefficient means the same thing in every group, so
+between-group differences are assumed away, not estimated. It works one
+coefficient at a time, so `vcov(pooled)` is an error and a contrast between
+coefficients is not available. `pool_beta = FALSE` leaves the groups separate,
+and `coef()` then returns one row per group.
+
+A group-level predictor is refused, because it is collinear with the intercept
+within every group:
+
+```{r eval = TRUE, error = TRUE}
+fit_selection(tie ~ group(size) + prior_tie(), data = two_groups)
+```
+
+## A hierarchical model
+
+`pooling = selection_pooling()` fits one model over every group in one Markov
+chain. A coefficient you name in `random` gets a value for each group, drawn from
+a between-group distribution, and a group-level predictor enters as a moderator
+of those coefficients. The model is this package's own construction from
+published components; `?hierarchical_selection` specifies it.
+
+These twelve simulated teams differ in baseline and in sender slope:
+
+```{r eval = TRUE}
+set.seed(42)
+teams <- sprintf("t%02d", 1:12)
+team_nodes <- do.call(rbind, lapply(teams, function(g) {
+  data.frame(group = g, node = sprintf("%s_%d", g, 1:8), wave = rep(1:2, each = 8),
+             extraversion = rep(stats::rnorm(8), 2))
+}))
+team_ties <- do.call(rbind, lapply(teams, function(g) {
+  ids <- sprintf("%s_%d", g, 1:8)
+  x <- team_nodes$extraversion[team_nodes$group == g & team_nodes$wave == 1]
+  p <- expand.grid(source = ids, target = ids, stringsAsFactors = FALSE)
+  p <- p[p$source != p$target, ]
+  eta <- stats::rnorm(1, -0.6, 0.4) + stats::rnorm(1, 0.4, 0.25) * x[match(p$source, ids)]
+  do.call(rbind, lapply(1:2, function(w) {
+    data.frame(group = g, p, wave = w, tie = stats::rbinom(nrow(p), 1, stats::pnorm(eta)))
+  }))
+}))
+teams_data <- netis_data(team_nodes, team_ties, wave_col = "wave",
+                         tie_meta = list(tie = list(zero_meaning = "measured_zero")))
+```
+
+```{r}
+hier <- fit_selection(
+  tie ~ sender(extraversion) + prior_tie(), data = teams_data,
+  pooling = selection_pooling(random = c("intercept", "snd_extraversion")),
+  nscan = 10000, burn = 1000, odens = 10, chains = 2
+)
+netis_hierarchy(hier)$population
+```
+
+`population` gives the mean `mu` and the between-group SD `tau` of each random
+coefficient. `groups` gives each team's own values, and `convergence` gives R-hat
+and effective sample sizes. Run two or more chains:
+later chains start from dispersed values, so R-hat compares chains that began
+apart. `?selection_pooling` covers moderators, correlated random effects and the
+prior on `tau`.
+
+## References
+
+Cochran, W. G. (1954) The combination of estimates from different experiments.
+*Biometrics* **10**(1), 101–129.
+
+Hedges, L. V. and Olkin, I. (1985) *Statistical Methods for Meta-Analysis*.
+Academic Press.
+
+Hoff, P. D. (2005) Bilinear mixed-effects models for dyadic data. *JASA*
+**100**(469), 286–295.
+
+Hoff, P. D. (2021) Additive and multiplicative effects network models.
+*Statistical Science* **36**(1), 34–50.
+
+<hr/>
+<div style="display: flex; justify-content: center; gap: 2.5em; align-items: center; margin-top: 2em;">
+<img class="rnetis-logo" src="../man/figures/logo.png" alt="rnetis" height="48"/>
+<img class="rnetis-logo" src="../man/figures/lab_logo.png" alt="T.A.C.T.I.C.S Lab, University of South Florida" height="48"/>
+</div>
