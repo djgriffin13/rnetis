@@ -1,0 +1,103 @@
+# Build and publish the pkgdown site to GitHub Pages.
+#
+# REQUIRES, one time, in the repository settings: Settings -> Pages -> Build and
+# deployment -> Source: "GitHub Actions". This workflow does not use a gh-pages
+# branch, so docs/ stays git-ignored and the site is never committed.
+#
+# The build goes through tools/build-site.R rather than calling
+# pkgdown::build_site() directly. That is not a style preference: pkgdown
+# renders every .md file at the package root, including untracked local
+# development notes, and tools/clean-site.R removes them afterwards. Running the
+# same script here as locally is what stops a deployed build and a local build
+# from diverging — see the header of tools/clean-site.R.
+#
+# Only first-party actions are used, so publishing depends on nothing outside
+# GitHub and r-lib.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+name: pkgdown
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; let a running one finish rather than cancelling it
+# halfway through a publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      # pandoc is required for the vignettes. The local Windows build relies on
+      # the copy bundled with RStudio; CI installs it properly.
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          use-public-rspm: true
+
+      # Suggests are needed: the vignettes and several help pages reach for
+      # amen, latentnet, RSiena, sna, network, clubSandwich and igraph. Without
+      # them the site builds with holes rather than failing, which is worse.
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::pkgdown, local::.
+          needs: website
+
+      - name: Build the site
+        run: Rscript tools/build-site.R 2>&1 | tee build-site.out
+
+      # tools/clean-site.R removes the known local notes and REPORTS anything
+      # else at the site root it does not expect, deliberately without removing
+      # it, since some of it is legitimate. That report is the single source of
+      # truth for "something internal may be about to be published", so this
+      # step fails the publish on it rather than keeping a second, narrower
+      # list here that can drift out of step with it.
+      #
+      # A legitimate new root page therefore fails this job once, until it is
+      # added to the `expected` vector in tools/clean-site.R. That is the point:
+      # publishing a page nobody listed should be a decision, not a default.
+      - name: Fail if anything unexpected is at the site root
+        run: |
+          if grep -q "Unexpected files at the site root" build-site.out; then
+            echo "::error::unexpected files at the site root; see the build log and tools/clean-site.R"
+            sed -n '/Unexpected files at the site root/,$p' build-site.out
+            exit 1
+          fi
+          if ls docs/CLAUDE.* >/dev/null 2>&1; then
+            echo "::error::local development notes present in docs/"
+            exit 1
+          fi
+          echo "site root is as expected"
+
+      - name: Drop the build log before publishing
+        run: rm -f build-site.out
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

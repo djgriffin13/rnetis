@@ -1,8 +1,8 @@
-rnetis is distributed under the GNU Affero General Public License, version 3.
+rnetis is distributed under the GNU Affero General Public License, version 3,
+and under no later version, with additional terms under its section 7. See
+LICENSE for those terms and LICENSE-AGPL-3.md for the licence text.
 
-Copyright (c) 2026 Griffin Dynamics LLC, except as stated below. rnetis is
-developed and owned by Griffin Dynamics LLC as part of its ongoing research and
-development.
+Copyright (c) 2026 Griffin Dynamics LLC, except as stated below.
 
 Derived code
 ------------
@@ -16,7 +16,14 @@ under the GNU General Public License, version 3:
 
 These parts were modified in 2026 for the hierarchical multi-group Selection
 model: the coefficient step is replaced and the additive-effect step is split
-from it. The sampler also calls functions exported by amen at run time.
+from it. The sampler also calls functions exported by amen at run time, among
+them design_array(), precomputeX(), mhalf(), Xbeta(), zscores(), rZ_nrm_fc(),
+rZ_bin_fc(), rs2_fc(), rrho_mh() and rSuv_fc().
 
 Section 13 of the GNU GPL version 3 and of the GNU AGPL version 3 permits the
-combination. The GPL version 3 terms continue to apply to the amen-derived parts.
+combination. The GPL version 3 terms continue to apply to the amen-derived
+parts, and the additional terms in LICENSE do not reach them.
+
+The four amen copyright holders named in DESCRIPTION, the disclosure above, and
+the preservation requirement in LICENSE section 2(b) are licence obligations and
+must not be removed.

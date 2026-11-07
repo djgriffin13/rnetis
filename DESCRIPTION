@@ -9,7 +9,7 @@ Authors@R: c(
            role = c("aut", "cre"),
            email = "danieljgriffin618@gmail.com",
            comment = c(ORCID = "0000-0001-5093-3536",
-                       affiliation = "Griffin Dynamics LLC & University of South Florida")),
+                       affiliation = "Griffin Dynamics LLC")),
     person(given = "Ajay",
            family = "Somaraju",
            role = "ctb",
@@ -50,10 +50,10 @@ Description: A single, consistent interface to established models of social
     Selection model with random intercepts and slopes across groups. This and
     the package's smaller constructions are documented as such. Developed and
     owned by Griffin Dynamics LLC as part of its ongoing research and
-    development, with research conducted in partnership with the T.A.C.T.I.C.S
-    Lab at the University of South Florida. The authors acknowledge Ken Frank
-    for his support and insights.
-License: AGPL-3
+    development. The author acknowledges the T.A.C.T.I.C.S Lab at the
+    University of South Florida, and thanks Ken Frank for his support and
+    insights.
+License: AGPL-3 + file LICENSE
 Copyright: See inst/COPYRIGHTS
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -80,7 +80,7 @@ Suggests:
     tibble
 VignetteBuilder: knitr
 Config/testthat/edition: 3
-URL: https://github.com/djgriffin13/rnetis
+URL: https://djgriffin13.github.io/rnetis/, https://github.com/djgriffin13/rnetis
 BugReports: https://github.com/djgriffin13/rnetis/issues
 Config/roxygen2/version: 8.1.0
 LazyData: true

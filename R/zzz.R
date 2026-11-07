@@ -9,7 +9,7 @@
   packageStartupMessage(
     "rnetis ", as.character(utils::packageVersion("rnetis")),
     " -- Network Influence & Selection models\n",
-    "Griffin Dynamics LLC. Research conducted in partnership with the\n",
-    "T.A.C.T.I.C.S Lab, University of South Florida\n"
+    "Copyright (c) 2026 Griffin Dynamics LLC. AGPL-3; see LICENSE.\n",
+    "With acknowledgement to the T.A.C.T.I.C.S Lab, University of South Florida\n"
   )
 }

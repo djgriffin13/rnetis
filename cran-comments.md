@@ -1,33 +1,50 @@
 # cran-comments
 
-**Not yet submitted.** Version 0.1.0 is a first release, published on GitHub
-rather than CRAN. This file records the check environment and results so the
-state of the package is auditable now, and so that a submission is a matter of
-running the remaining platforms rather than of discovering what was never
-checked.
+**Not yet submitted.** Version 0.1.0 is a first release, distributed by the
+Company at its discretion rather than through CRAN. This file records the check
+environment and results so the state of the package is auditable now, and so
+that a submission is a matter of running the remaining platforms rather than of
+discovering what was never checked.
 
-## Test environments
+**The licence is now `AGPL-3 + file LICENSE`**: AGPL-3 with additional terms
+under its section 7. The declaration is valid — the check confirms AGPL-3 as a
+"base license permitting such" — but **CRAN scrutinises additional restrictions**
+and prints the whole `LICENSE` file for human review, as the note below shows.
+Clearing those terms with CRAN would be a licence decision, not a packaging one.
 
-* Windows 11 Enterprise (26200), R 4.5.1 (2025-06-13 ucrt), x86_64-w64-mingw32
-  — `R CMD check --as-cran`, local
+## Test environments and results
 
-Not yet run: R-devel, R-oldrel, Linux, macOS, win-builder, or rhub. The CI
-workflow exists but is `workflow_dispatch`-only. **Multi-platform
+**Pending re-measurement at this commit.** The previous figures were measured at
+a commit that no longer exists: this branch's local history was rebuilt, so the
+SHA they named does not resolve and they are not carried forward. A figure
+without a resolvable commit is not evidence, which is why they are removed
+rather than left in place.
+
+The run is repeated against this commit and recorded in the commit that follows
+it, since a commit cannot carry its own SHA.
+
+Superseded and not carried forward: an earlier run on R 4.5.1 recorded
+`0 errors | 0 warnings | 1 note` with no commit SHA at all. That R version is no
+longer installed here and the figure was never reproducible.
+
+Not yet run on any commit: R-devel, R-oldrel, Linux, macOS, win-builder, or
+rhub. The CI workflow exists but is `workflow_dispatch`-only. **Multi-platform
 checks are the first thing a real submission needs**, and their absence is the
-reason this file does not claim readiness.
+reason this file does not claim readiness. **R 4.1, the declared floor in
+`DESCRIPTION`, has never been checked.**
 
-## R CMD check results
+## Reproducing the check
 
+Vignette building needs pandoc, and this machine has **no standalone pandoc and
+none on `PATH`** — only the copy bundled with RStudio. A bare `Rscript` or shell
+run of `R CMD build` therefore fails on all four vignettes. Set:
+
+```r
+Sys.setenv(RSTUDIO_PANDOC = "C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools")
 ```
-0 errors | 0 warnings | 1 note
-```
 
-The note is the incoming-feasibility check: this is a new submission, and the
-`DESCRIPTION` `URL` and `BugReports` addresses return 404 while the GitHub
-repository is not yet public.
-
-Vignettes re-build, examples run including `--run-donttest`, and the test suite
-passes as part of the check.
+or install pandoc properly. This is a real reproducibility gap and the reason the
+first attempt at this run failed.
 
 ## Dependencies
 

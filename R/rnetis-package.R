@@ -111,14 +111,16 @@
 #' **Example data:** [demo_influence], [demo_influence_groups], [demo_selection].
 #'
 #' @section Acknowledgments:
-#' We acknowledge Ken Frank for his support and insights.
+#' The author acknowledges the **T.A.C.T.I.C.S Lab** (Technology, Adaptation,
+#' Coordination, and Training in Interdependent Complex Systems) at the
+#' University of South Florida, and thanks Ken Frank for his support and
+#' insights.
 #'
 #' @section Developed by:
-#' \if{html}{\figure{lab_logo.png}{options: style="float: right; margin: 0 0 1em 1em;" alt="T.A.C.T.I.C.S Lab, University of South Florida" width="110"}}
 #' Developed and owned by **Griffin Dynamics LLC** as part of its ongoing research
-#' and development. Research conducted in partnership with the
-#' **T.A.C.T.I.C.S Lab** (Technology, Adaptation, Coordination, and Training in
-#' Interdependent Complex Systems) at the University of South Florida.
+#' and development. Licensed under AGPL-3 with additional terms under its
+#' section 7: see `LICENSE`, `LICENSE-AGPL-3.md` and `COPYRIGHTS` in the
+#' installed package directory.
 #'
 #' @keywords internal
 "_PACKAGE"

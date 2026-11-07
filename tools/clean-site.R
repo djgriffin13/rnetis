@@ -83,6 +83,14 @@ if (file.exists(llms)) {
 expected <- c("index.html", "404.html", "authors.html", "LICENSE.html",
               "LICENSE-text.html", "news", "reference", "articles", "deps",
               "search.json", "sitemap.xml",
+              # pkgdown >= 2.2 copies the .md source next to each rendered root
+              # page, and ships two further favicon forms. These are generated
+              # output, not local documents. They were absent when this list was
+              # written, so the report below fired on every build -- which
+              # trains a reader to skim past it, and is how OWNERSHIP.html went
+              # unnoticed in the 2026-11-07 build even though it was named.
+              "index.md", "404.md", "authors.md", "LICENSE-text.md",
+              "favicon.svg", "favicon-96x96.png",
               "pkgdown.yml", "link.svg", "logo.png", "favicon.ico",
               "apple-touch-icon.png", "apple-touch-icon-120x120.png",
               "apple-touch-icon-152x152.png", "apple-touch-icon-180x180.png",

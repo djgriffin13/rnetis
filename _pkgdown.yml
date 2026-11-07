@@ -14,12 +14,16 @@
 #
 # ---------------------------------------------------------------------------
 
-# No `url:` yet, and DESCRIPTION carries no pages URL either. Setting one
-# announces a deployed site: pkgdown writes absolute links and a sitemap, and
-# R CMD check follows the DESCRIPTION URL and NOTEs it as unreachable. There is
-# no pkgdown deploy workflow here (CI is workflow_dispatch-only), so the site
-# is a local artifact for now. Add `url:` here and to DESCRIPTION's URL field
-# in the same commit that enables deployment -- not before.
+# DEPLOYMENT IS NOW ENABLED, so `url:` is set here and in DESCRIPTION's URL
+# field, in this commit, as the note that stood here required. pkgdown now
+# writes absolute links and a sitemap against this address.
+#
+# The address resolves only once the repository is public and Pages is enabled
+# on the gh-pages branch, which .github/workflows/pkgdown.yaml publishes to.
+# Until then R CMD check will NOTE both URLs as unreachable, exactly as it
+# already does for the repository URL; that note is expected and is not a
+# defect.
+url: https://djgriffin13.github.io/rnetis/
 
 template:
   bootstrap: 5

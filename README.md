@@ -5,8 +5,7 @@
 **Network Influence and Selection models, behind one consistent interface.**
 
 Developed and owned by Griffin Dynamics LLC as part of its ongoing research and development.
-Research conducted in partnership with the T.A.C.T.I.C.S Lab (Technology, Adaptation,
-Coordination, and Training in Interdependent Complex Systems) at the University of South Florida.
+Licensed under AGPL-3 with additional terms — see [`LICENSE`](LICENSE).
 
 `rnetis` gives applied researchers a single way to specify, fit, diagnose, and report two
 established families of social network model:
@@ -64,13 +63,24 @@ not because of any doubt about them.**
 
 ## Installation
 
-`rnetis` needs **R 4.1 or later**. It is not on CRAN yet; install it from
-GitHub:
+`rnetis` is not on CRAN and is not published. It is distributed by Griffin
+Dynamics LLC at its discretion, to people it gives a copy to.
+
+If you were given a source tarball:
+
+```r
+install.packages("rnetis_0.1.0.tar.gz", repos = NULL, type = "source")
+```
+
+If you were given access to the repository:
 
 ```r
 # install.packages("remotes")
-remotes::install_github("djgriffin13/rnetis")
+remotes::install_github("djgriffin13/rnetis", build_vignettes = TRUE)
 ```
+
+From a local checkout, `remotes::install_local(".", build_vignettes = TRUE)`,
+or `devtools::load_all(".")` for development.
 
 Check that it worked:
 
@@ -80,9 +90,10 @@ packageVersion("rnetis")
 #> [1] '0.1.0'
 ```
 
-That is everything you need for the Influence workflow. Four required packages
-come with it — `generics`, `ggplot2`, `lme4`, `reformulas` — and `remotes`
-installs them for you.
+`rnetis` needs **R 4.1 or later**. That is everything you need for the Influence
+workflow. Four required packages come with it — `generics`, `ggplot2`, `lme4`,
+`reformulas` — and the install step pulls them from CRAN for you. The package
+itself is pure R, so no compiler is needed for it.
 
 ### Optional packages, by what they unlock
 
@@ -98,19 +109,24 @@ at the point you need it.
 | `install.packages("clubSandwich")` | cluster-robust standard errors |
 | `install.packages(c("igraph", "network"))` | importing from and exporting to `igraph` and `statnet` |
 
+`lame` is used by one corroboration test only, never by the package itself.
+
 To get all of it at once:
 
 ```r
-install.packages(c("amen", "clubSandwich", "igraph", "latentnet", "network",
-                   "numDeriv", "RSiena", "sna"))
+install.packages(c("amen", "clubSandwich", "igraph", "lame", "latentnet",
+                   "network", "numDeriv", "RSiena", "sna"))
 ```
+
+Install the full set before running the test suite or `R CMD check`: without it
+the tests that need these packages skip silently, and a clean run means much
+less than it looks like.
 
 ### Building the vignettes
 
-`install_github()` skips vignettes by default. To build them:
+`build_vignettes = TRUE` above builds them. Then:
 
 ```r
-remotes::install_github("djgriffin13/rnetis", build_vignettes = TRUE)
 browseVignettes("rnetis")
 ```
 
@@ -155,16 +171,16 @@ name. `?rnetis-package` lists every exported function, and each has its own help
 
 ## Status
 
-Version 0.1.0, the first public version. Not yet on CRAN. See [`NEWS.md`](NEWS.md) for what
-the package does.
+Version 0.1.0, the first complete version. Not on CRAN and not published; distributed by
+Griffin Dynamics LLC at its discretion. See [`NEWS.md`](NEWS.md) for what the package does.
 
 The API is stable enough to build on. It is versioned below 1.0 because the package has not
-yet been exercised by anyone but its authors, and the first outside use is what usually finds
+yet been exercised by anyone but its author, and the first outside use is what usually finds
 the parts of an interface that were only ever obvious to the person who wrote it.
 
 ## Authors
 
-- **Daniel J. Griffin**, Griffin Dynamics LLC & University of South Florida — author, maintainer
+- **Daniel J. Griffin**, Griffin Dynamics LLC — author, maintainer
   ([ORCID](https://orcid.org/0000-0001-5093-3536))
 
 ### Collaborators
@@ -176,17 +192,26 @@ the parts of an interface that were only ever obvious to the person who wrote it
 
 ### Acknowledgments
 
-We acknowledge Ken Frank for his support and insights.
-
-<img src="man/figures/lab_logo.png" align="right" height="90" alt="T.A.C.T.I.C.S Lab logo"/>
+The author acknowledges the **T.A.C.T.I.C.S Lab** (Technology, Adaptation, Coordination, and
+Training in Interdependent Complex Systems) at the University of South Florida, and thanks Ken
+Frank for his support and insights.
 
 Developed and owned by **Griffin Dynamics LLC** as part of its ongoing research and
-development. Research conducted in partnership with the **T.A.C.T.I.C.S Lab** (Technology,
-Adaptation, Coordination, and Training in Interdependent Complex Systems) at the University of
-South Florida.
+development.
 
 ## License
 
-Copyright (c) 2026 Griffin Dynamics LLC. Licensed under AGPL-3: see [`LICENSE.md`](LICENSE.md). Part of the hierarchical sampler derives from
-[`amen`](https://CRAN.R-project.org/package=amen) (Hoff, Fosdick, Volfovsky and He; GPL-3), as
-recorded in `inst/COPYRIGHTS`.
+Copyright (c) 2026 Griffin Dynamics LLC. Licensed under **AGPL-3, version 3 only, with
+additional terms under its section 7**: see [`LICENSE`](LICENSE) for the terms and
+[`inst/LICENSE-AGPL-3.md`](inst/LICENSE-AGPL-3.md) for the licence text, which ships with the
+package.
+
+The additional terms cover notice and attribution preservation, marking of modified versions
+under a different name, publicity, trademarks, indemnification, and warranty and liability. They
+apply to the material Griffin Dynamics LLC holds, and **they do not reduce what AGPL-3 gives
+you**: if you have a copy, you may use, study, modify and redistribute it on AGPL-3's conditions.
+
+Part of the hierarchical Selection sampler derives from
+[`amen`](https://CRAN.R-project.org/package=amen) (Hoff, Fosdick, Volfovsky and He; GPL-3), and
+calls `amen` at run time. The GPL-3 terms continue to apply to those parts, and GPL/AGPL
+section 13 permits the combination. `inst/COPYRIGHTS` identifies them file by file.

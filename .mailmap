@@ -1,0 +1,14 @@
+# Canonical author identity.
+#
+# One person, several name spellings and two addresses. The mapping normalizes
+# what git reports while leaving every commit object untouched, so every SHA
+# referenced anywhere still resolves.
+#
+# The left-hand side is the canonical form. Each right-hand side is a variant as
+# it appears in the commits, and must stay exactly as written there or it stops
+# mapping.
+Daniel J Griffin <danieljgriffin618@gmail.com> <djgriffin@usf.edu>
+Daniel J Griffin <danieljgriffin618@gmail.com> Daniel J. Griffin <djgriffin@usf.edu>
+Daniel J Griffin <danieljgriffin618@gmail.com> Daniel J. Griffin <danieljgriffin618@gmail.com>
+Daniel J Griffin <danieljgriffin618@gmail.com> Daniel Jacob Griffin <danieljgriffin618@gmail.com>
+Daniel J Griffin <danieljgriffin618@gmail.com> Daniel Griffin <danieljgriffin618@gmail.com>

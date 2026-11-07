@@ -120,16 +120,18 @@ prefix or a plain name.
 
 \section{Acknowledgments}{
 
-We acknowledge Ken Frank for his support and insights.
+The author acknowledges the \strong{T.A.C.T.I.C.S Lab} (Technology, Adaptation,
+Coordination, and Training in Interdependent Complex Systems) at the
+University of South Florida, and thanks Ken Frank for his support and
+insights.
 }
 
 \section{Developed by}{
 
-\if{html}{\figure{lab_logo.png}{options: style="float: right; margin: 0 0 1em 1em;" alt="T.A.C.T.I.C.S Lab, University of South Florida" width="110"}}
 Developed and owned by \strong{Griffin Dynamics LLC} as part of its ongoing research
-and development. Research conducted in partnership with the
-\strong{T.A.C.T.I.C.S Lab} (Technology, Adaptation, Coordination, and Training in
-Interdependent Complex Systems) at the University of South Florida.
+and development. Licensed under AGPL-3 with additional terms under its
+section 7: see \code{LICENSE}, \verb{LICENSE-AGPL-3.md} and \code{COPYRIGHTS} in the
+installed package directory.
 }
 
 \seealso{
@@ -141,11 +143,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Daniel J. Griffin \email{danieljgriffin618@gmail.com} (\href{https://orcid.org/0000-0001-5093-3536}{ORCID}) (affiliation: Griffin Dynamics LLC & University of South Florida)
+\strong{Maintainer}: Daniel J. Griffin \email{danieljgriffin618@gmail.com} (\href{https://orcid.org/0000-0001-5093-3536}{ORCID}) (affiliation: Griffin Dynamics LLC)
 
 Authors:
 \itemize{
-  \item Daniel J. Griffin \email{danieljgriffin618@gmail.com} (\href{https://orcid.org/0000-0001-5093-3536}{ORCID}) (affiliation: Griffin Dynamics LLC & University of South Florida)
+  \item Daniel J. Griffin \email{danieljgriffin618@gmail.com} (\href{https://orcid.org/0000-0001-5093-3536}{ORCID}) (affiliation: Griffin Dynamics LLC)
 }
 
 Other contributors:

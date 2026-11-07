@@ -1,0 +1,90 @@
+rnetis — copyright, authorship and licence
+
+Copyright (c) 2026 Griffin Dynamics LLC. All rights reserved.
+
+Author and maintainer: Daniel J. Griffin.
+Contributors: Ajay Somaraju, Ryan Hemsley.
+
+The Authors@R field of DESCRIPTION carries the full credits, including the
+copyright holders of the third-party components named in section 3.
+
+
+1. LICENCE
+
+rnetis is licensed under the GNU Affero General Public License, version 3, and
+under no later version.
+
+The full licence text ships with the package: it is inst/LICENSE-AGPL-3.md in
+the sources, and LICENSE-AGPL-3.md in the package directory once installed.
+
+The additional terms in section 2 supplement that licence as its section 7
+permits. They do not reduce the rights AGPL-3 grants.
+
+
+2. ADDITIONAL TERMS UNDER AGPL-3 SECTION 7
+
+These terms apply to the material in rnetis for which Griffin Dynamics LLC
+holds copyright. They do not apply to the third-party material identified in
+section 3 and in inst/COPYRIGHTS.
+
+  (a) Warranty and liability — AGPL-3 section 7(a). To the fullest extent
+      permitted by applicable law, the material is provided without warranty of
+      any kind, and Griffin Dynamics LLC's liability is limited as far as the
+      law allows, in addition to and not in place of AGPL-3 sections 15 and 16.
+
+  (b) Preservation of notices and attribution — AGPL-3 section 7(b). Every
+      copy, modified version and work containing the material must preserve,
+      unaltered: the copyright notice above; this file; the AGPL-3 text
+      (LICENSE-AGPL-3.md); COPYRIGHTS, including its identification of the
+      third-party components and their copyright holders; the Authors@R field
+      of DESCRIPTION; and the acknowledgements in DESCRIPTION, README.md and
+      ?rnetis-package. Where a work containing the material displays
+      Appropriate Legal Notices, it must display the copyright notice above
+      among them.
+
+  (c) Origin and marking of modified versions — AGPL-3 section 7(c).
+      Misrepresenting the origin of the material is prohibited. A modified
+      version must be marked, in a way a user will see, as changed from the
+      original and as not the work of Griffin Dynamics LLC: it must carry a
+      package name and a version string distinct from rnetis's, and state in
+      its DESCRIPTION and on attach that it is a modified version not endorsed
+      or supported by Griffin Dynamics LLC.
+
+  (d) Publicity — AGPL-3 section 7(d). The names "Griffin Dynamics", "Griffin
+      Dynamics LLC", "rnetis", and the names of the authors, contributors and
+      acknowledged parties may not be used for publicity, endorsement,
+      advertising or promotion of any product, service, work or modified
+      version, without the prior written permission of Griffin Dynamics LLC.
+      This includes implying that Griffin Dynamics LLC endorses, supports,
+      supplies or has reviewed a modified version or a work containing the
+      material.
+
+  (e) Trademarks — AGPL-3 section 7(e). No rights are granted under trademark
+      law. "Griffin Dynamics", "rnetis", the Griffin Dynamics logo, and any
+      other trade name, trademark, service mark or logo of Griffin Dynamics LLC
+      are expressly excluded from the licence. A redistributed or modified
+      version must not use them, including in a package name, which is why (c)
+      requires a distinct name. No mark, logo or trade name of any acknowledged
+      party is used or redistributed with this package.
+
+  (f) Indemnification — AGPL-3 section 7(f). Anyone who conveys the material,
+      or a modified version of it, with contractual assumptions of liability to
+      a recipient must indemnify Griffin Dynamics LLC and the authors for any
+      liability those assumptions directly impose on them.
+
+Each term above is one of the six that AGPL-3 section 7 permits, and each is
+confined to material Griffin Dynamics LLC holds, as that section requires.
+
+
+3. THIRD-PARTY COMPONENTS
+
+Parts of R/mgc-stats.R, R/mgc-prior.R and R/mgc-sampler.R derive from the R
+package amen, copyright Peter Hoff, Bailey Fosdick, Alex Volfovsky and Yanjun
+He, licensed under the GNU General Public License, version 3. The hierarchical
+Selection sampler also calls functions exported by amen at run time.
+
+The GPL version 3 continues to apply to those parts. Section 13 of the GPL
+version 3 and of the AGPL version 3 permits the combination.
+
+inst/COPYRIGHTS identifies these components file by file, and installs as
+COPYRIGHTS in the package directory.

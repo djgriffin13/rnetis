@@ -149,5 +149,4 @@ space adjusted approach in R. *The R Journal* **13**(2), 57–69.
 <hr/>
 <div style="display: flex; justify-content: center; gap: 2.5em; align-items: center; margin-top: 2em;">
 <img class="rnetis-logo" src="../man/figures/logo.png" alt="rnetis" height="48"/>
-<img class="rnetis-logo" src="../man/figures/lab_logo.png" alt="T.A.C.T.I.C.S Lab, University of South Florida" height="48"/>
 </div>

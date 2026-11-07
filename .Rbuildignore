@@ -5,7 +5,6 @@
 ^tests/testthat/manual$
 ^CLAUDE\.md$
 ^\.claude$
-^LICENSE\.md$
 ^cran-comments\.md$
 ^_pkgdown\.yml$
 ^docs$
@@ -13,3 +12,4 @@
 ^Rplots\.pdf$
 ^data-raw$
 ^tools$
+^\.mailmap$
