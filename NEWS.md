@@ -30,8 +30,9 @@ see `?rnetis-package` for the list.
 ## Exposure
 
 * `compute_exposure()` and the `exposure()` formula term construct network
-  exposure from a conduit network and a content variable, with row, column and
-  no normalization, and with the conduit reachable through lags.
+  exposure from a conduit network and a content variable, with row
+  normalization or none, and with the content and the conduit each reachable at
+  a lag (`x_lag`, `w_lag`).
 * `bi()` implements the Frank & Fahrbach (1999) balance-information model,
   including the erratum (1999, 10(4), 514-515). `bi_components()` and
   `bi_sweep()` expose the parts and the parameter sweep.
