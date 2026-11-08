@@ -87,7 +87,7 @@ run directly against the installed package.
 |---|---:|---:|---:|---:|---:|
 | default (`tests/testthat`) | 986 | 3613 | 0 | 0 | **0** |
 | `comprehensive/` | 300 | 860 | 0 | 0 | **0** |
-| `manual/` (published reproductions) | 7 | 20 | **1** | 0 | **0** |
+| `manual/` (published reproductions) | 7 | 20 | **1** at REPS=5, **0** at REPS=20 | 0 | **0** |
 | total | 1293 | 4493 | 1 | 0 | **0** |
 
 **Zero skips across all three tiers**, which is what the full `Suggests` set
@@ -137,9 +137,32 @@ run. Three things about the number:
    positions. Distinguishing them needs more replications
    (`NETIS_MANUAL_MCMC_REPS`), which is a longer run than this one.
 
-Recorded as unresolved, not as a pass and not as a defect. It does not touch any
-deterministic claim, and the path it concerns already carries the warning this
-result is consistent with.
+### Resolved: it was noise
+
+The question was settled by re-running the tier with more replications, as point
+3 said it needed. At **`NETIS_MANUAL_MCMC_REPS = 20`**, against the same
+installed package and the same data, 2026-11-07 20:13–21:49 (96 minutes):
+
+```
+tests=7  passed=36  failed=0  errors=0  skipped=0
+```
+
+**No failures.** Quadrupling the replications halves the standard error of the
+difference and turns the same `sd(ref)` threshold into roughly a 3.2 SE test, so
+a real bias of the observed size would have shown more clearly, not less. It
+did not. The REPS = 5 failure was the one-run-in-nine the mis-scaled threshold
+admits, and there is no detectable disagreement between rnetis's stage-one
+positions and the reference implementation's.
+
+Two things this does **not** establish, since they were never in question here:
+multi-group `latent()` remains this package's own construction and remains
+unvalidated for statistical performance — agreeing with a reference
+implementation is not the same as having known operating characteristics — and
+it still warns on every use. The warning stands on its own grounds.
+
+The threshold itself is still mis-scaled and will still fail about one run in
+nine at the default REPS = 5. That is a property of the test, not of the
+package, and it is recorded here rather than silently loosened.
 
 Also observed, from the test's own `(1 | group)` design with two groups:
 `lme4` "boundary (singular) fit" five times. Expected at two groups; noted so it
