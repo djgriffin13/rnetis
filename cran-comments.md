@@ -29,6 +29,22 @@ is a claim rather than a result.
 Earlier figures from an R 4.5.1 run carried no commit SHA and are not carried
 forward; that R version is no longer installed here.
 
+Changed after the measured run, in `README.md` only: a note that `RSiena` 1.6.6
+declares `R (>= 4.5.0)`, above this package's floor. Prose in one `.md` file, no
+code and no metadata, so the figures below stand. Recorded here rather than left
+for someone to wonder why the tarball's checksum moved.
+
+What a dependency scan found, since R 4.1 itself remains untested: of the four
+`Imports`, `ggplot2` 4.0.3 requires R >= 4.1 and sets the floor exactly, while
+`generics`, `lme4` and `reformulas` go lower. Among `Suggests`, **`RSiena` 1.6.6
+requires R >= 4.5.0** — needed only for the `s50` example data, not by
+`latent()` — and every other optional package is satisfied at 4.1 or below. The
+package's own code uses no base feature newer than 4.1: no `sort_by()`, no
+`grepv()`, no `Sys.setLanguage()`, no `_` pipe placeholder, and its 95 uses of
+`%||%` resolve to a local definition at `R/utils-assert.R:318`, not to the base
+operator added in R 4.4. A scan is weaker evidence than a run on 4.1, and does
+not replace it.
+
 ## R CMD check results
 
 ```

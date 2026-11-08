@@ -93,7 +93,11 @@ packageVersion("rnetis")
 `rnetis` needs **R 4.1 or later**. That is everything you need for the Influence
 workflow. Four required packages come with it — `generics`, `ggplot2`, `lme4`,
 `reformulas` — and the install step pulls them from CRAN for you. The package
-itself is pure R, so no compiler is needed for it.
+itself is pure R (`NeedsCompilation: no`), so no compiler is needed for it.
+
+The floor is set by `ggplot2`, which also requires R >= 4.1; the other three go
+lower. Some **optional** packages require more than 4.1, though — see the table
+below — so the usable floor depends on which capabilities you want.
 
 ### Optional packages, by what they unlock
 
@@ -104,7 +108,7 @@ at the point you need it.
 | Install | To get |
 |---|---|
 | `install.packages("amen")` | `fit_selection()` — the Selection model |
-| `install.packages(c("latentnet", "RSiena"))` | `latent()` — the latent-space adjustment, and the `s50` data of Xu's example |
+| `install.packages(c("latentnet", "RSiena"))` | `latent()` — the latent-space adjustment, and the `s50` data of Xu's example. **`RSiena` 1.6.6 itself requires R >= 4.5**, above this package's floor; on an older R, install an archived `RSiena` or skip it — `latent()` does not need it, only Xu's example data does |
 | `install.packages(c("sna", "numDeriv"))` | the network-autocorrelation (SAR) estimator |
 | `install.packages("clubSandwich")` | cluster-robust standard errors |
 | `install.packages(c("igraph", "network"))` | importing from and exporting to `igraph` and `statnet` |
