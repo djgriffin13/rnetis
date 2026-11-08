@@ -1,0 +1,88 @@
+name: Something went wrong
+description: A refusal you did not expect, a wrong number, an error, or a message that did not tell you what to do
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Before anything else: **do not paste your own data here.**
+
+        Issues are visible to everyone who can see this repository. Please do
+        not attach or paste participant data, network rosters, identifiers, or
+        anything from a real dataset — not even a few rows.
+
+        Almost every problem can be shown with `demo_influence`,
+        `demo_influence_groups`, `demo_selection`, or with
+        `simulate_influence()`. If you genuinely cannot reproduce it without
+        your own data, say so here and we will arrange something else; do not
+        upload it.
+
+  - type: checkboxes
+    id: no-data
+    attributes:
+      label: Data
+      options:
+        - label: There is no real or participant data anywhere in this report.
+          required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected instead
+      description: >
+        If rnetis refused something, paste the refusal in full. Its messages are
+        meant to name the fix — if one did not, that is itself worth reporting.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reprex
+    attributes:
+      label: The smallest code that shows it
+      description: Using the shipped demo data or simulated data.
+      render: r
+      value: |
+        library(rnetis)
+
+        fit <- fit_influence(
+          y ~ ar() + exposure(y, via = tie, normalize = "row"),
+          data = demo_influence
+        )
+    validations:
+      required: true
+
+  - type: textarea
+    id: session
+    attributes:
+      label: Output of sessionInfo()
+      description: >
+        Paste the whole thing. The R version and the versions of amen,
+        latentnet, RSiena, sna and lme4 are usually what decides the answer.
+      render: text
+    validations:
+      required: true
+
+  - type: dropdown
+    id: capability
+    attributes:
+      label: Which part of the package
+      multiple: true
+      options:
+        - Building a netis_data object, or importing
+        - Exposure construction
+        - Influence model (fit_influence)
+        - Selection model (fit_selection)
+        - Hierarchical multi-group Selection
+        - latent() / latent-space adjustment
+        - Diagnostics, assumptions or effect sizes
+        - Plotting
+        - Installation
+        - Something else or not sure
+
+  - type: markdown
+    attributes:
+      value: |
+        **If this concerns multi-group `latent()`:** it is experimental, warns
+        on use, and is not validated for statistical performance. Please report
+        it anyway — but a disagreement in its numbers may be a known limitation
+        rather than a defect. See `?latent`.

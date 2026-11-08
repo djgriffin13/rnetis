@@ -1,0 +1,38 @@
+citHeader(paste(
+  "To cite rnetis itself, use the entry below.",
+  "",
+  "PLEASE ALSO CITE THE METHOD YOU USED. rnetis implements, integrates and",
+  "operationalizes published methods, and citing only the software leaves the",
+  "method uncredited. Every published method is cited on the help page of the",
+  "function that computes or fits it, so ?fit_influence, ?exposure, ?bi,",
+  "?fit_selection and ?latent name the works to cite alongside this one.",
+  sep = "\n"
+))
+
+bibentry(
+  bibtype      = "Manual",
+  key          = "rnetis",
+  title        = "{rnetis}: Network Influence and Selection Models",
+  author       = person(given = c("Daniel", "J."), family = "Griffin",
+                        comment = c(ORCID = "0000-0001-5093-3536")),
+  organization = "Griffin Dynamics LLC",
+  year         = "2026",
+  note         = sprintf("R package version %s", meta$Version),
+  url          = "https://djgriffin13.github.io/rnetis/"
+)
+
+citFooter(paste(
+  "Three constructions are this package's own rather than published methods:",
+  "the hierarchical multi-group Selection model, the latent-scale variance share",
+  "and null comparison, and multi-group latent(). Each says so on its help page,",
+  "and ?rnetis-package lists them. Please describe them as this package's, not",
+  "as established methods.",
+  "",
+  "Multi-group latent() is EXPERIMENTAL and is not validated for statistical",
+  "performance. It warns when used. Report results from it as provisional.",
+  "",
+  "If you used fit_selection(), cite amen as well -- citation(\"amen\") -- since",
+  "part of the hierarchical Selection sampler derives from it (Hoff, Fosdick,",
+  "Volfovsky and He).",
+  sep = "\n"
+))

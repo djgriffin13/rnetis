@@ -5,7 +5,7 @@
 **Network Influence and Selection models, behind one consistent interface.**
 
 Developed and owned by Griffin Dynamics LLC as part of its ongoing research and development.
-Licensed under AGPL-3 with additional terms — see [`LICENSE`](LICENSE).
+Licensed under AGPL-3 with additional terms — see [`LICENSE`](https://github.com/djgriffin13/rnetis/blob/main/LICENSE).
 
 `rnetis` gives applied researchers a single way to specify, fit, diagnose, and report two
 established families of social network model:
@@ -176,11 +176,35 @@ name. `?rnetis-package` lists every exported function, and each has its own help
 ## Status
 
 Version 0.1.0, the first complete version. Not on CRAN and not published; distributed by
-Griffin Dynamics LLC at its discretion. See [`NEWS.md`](NEWS.md) for what the package does.
+Griffin Dynamics LLC at its discretion. See [`NEWS.md`](https://github.com/djgriffin13/rnetis/blob/main/NEWS.md) for what the package does.
 
 The API is stable enough to build on. It is versioned below 1.0 because the package has not
 yet been exercised by anyone but its author, and the first outside use is what usually finds
 the parts of an interface that were only ever obvious to the person who wrote it.
+
+## Reporting a problem
+
+Please do, including a refusal that did not tell you what to do next — the messages are meant
+to name the fix, and one that does not is a defect in its own right.
+
+**Never put real or participant data in a bug report.** Issues are visible to everyone who can
+see the repository. The shipped demo data (`demo_influence`, `demo_influence_groups`,
+`demo_selection`) and `simulate_influence()` will reproduce nearly anything; if yours genuinely
+cannot be reproduced without real data, say so and nothing else, rather than uploading it.
+This package neither sends nor stores your data — it writes nothing outside `tempdir()` — and
+a bug report is not the place to be the exception.
+
+Include the full refusal or error, the smallest code that shows it on demo or simulated data,
+and the output of `sessionInfo()`. The R version and the versions of `amen`, `latentnet`,
+`RSiena`, `sna` and `lme4` usually decide the answer.
+
+## Citing rnetis
+
+`citation("rnetis")` gives the entry, and it will also remind you to **cite the method you
+used**. Every published method is cited on the help page of the function that computes or fits
+it, and citing only the software leaves the method uncredited. The constructions that are this
+package's own are listed in `?rnetis-package`, and multi-group `latent()` is experimental and
+not validated for statistical performance — results from it should be reported as provisional.
 
 ## Authors
 
@@ -206,8 +230,8 @@ development.
 ## License
 
 Copyright (c) 2026 Griffin Dynamics LLC. Licensed under **AGPL-3, version 3 only, with
-additional terms under its section 7**: see [`LICENSE`](LICENSE) for the terms and
-[`inst/LICENSE-AGPL-3.md`](inst/LICENSE-AGPL-3.md) for the licence text, which ships with the
+additional terms under its section 7**: see [`LICENSE`](https://github.com/djgriffin13/rnetis/blob/main/LICENSE) for the terms and
+[`inst/LICENSE-AGPL-3.md`](https://github.com/djgriffin13/rnetis/blob/main/inst/LICENSE-AGPL-3.md) for the licence text, which ships with the
 package.
 
 The additional terms cover notice and attribution preservation, marking of modified versions

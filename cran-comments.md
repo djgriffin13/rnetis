@@ -29,10 +29,16 @@ is a claim rather than a result.
 Earlier figures from an R 4.5.1 run carried no commit SHA and are not carried
 forward; that R version is no longer installed here.
 
-Changed after the measured run, in `README.md` only: a note that `RSiena` 1.6.6
-declares `R (>= 4.5.0)`, above this package's floor. Prose in one `.md` file, no
-code and no metadata, so the figures below stand. Recorded here rather than left
-for someone to wonder why the tarball's checksum moved.
+Changed after the measured run: prose in `README.md` (a note that `RSiena` 1.6.6
+declares `R (>= 4.5.0)`, above this package's floor; a reporting section with the
+no-real-data rule; a citation section) and a new **`inst/CITATION`**.
+
+`inst/CITATION` is the one of those that `R CMD check` would exercise, since it
+is R code evaluated by `citation()` and a malformed one is a check WARNING. It
+was validated directly with `utils::readCitationFile()` against `DESCRIPTION`'s
+metadata — it parses, yields one entry, and renders its header and footer — but
+**it is not covered by the check figures below**, which were measured before it
+existed. Nothing else changed in code or metadata.
 
 What a dependency scan found, since R 4.1 itself remains untested: of the four
 `Imports`, `ggplot2` 4.0.3 requires R >= 4.1 and sets the floor exactly, while
