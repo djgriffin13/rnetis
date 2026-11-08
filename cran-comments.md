@@ -15,68 +15,69 @@ Clearing those terms with CRAN would be a licence decision, not a packaging one.
 ## Test environments
 
 * Windows 11 Home (26200), **R 4.6.2 (2026-10-29 ucrt)**, x86_64-w64-mingw32,
-  pandoc 3.8.3, no LaTeX — `R CMD check --as-cran --run-donttest`, local, at
-  commit **`0c07c6b768e65eeaead692e84b71a918848b30f0`**, run 2026-11-07
-  17:24–17:56. The full optional `Suggests` set was installed: `amen` 1.4.5,
-  `clubSandwich` 0.7.0, `igraph` 2.3.3, `lame` 1.4.1, `latentnet` 2.12.0,
-  `network` 1.20.0, `numDeriv` 2016.8.1.1, `RSiena` 1.6.6, `sna` 2.8.
+  pandoc 3.8.3, **TinyTeX** — `R CMD check --as-cran --run-donttest`, local, run
+  2026-11-07 23:09–23:24. The full optional `Suggests` set was installed: `amen`
+  1.4.5, `clubSandwich` 0.7.0, `igraph` 2.3.3, `lame` 1.4.1, `latentnet`
+  2.12.0, `network` 1.20.0, `numDeriv` 2016.8.1.1, `RSiena` 1.6.6, `sna` 2.8.
+
+Measured on this commit's package tree. This commit also edits
+`cran-comments.md`, which `.Rbuildignore` excludes, so the package built from it
+is byte-for-byte the content that was checked.
 
 Not run on any commit: R-devel, R-oldrel, Linux, macOS, win-builder, rhub. The
 CI workflow exists but is `workflow_dispatch`-only. **R 4.1, the declared floor
 in `DESCRIPTION`, has never been checked**, and until it is the supported range
-is a claim rather than a result.
-
-Earlier figures from an R 4.5.1 run carried no commit SHA and are not carried
-forward; that R version is no longer installed here.
-
-Changed after the measured run: prose in `README.md` (a note that `RSiena` 1.6.6
-declares `R (>= 4.5.0)`, above this package's floor; a reporting section with the
-no-real-data rule; a citation section) and a new **`inst/CITATION`**.
-
-`inst/CITATION` is the one of those that `R CMD check` would exercise, since it
-is R code evaluated by `citation()` and a malformed one is a check WARNING. It
-was validated directly with `utils::readCitationFile()` against `DESCRIPTION`'s
-metadata — it parses, yields one entry, and renders its header and footer — but
-**it is not covered by the check figures below**, which were measured before it
-existed. Nothing else changed in code or metadata.
-
-What a dependency scan found, since R 4.1 itself remains untested: of the four
-`Imports`, `ggplot2` 4.0.3 requires R >= 4.1 and sets the floor exactly, while
-`generics`, `lme4` and `reformulas` go lower. Among `Suggests`, **`RSiena` 1.6.6
-requires R >= 4.5.0** — needed only for the `s50` example data, not by
-`latent()` — and every other optional package is satisfied at 4.1 or below. The
-package's own code uses no base feature newer than 4.1: no `sort_by()`, no
-`grepv()`, no `Sys.setLanguage()`, no `_` pipe placeholder, and its 95 uses of
-`%||%` resolve to a local definition at `R/utils-assert.R:318`, not to the base
-operator added in R 4.4. A scan is weaker evidence than a run on 4.1, and does
-not replace it.
+is a claim rather than a result. Note that `RSiena` 1.6.6 declares
+`R (>= 4.5.0)`, above that floor; it is needed only for the `s50` example data.
 
 ## R CMD check results
 
 ```
-1 error | 1 warning | 3 notes | 0 test failures
+0 errors | 0 warnings | 2 notes | 0 test failures
 ```
 
-**The error and the warning are one environment gap, not a package defect.**
-There is no `pdflatex` here, so "checking PDF version of manual without index"
-fails with `pdflatex is not available`, and the warning is the same failure
-restated as "LaTeX errors when creating PDF version. This typically indicates Rd
-problems." That stock wording is misleading in this case — but it also means the
-**Rd sources are not cleared for PDF rendering**, and that stays unresolved
-until a LaTeX install is available rather than being written off.
-
-The three notes:
+Both notes are expected or environmental:
 
 1. **CRAN incoming feasibility** — new submission; `License components with
    restrictions and base license permitting such: AGPL-3 + file LICENSE`, which
    prints `LICENSE` in full for human review; and `URL` / `BugReports`
    unreachable while the repository is private.
 2. `V8` unavailable, so math rendering in the HTML manual was not checked.
-3. A leftover `rnetis-manual.tex`, a by-product of the failed PDF build.
 
-The fourth note of the previous run — `Non-standard file/directory found at top
-level: 'LICENSE.md'` — is **resolved**: the AGPL-3 text now ships from
-`inst/LICENSE-AGPL-3.md`.
+### What this supersedes, and the defect it uncovered
+
+Earlier runs recorded `1 error | 1 warning | 4 notes`, with the error and
+warning attributed to this machine having no LaTeX. That attribution was right
+about the error and **wrong to stop there**, which is why they were logged as
+unresolved rather than written off. Installing TinyTeX cleared the error and
+left the warning standing, now naming a cause:
+
+```
+! LaTeX Error: Unicode character ₁ (U+2081) not set up for use with LaTeX.
+```
+
+A real Rd defect: `R/pseudo-r2.R` wrote "Snijders–Bosker R²₁" with a literal
+subscript-one character. The superscript two is Latin-1 and survives; the
+subscript is not, and it stopped the PDF manual building. It is now
+`\eqn{R^2_1}`, which renders in both HTML and PDF. A sweep of `R/`, `man/` and
+`vignettes/` for the same class of character — subscripts, superscripts,
+letterlike symbols, arrows, math operators, mathematical alphanumerics — found
+no other instance.
+
+Two further notes resolved on the way: `Non-standard file/directory found at top
+level: 'LICENSE.md'` (the AGPL-3 text now ships from `inst/`), and the leftover
+`rnetis-manual.tex` (a by-product of the failed PDF build, gone now that the
+build succeeds).
+
+### Reproducing the PDF stage
+
+**TinyTeX alone is not sufficient.** Its minimal install lacks what R's
+`Rd2pdf` needs, and the failures arrive one at a time with unhelpful messages —
+at one point `R CMD check` reported `LaTeX errors found:` followed by nothing at
+all. Beyond a TinyTeX base, install: `makeindex`, `nameref`, `oberdiek`,
+`grffile`, `grfext`, `courier`. `R CMD Rd2pdf --no-clean` run directly is the
+way to see the real error; the check's own summary hides it. The manual builds
+at 634 KB once those are present.
 
 ## Test suite, all three tiers
 
@@ -180,6 +181,12 @@ Sys.setenv(RSTUDIO_PANDOC = "C:/Program Files/RStudio/resources/app/bin/quarto/b
 
 or install pandoc properly. This is a real reproducibility gap and the reason the
 first attempt at this run failed.
+
+TinyTeX installs into the roaming profile and is **not** on `PATH` either, so a
+check that reaches the PDF stage also needs its `bin/windows` prepended. Both
+settings, and the extra LaTeX packages listed above, are applied by
+`../rnetis-dist-src/recheck-with-latex.R`, which is the script these figures
+came from.
 
 ## Dependencies
 

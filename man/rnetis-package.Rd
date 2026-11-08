@@ -137,6 +137,7 @@ installed package directory.
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://djgriffin13.github.io/rnetis/}
   \item \url{https://github.com/djgriffin13/rnetis}
   \item Report bugs at \url{https://github.com/djgriffin13/rnetis/issues}
 }
