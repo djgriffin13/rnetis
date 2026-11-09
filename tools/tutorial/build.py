@@ -588,7 +588,11 @@ def write(path):
         datetime.date.today().isoformat(),
     )
     doc = render(stamp)
-    with io.open(path, "w", encoding="utf-8") as fh:
+    # newline="\n" because .gitattributes declares `* text=auto eol=lf`, so the
+    # checked-out file has LF. Writing Windows line endings here would leave the
+    # working tree dirty after every rebuild with no change in content, which
+    # trains a reader to ignore `git status` on this file.
+    with io.open(path, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(doc)
     return doc
 
