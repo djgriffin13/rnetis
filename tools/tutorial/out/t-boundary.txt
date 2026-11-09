@@ -1,0 +1,10 @@
+<netis_boundary>
+  built directly by netis_data(); no conversion boundary was crossed
+  directedness: declared (by the caller)
+  network semantics:
+    strength:
+      weighted             TRUE                     declared
+      weight_semantics     strength                 declared
+      direction_semantics  <none>                   undeclared
+      zero_meaning         measured_zero            declared
+      presence_mode        row_presence             inferred [row_completeness_vs_roster]

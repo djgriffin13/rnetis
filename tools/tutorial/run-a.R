@@ -24,7 +24,7 @@ cap("g-optional", R(
 # The data object
 # ===========================================================================
 
-cap("d-first", R(
+setup(R(
   'nodes <- data.frame(group = 1, node = c("a", "b", "c"), x = c(10, 20, 30))',
   'ties  <- data.frame(group = 1, source = c("b", "c"), target = c("a", "a"),',
   '                    w = c(1, 3))',
@@ -33,12 +33,12 @@ cap("d-first", R(
   'nd'
 ))
 
-cap("d-accessors", R(
+setup(R(
   'netis_nodes(nd)',
   'netis_ties(nd)'
 ))
 
-cap("d-waves", R(
+setup(R(
   'nodes2 <- data.frame(group = 1, node = rep(c("a", "b", "c"), 2),',
   '                     wave  = rep(1:2, each = 3),',
   '                     x     = c(10, 20, 30, 12, 19, 34))',
@@ -53,7 +53,7 @@ cap("d-time-index", R(
   'netis_time_index(nd2)'
 ))
 
-cap("d-declare", R(
+setup(R(
   'nd3 <- netis_data(nodes2, ties2, wave_col = "wave", tie_meta = list(',
   '  w = list(weighted = TRUE, zero_meaning = "measured_zero",',
   '           weight_semantics = "count")',
@@ -61,7 +61,7 @@ cap("d-declare", R(
   'netis_boundary(nd3)'
 ))
 
-cap("d-boundary-inferred", R(
+setup(R(
   'netis_boundary(nd2)'
 ))
 
@@ -133,20 +133,20 @@ cap("d-plot-data", R(
 # Influence: exposure
 # ===========================================================================
 
-cap("a-exposure-sum", R(
+setup(R(
   'compute_exposure(nd, content = "x", via = "w")'
 ))
 
-cap("a-exposure-row", R(
+setup(R(
   'compute_exposure(nd, content = "x", via = "w", normalize = "row")'
 ))
 
-cap("a-exposure-iso", R(
+setup(R(
   'compute_exposure(nd, content = "x", via = "w", normalize = "row",',
   '                 isolate_rule = "zero")'
 ))
 
-cap("a-exposure-direction", R(
+setup(R(
   'compute_exposure(nd, content = "x", via = "w",',
   '                 direction = "target_influences_source")'
 ))
@@ -240,7 +240,7 @@ cap("a-effect-probs", R(
   'influence_effect(fit, probs = c(0.25, 0.75))$exposures[["ex_y_tie"]]$predicted_change'
 ))
 
-cap("a-pseudo", R(
+setup(R(
   'pseudo_r2(fit)'
 ))
 

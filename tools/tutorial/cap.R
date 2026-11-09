@@ -27,6 +27,20 @@ suppressPackageStartupMessages({
   if (requireNamespace("latentnet", quietly = TRUE)) library(latentnet)
 })
 
+# .wl(): writeLines with LF endings, whatever the platform.
+#
+# .gitattributes declares `* text=auto eol=lf`, so every capture is checked
+# out with LF. R's writeLines() through a text connection emits CRLF on
+# Windows, which left the whole of out/ showing as modified after any capture
+# run with not one changed line in it -- and a file that is permanently dirty
+# for no reason is a file people stop reading `git status` for.
+.wl <- function(text, path) {
+  con <- file(path, open = "wb")
+  on.exit(close(con), add = TRUE)
+  writeLines(enc2utf8(as.character(text)), con, sep = "
+", useBytes = TRUE)
+}
+
 .started <- Sys.time()
 .log <- function(...) cat(sprintf("[%6.1fs] ", as.numeric(difftime(Sys.time(), .started, units = "secs"))), ..., "\n", sep = "")
 
@@ -43,7 +57,7 @@ ENV <- new.env(parent = globalenv())
 
 cap <- function(id, code, expect_error = FALSE) {
   .log("cap  ", id)
-  writeLines(code, file.path(OUT, paste0(id, ".R")))
+  .wl(code, file.path(OUT, paste0(id, ".R")))
   exprs <- parse(text = code)
   out <- character(0)
   failed <- FALSE
@@ -77,20 +91,40 @@ cap <- function(id, code, expect_error = FALSE) {
   }
   if (expect_error && !failed) {
     .log("  !! ", id, " was expected to refuse and did not")
-    writeLines("NOT-REFUSED", file.path(OUT, paste0(id, ".problem")))
+    .wl("NOT-REFUSED", file.path(OUT, paste0(id, ".problem")))
   }
   if (!expect_error && failed) {
     .log("  !! ", id, " failed unexpectedly: ", conditionMessage(res))
-    writeLines(conditionMessage(res), file.path(OUT, paste0(id, ".problem")))
+    .wl(conditionMessage(res), file.path(OUT, paste0(id, ".problem")))
   }
-  writeLines(out, file.path(OUT, paste0(id, ".txt")))
+  .wl(out, file.path(OUT, paste0(id, ".txt")))
   invisible(out)
+}
+
+# setup(): evaluate code for its side effects only, writing nothing.
+#
+# Some blocks exist to put an object into ENV for later captures to use, or
+# were shown on an earlier draft of a page and have since been replaced. Those
+# still have to run, but a .txt file nothing displays is indistinguishable
+# from a block somebody forgot to put on the page -- and make.py reports every
+# such file. Routing them through setup() keeps out/ to exactly what the page
+# shows.
+setup <- function(code) {
+  exprs <- parse(text = code)
+  for (e in exprs) {
+    withCallingHandlers(
+      eval(e, envir = ENV),
+      warning = function(w) invokeRestart("muffleWarning"),
+      message = function(m) invokeRestart("muffleMessage")
+    )
+  }
+  invisible(NULL)
 }
 
 # capfig(): same, but the last expression is a ggplot saved as a PNG.
 capfig <- function(id, code, width = 7.2, height = 4.6, dpi = 150) {
   .log("fig  ", id)
-  writeLines(code, file.path(OUT, paste0(id, ".R")))
+  .wl(code, file.path(OUT, paste0(id, ".R")))
   exprs <- parse(text = code)
   con <- textConnection("captured", "w", local = TRUE)
   sink(con, type = "output"); sink(con, type = "message")
@@ -112,10 +146,10 @@ capfig <- function(id, code, width = 7.2, height = 4.6, dpi = 150) {
   out <- captured
   if (!is.null(res)) {
     .log("  !! ", id, " figure failed: ", conditionMessage(res))
-    writeLines(conditionMessage(res), file.path(OUT, paste0(id, ".problem")))
+    .wl(conditionMessage(res), file.path(OUT, paste0(id, ".problem")))
     out <- c(out, paste0("Error: ", conditionMessage(res)))
   }
-  writeLines(out, file.path(OUT, paste0(id, ".txt")))
+  .wl(out, file.path(OUT, paste0(id, ".txt")))
   invisible(NULL)
 }
 
@@ -123,6 +157,6 @@ capfig <- function(id, code, width = 7.2, height = 4.6, dpi = 150) {
 # typed by hand.
 fact <- function(id, expr) {
   v <- eval(parse(text = expr), envir = ENV)
-  writeLines(as.character(v), file.path(OUT, paste0("fact-", id, ".txt")))
+  .wl(v, file.path(OUT, paste0("fact-", id, ".txt")))
   invisible(v)
 }

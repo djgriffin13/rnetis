@@ -1,7 +1,3 @@
-Registered S3 methods overwritten by 'lme4':
-  method               from
-  simulate.formula     ergm
-  simulate.formula_lhs ergm
 <netis_influence>
   y ~ ar() + exposure(x, via = tie) + (1 | group)
   Estimator: mixed-effects (lme4) (the formula declares a random-effects term)  [backend: lme4]

@@ -22,25 +22,49 @@ block that fails when it was not meant to.
 
 ## Rebuilding
 
+Run them in this order. **`run-e.R` has to be last**, for the reason in the
+last section.
+
 ```
 Rscript cap.R            # sourced by the run scripts; not run directly
 Rscript run-a.R out      # data pages and the Influence path     (~10 s)
 Rscript run-c.R out      # reference pages                       (~1 s)
-Rscript run-b.R out      # the Selection path                    (~10 min)
+Rscript run-g.R out      # the hand-built team data, fit statistics, interop (~30 s)
+Rscript run-b.R out      # the Selection path                    (~5 min)
 Rscript run-d.R out      # the hierarchical block, as one unit   (~8 min)
+Rscript run-f.R out      # the convergence block, from that chain  (~1 s)
 Rscript run-e.R out      # every figure, at publication width    (~3 min)
 python  make.py          # assemble and copy into pkgdown/assets/
 ```
 
-`make.py --dry` builds into this directory instead, for checking.
+`make.py --dry` builds into this directory instead, for checking. It needs
+`logo.png` beside it — `cp ../../man/figures/logo.png .` — which the
+published page gets from the site root instead.
 
 Check for `out/*.problem` after any run; there should be none. `make.py` exits
-non-zero and names anything it could not find.
+non-zero and names anything it could not find, and lists any capture on disk
+that no page displays.
 
 `run-d.R` refits the hierarchical model and saves it to `out/hier.rds` so that
 `run-e.R` can draw its panel from the same chain the tables came from, rather
 than from a second chain that would disagree with them. That file is not
 committed; without it `run-e.R` skips the hierarchical panel and says so.
+`run-f.R` reads the same file, so it has to run after `run-d.R`.
+
+## How a page is put together
+
+- `build.py` — the block constructors and the page template. `code()`,
+  `result()` and `block()` read `out/`; `fig()` places a captured ggplot;
+  `dia()` places a hand-drawn SVG; `eq()` places a display equation.
+- `content_a.py`, `content_b.py` — the prose, in page order. Importing them
+  registers the pages.
+- `diagrams.py` — the SVG diagrams. These are *conceptual* figures and carry
+  no number from a fit; anything reporting an estimate is a captured ggplot,
+  so no drawing on the page can disagree with a result.
+- `cap.R` — `cap()` writes a block and its output, `capfig()` a figure,
+  `setup()` runs code for its side effects without writing anything (for
+  objects later captures need, and for blocks a page has stopped showing), and
+  `fact()` records a single value for the prose to quote.
 
 Running everything needs the suggested packages the page uses: `amen`,
 `latentnet`, `clubSandwich` and `igraph`.
@@ -71,3 +95,9 @@ The figures are saved wide (`W` in `run-e.R`) on purpose. rnetis's plot theme
 carries a wide categorical legend and a multi-line caption, and `ggsave()`
 clips them rather than shrinking them — a narrower figure loses the right-hand
 end of the legend without any error.
+
+Which is why **`run-e.R` has to be the last script you run**. `run-a.R` and
+`run-b.R` render the same figures at their own, narrower widths as a
+by-product; re-running either on its own silently replaces the publication
+renders in `out/png/` with clipped ones, and nothing errors. If you re-run
+anything, finish with `run-e.R`.

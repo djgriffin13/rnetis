@@ -1,0 +1,6 @@
+Error: Edge presence for 'r' is undetermined: this network is declared presence_mode = "complete_dyadic" (rows exist regardless of tie status), but no presence_col or presence_rule was supplied to say which rows are actually present. Say which in netis_data(). If a nonzero value means a tie, pass:
+  tie_meta = list(r = list(presence_mode = "value_rule", presence_rule = function(value) value != 0))
+If a column of your tie table says so, pass:
+  tie_meta = list(r = list(presence_mode = "indicator", presence_col = "<column>"))
+If every row is a tie, whatever its value, pass:
+  tie_meta = list(r = list(presence_mode = "row_presence"))

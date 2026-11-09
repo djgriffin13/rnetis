@@ -146,6 +146,37 @@ def codeonly(text, lang="r"):
     return copy_block(text, lang)
 
 
+def dia(markup, caption):
+    """A hand-drawn SVG diagram.
+
+    Inline rather than a PNG: a diagram built from the page's own colour
+    tokens follows the reader's light/dark setting, stays sharp at any zoom,
+    and costs no extra request. Nothing here is data from a fit -- every
+    figure that reports a number is a captured ggplot, so that no drawn
+    picture can disagree with a result.
+    """
+    DIAGRAMS.append(caption)
+    return (
+        '<figure class="dia">%s<figcaption>%s</figcaption></figure>'
+        % (markup, inline(caption))
+    )
+
+
+def eq(markup, note=None):
+    """A display equation, written as HTML rather than rendered maths.
+
+    No KaTeX or MathJax: the page is one self-contained file served from the
+    pkgdown site root, and a formula that needs a CDN is a formula that is
+    blank on a train. Everything here is reachable with <i>, <sub> and the
+    Unicode operators.
+    """
+    tail = '<span class="eqn">%s</span>' % inline(note) if note else ""
+    return '<div class="eq">%s%s</div>' % (markup, tail)
+
+
+DIAGRAMS = []
+
+
 def figure_source(cid):
     """Where this figure's PNG is: freshly rendered, or already published.
 
@@ -344,6 +375,39 @@ background:var(--bg);color:var(--ink);font:inherit;margin:4px 0 6px}
 .hidden{display:none!important}
 mark{background:var(--mark);color:inherit}
 figure{margin:14px 0}
+/* Diagram palette. Sequential steps are the documented blue ramp; the dark
+   column is stepped for the dark surface rather than flipped, so in both
+   modes the low end is the one that recedes toward the background. */
+:root{--d1:#b7d3f6;--d2:#86b6ef;--d3:#5598e7;--d4:#2a78d6;--d5:#1c5cab;--d6:#0d366b;
+--dA:#2a78d6;--dB:#eb6834;--dink:#16202b;--dline:#b9c2cb;--dsurf:#ffffff;--dfaint:#eef1f3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+--d1:#104281;--d2:#1c5cab;--d3:#2a78d6;--d4:#5598e7;--d5:#86b6ef;--d6:#b7d3f6;
+--dA:#3987e5;--dB:#d95926;--dink:#e7ecf0;--dline:#495562;--dsurf:#1a1f24;--dfaint:#222930}}
+:root[data-theme="dark"]{--d1:#104281;--d2:#1c5cab;--d3:#2a78d6;--d4:#5598e7;--d5:#86b6ef;
+--d6:#b7d3f6;--dA:#3987e5;--dB:#d95926;--dink:#e7ecf0;--dline:#495562;--dsurf:#1a1f24;
+--dfaint:#222930}
+figure.dia{background:var(--bg);border:1px solid var(--line);border-radius:10px;
+padding:10px 12px 6px}
+figure.dia svg{display:block;width:100%;height:auto;overflow:visible}
+figure.dia figcaption{margin-top:8px}
+.dia text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;fill:var(--dink)}
+.dia .lbl{font-size:13px}
+.dia .sub{font-size:11.5px;fill:var(--muted)}
+.dia .ttl{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+fill:var(--muted)}
+.dia .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
+.dia .node{stroke:var(--dink);stroke-width:1.4}
+.dia .edge{fill:none;stroke:var(--dA)}
+.dia .ghost{fill:none;stroke:var(--dline);stroke-dasharray:4 3}
+.dia .panel{fill:var(--dsurf);stroke:var(--line)}
+.eq{margin:14px 0;padding:10px 14px;background:var(--bg);border:1px solid var(--line);
+border-left:4px solid var(--accent);border-radius:0 8px 8px 0;text-align:center;
+font-size:17.5px;line-height:1.9;overflow-x:auto}
+.eq i{font-family:Georgia,"Times New Roman",serif;font-style:italic;padding:0 .5px}
+.eq .op{padding:0 .28em;color:var(--muted);font-style:normal}
+.eq .eqn{display:block;margin-top:6px;font-size:13.5px;line-height:1.5;color:var(--muted);
+text-align:left}
+.eq .tag{float:right;font-size:13px;color:var(--muted)}
 figure img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;display:block;background:#fff}
 figcaption{font-size:13px;color:var(--muted);margin-top:5px}
 .hero{float:right;width:108px;margin:2px 0 10px 18px}
@@ -485,7 +549,6 @@ def render(stamp):
                 '<a class="top" href="#%s" data-page="%d">%s</a>'
                 % (pg["id"], i, html.escape(pg["nav"]))
             )
-            toc.append('<option value="%d">%s</option>' % (i, html.escape(pg["nav"])))
             continue
         if not seen or seen[-1] != pg["group"]:
             seen.append(pg["group"])
@@ -515,8 +578,13 @@ def render(stamp):
             out.append(nav[i])
             i += 1
 
-    # grouped <optgroup> for the mobile select
-    toc_groups, last = [], None
+    # grouped <optgroup> for the mobile select.
+    #
+    # The placeholder has to be first and has to carry value="": show() resets
+    # the select to "" on every page change, and a select whose value matches
+    # no option renders blank rather than falling back to its first one.
+    toc_groups = ['<option value="">Contents…</option>']
+    last = None
     for i, pg in enumerate(PAGES):
         if pg["group"] is None:
             if last is not None:

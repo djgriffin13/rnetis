@@ -1,0 +1,7 @@
+  group node ex_wellbeing_strength
+1     1  Ada                24.286
+2     1  Ben                40.000
+3     1  Cyd                10.000
+4     1  Dev                50.000
+5     1  Eli                30.000
+6     1  Fay                 0.000

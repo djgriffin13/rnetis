@@ -1,0 +1,5 @@
+  source target wave tie same_unit
+1    p02    p01    1   0         0
+2    p02    p01    2   0         0
+3    p03    p01    1   0         1
+4    p03    p01    2   0         1

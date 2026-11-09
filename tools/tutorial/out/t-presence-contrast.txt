@@ -1,0 +1,4 @@
+  group net_density_r
+1     1             1
+  group net_density_r
+1     1       0.33333

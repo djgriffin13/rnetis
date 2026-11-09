@@ -1,0 +1,1 @@
+Error: This data has 3 waves (1, 2, 3), and this version fits one transition. rnetis will not choose which one: a fit reported without naming its transition reads as though the whole panel were modeled. Name it -- waves = c(2, 3) for the last transition, or any other observed pair. In the named pair, `to` is the outcome and a lag of 1 reads `from`.

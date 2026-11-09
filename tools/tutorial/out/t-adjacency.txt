@@ -1,0 +1,7 @@
+    Ada Ben Cyd Dev Eli Fay
+Ada   0   2   0   1   0   0
+Ben   1   0   1   0   0   0
+Cyd   3   1   0   0   0   0
+Dev   2   0   0   0   1   0
+Eli   1   0   0   0   0   0
+Fay   0   0   0   0   0   0

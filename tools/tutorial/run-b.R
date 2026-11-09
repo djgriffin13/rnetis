@@ -9,7 +9,7 @@ R <- function(...) paste(c(...), collapse = "\n")
 # Selection: the data and the grammar
 # ===========================================================================
 
-cap("b-demo", R(
+setup(R(
   'demo_selection'
 ))
 
@@ -17,7 +17,7 @@ cap("b-bare-refuse", R(
   'fit_selection(tie ~ tenure, data = demo_selection)'
 ), expect_error = TRUE)
 
-cap("b-prepare", R(
+setup(R(
   'nodes <- netis_nodes(demo_selection)',
   'ties  <- netis_ties(demo_selection)',
   '',
@@ -41,7 +41,7 @@ cap("b-waves-refuse", R(
 # Selection: fit
 # ===========================================================================
 
-cap("b-fit", R(
+setup(R(
   'sel <- fit_selection(',
   '  tie ~ sender(tenure) + receiver(tenure) + dyad(same_unit) + prior_tie(),',
   '  data = staff,',
@@ -71,7 +71,7 @@ cap("b-estimates", R(
   'netis_estimates(sel)'
 ))
 
-cap("b-glance", R(
+setup(R(
   'netis_glance(sel)'
 ))
 
@@ -176,60 +176,13 @@ capfig("b-plot-groups", R('plot(separate, what = "groups")'), width = 6.8, heigh
 # Selection: a hierarchical model over every group at once
 # ===========================================================================
 
-cap("b-teams", R(
-  'set.seed(42)',
-  'teams <- sprintf("t%02d", 1:12)',
-  '',
-  'team_nodes <- do.call(rbind, lapply(teams, function(g) {',
-  '  data.frame(group = g, node = sprintf("%s_%d", g, 1:8),',
-  '             wave = rep(1:2, each = 8),',
-  '             extraversion = rep(stats::rnorm(8), 2))',
-  '}))',
-  '',
-  'team_ties <- do.call(rbind, lapply(teams, function(g) {',
-  '  ids <- sprintf("%s_%d", g, 1:8)',
-  '  x <- team_nodes$extraversion[team_nodes$group == g & team_nodes$wave == 1]',
-  '  p <- expand.grid(source = ids, target = ids, stringsAsFactors = FALSE)',
-  '  p <- p[p$source != p$target, ]',
-  '  eta <- stats::rnorm(1, -0.6, 0.4) +',
-  '         stats::rnorm(1, 0.4, 0.25) * x[match(p$source, ids)]',
-  '  do.call(rbind, lapply(1:2, function(w) {',
-  '    data.frame(group = g, p, wave = w,',
-  '               tie = stats::rbinom(nrow(p), 1, stats::pnorm(eta)))',
-  '  }))',
-  '}))',
-  '',
-  'teams_data <- netis_data(team_nodes, team_ties, wave_col = "wave",',
-  '                         tie_meta = list(tie = list(zero_meaning = "measured_zero")))',
-  'teams_data'
-))
-
-cap("b-pooling-spec", R(
-  'selection_pooling(random = c("intercept", "snd_extraversion"))'
-))
-
-cap("b-hier", R(
-  'hier <- fit_selection(',
-  '  tie ~ sender(extraversion) + prior_tie(), data = teams_data,',
-  '  pooling = selection_pooling(random = c("intercept", "snd_extraversion")),',
-  '  nscan = 10000, burn = 1000, odens = 10, chains = 2',
-  ')',
-  'hier'
-))
-
-cap("b-hier-pop", R(
-  'netis_hierarchy(hier)$population'
-))
-
-cap("b-hier-groups", R(
-  'head(netis_hierarchy(hier)$groups, 8)'
-))
-
-cap("b-hier-conv", R(
-  'netis_hierarchy(hier)$convergence'
-))
-
-capfig("b-plot-hier", R('plot(hier, what = "heterogeneity")'), width = 6.8, height = 4.6)
+# The hierarchical block lives in run-d.R, not here.
+#
+# It was duplicated in both for a while, and run-d.R simply overwrote these
+# captures because it runs later -- so re-running run-b.R on its own silently
+# replaced a seeded chain with an unseeded one, and left the convergence
+# tables disagreeing with the figure drawn from out/hier.rds. One script owns
+# that block now, and it is the one that saves the chain.
 
 # ===========================================================================
 # The confounding problem, and the latent-space adjustment

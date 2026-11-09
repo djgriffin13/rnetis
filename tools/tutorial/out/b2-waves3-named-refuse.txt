@@ -1,0 +1,1 @@
+Error: Tie variable 'tie' in group '1' is identical at waves '2' and '3', so a lagged relation term between them would be the response itself. Choose a transition over which the relation changes, or drop the lagged term.

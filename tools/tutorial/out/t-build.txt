@@ -1,0 +1,7 @@
+<netis_data>
+  6 nodes in 1 group, 9 ties, directed, 2 waves, self-ties prohibited
+  node variables: static: tenure; dynamic: wellbeing
+  tie variables: static: strength
+  tie network semantics:
+    strength: weighted, row_presence (inferred)
+  no group_data supplied

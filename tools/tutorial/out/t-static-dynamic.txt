@@ -1,0 +1,12 @@
+$static
+[1] "tenure"
+
+$dynamic
+[1] "wellbeing"
+
+$static
+[1] "strength"
+
+$dynamic
+character(0)
+
