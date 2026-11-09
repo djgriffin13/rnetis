@@ -1,0 +1,1 @@
+Error: This measure interprets edge weights as distances, but the network's weights are declared as "strength" (a larger value would be read as a shorter distance without one). Supply weight_transform = inverse(), or request weights = "unweighted".

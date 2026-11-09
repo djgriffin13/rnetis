@@ -1,0 +1,4 @@
+     family      estimand outcome_family backend nobs n_groups pooled latent_dims
+1 selection tie formation            bin    amen  380        1  FALSE           0
+  n_draws n_error n_warning n_note netis_version
+1     500       0         3      0         0.1.0

@@ -1,0 +1,7 @@
+<netis_data>
+  3 nodes in 1 group, 3 ties, directed, 2 waves, self-ties prohibited
+  node variables: dynamic: x
+  tie variables: dynamic: w
+  tie network semantics:
+    w: weighted (inferred), row_presence (inferred)
+  no group_data supplied

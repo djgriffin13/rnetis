@@ -1,0 +1,3 @@
+<netis_diagnostics: 0 ERROR, 0 WARNING, 2 NOTE>
+  [NOTE/data] 4 node(s) have no ties in either direction at any wave: e, f, g, h.
+  [NOTE/data] Numeric node variable(s) with no variance across the entire dataset: x. Such a variable cannot contribute to any model that relies on variation to identify an effect.

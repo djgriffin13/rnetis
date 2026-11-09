@@ -156,6 +156,12 @@ a data object and fits an Influence model, `vignette("selection")` fits Selectio
 models, `vignette("latent-space")` covers the latent space adjustment, and
 `vignette("model-fit")` covers checking a model.
 
+For a longer, worked introduction that takes both model families end to end,
+see the [**tutorial**](https://djgriffin13.github.io/rnetis/TUTORIAL.html): a
+single searchable page covering installation, the data object, an Influence
+analysis and a Selection analysis, with every result on it captured from a live
+R session rather than written by hand.
+
 ## Functions by task
 
 The package is named `rnetis`; its functions and classes use the `netis_` prefix or a plain

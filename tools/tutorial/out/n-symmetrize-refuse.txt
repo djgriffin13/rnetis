@@ -1,0 +1,1 @@
+Error: symmetrize() requires rule =, one of "max", "min", "sum", "mean", "any", "both". They are different operations on a weighted network, so none of them is assumed.

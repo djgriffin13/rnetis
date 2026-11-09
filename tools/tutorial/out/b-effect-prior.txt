@@ -1,0 +1,10 @@
+Average marginal probability contrast
+
+Term:      prior_tie (0 to 1 at every dyad)
+Estimand:  conditional on the observed network
+Group:     1
+Dyads:     380
+
+  +46.6 percentage points  [31.7, 61.6] (95%)
+
+Actor effects are held at their posterior means rather than integrated over, because the fit keeps them only as posterior means. This interval reflects uncertainty in the coefficients only and is narrower than a fully propagated one.

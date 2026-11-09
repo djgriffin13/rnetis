@@ -1,0 +1,7 @@
+  node wave group unit present missing_state
+1    1    1     1    1    TRUE      observed
+2   10    1     1   10    TRUE      observed
+3   11    1     1   11    TRUE      observed
+4   12    1     1   12    TRUE      observed
+5   13    1     1   13    TRUE      observed
+6   14    1     1   14    TRUE      observed

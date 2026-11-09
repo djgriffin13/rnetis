@@ -1,0 +1,10 @@
+       coefficient parameter estimate      lower    upper    median   rhat ess_bulk
+1        intercept        mu -0.91905 -1.1611716 -0.68543 -0.918424 1.0019  2029.18
+2        intercept       tau  0.14491  0.0043868  0.39502  0.120713 1.0041   283.01
+3 snd_extraversion        mu  0.37242  0.1910460  0.56539  0.370840 1.0000  1696.93
+4 snd_extraversion       tau  0.11116  0.0044188  0.33230  0.090286 1.0267   205.88
+  ess_tail
+1  2003.30
+2   165.78
+3  1589.73
+4   226.56

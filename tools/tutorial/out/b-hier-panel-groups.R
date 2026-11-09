@@ -1,0 +1,1 @@
+plot(hier, what = "groups")

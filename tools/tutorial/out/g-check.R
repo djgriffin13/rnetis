@@ -1,0 +1,2 @@
+library(rnetis)
+packageVersion("rnetis")

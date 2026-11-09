@@ -1,0 +1,5 @@
+<netis_data>
+  4 nodes in 1 group, 4 ties, directed, self-ties prohibited
+  node variables: (none)
+  tie variables: (none)
+  no group_data supplied

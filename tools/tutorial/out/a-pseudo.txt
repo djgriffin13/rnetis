@@ -1,0 +1,11 @@
+Pseudo R-squared (influence model)
+------------------------------------------------------------
+  R-squared (ordinary least squares)                0.356
+  Adjusted R-squared                                0.308
+
+  This is an ordinary R-squared, not a pseudo-R-squared: an OLS fit
+  has a genuine proportion-of-variance-explained and it is reported
+  under its own name. It is the same r.squared netis_glance()
+  reports.
+
+Different measures answer different questions; none is 'the' R-squared.

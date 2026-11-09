@@ -1,0 +1,6 @@
+         term group estimate std.error conf.low conf.high      role         scale
+1 (Intercept)  <NA>  0.22984   0.17427 -0.12908   0.58877    direct outcome units
+2      y_lag1  <NA>  0.51055   0.13276  0.23712   0.78397 stability outcome units
+3      x_lag1  <NA>  0.10034   0.16175 -0.23278   0.43347    lagged outcome units
+4    ex_y_tie  <NA>  0.19830   0.24295 -0.30206   0.69867  exposure outcome units
+5           x  <NA>  0.20043   0.19448 -0.20012   0.60097    direct outcome units

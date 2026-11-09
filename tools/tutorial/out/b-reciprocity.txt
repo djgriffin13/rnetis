@@ -1,0 +1,5 @@
+         term group estimate std.error conf.low conf.high        role         scale
+1   intercept  <NA> -1.38744   0.19391 -1.78181  -1.04450   intercept latent probit
+2  snd_tenure  <NA>  0.45641   0.14331  0.18054   0.73520      sender latent probit
+3   prior_tie  <NA>  1.76728   0.26087  1.26611   2.31217   prior tie latent probit
+4 prior_recip  <NA>  0.21404   0.27235 -0.27291   0.74427 reciprocity latent probit

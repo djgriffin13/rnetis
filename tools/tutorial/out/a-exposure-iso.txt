@@ -1,0 +1,4 @@
+  group node ex_x_w
+1     1    a   27.5
+2     1    b    0.0
+3     1    c    0.0

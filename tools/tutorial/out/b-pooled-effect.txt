@@ -1,0 +1,10 @@
+Average marginal probability contrast
+
+Term:      prior_tie (0 to 1 at every dyad)
+Estimand:  conditional on the observed network
+Group:     a
+Dyads:     380
+
+  +50.6 percentage points  [35.2, 66.2] (95%)
+
+Actor effects are held at their posterior means rather than integrated over, because the fit keeps them only as posterior means. This interval reflects uncertainty in the coefficients only and is narrower than a fully propagated one. The coefficient draws are this group's own, from before pooling: a pooled fit has a pooled mean and variance per coefficient but no pooled draws, so this contrast can differ from the pooled coefficient, even in sign.

@@ -1,0 +1,10 @@
+Average marginal probability contrast
+
+Term:      snd_tenure (observed value + 1)
+Estimand:  population-averaged over actor effects
+Group:     1
+Dyads:     380
+
+  +10.1 percentage points  [4.9, 15.0] (95%)
+
+Additive sender and receiver effects were integrated over their estimated distribution at each posterior draw (exactly, in closed form), so this interval reflects uncertainty in the coefficients and the additive actor-effect variances. 

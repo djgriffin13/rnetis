@@ -96,6 +96,12 @@ expected <- c("index.html", "404.html", "authors.html", "LICENSE.html",
               # the package has no tutorials). Generated output, same as above.
               "site.webmanifest", "web-app-manifest-192x192.png",
               "web-app-manifest-512x512.png", "tutorials",
+              # The standalone tutorial and its figures, copied to the site
+              # root from pkgdown/assets/ by pkgdown itself. Both are tracked
+              # in the repository and built by a script, not local notes.
+              # Note the singular/plural: "tutorials" above is pkgdown's own
+              # (empty) directory; "tutorial-figures" is ours.
+              "TUTORIAL.html", "tutorial-figures",
               "pkgdown.yml", "link.svg", "logo.png", "favicon.ico",
               "apple-touch-icon.png", "apple-touch-icon-120x120.png",
               "apple-touch-icon-152x152.png", "apple-touch-icon-180x180.png",

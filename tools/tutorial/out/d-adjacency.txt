@@ -1,0 +1,7 @@
+<netis_data>
+  3 nodes in 1 group, 3 ties, directed, self-ties prohibited
+  node variables: (none)
+  tie variables: static: weight
+  tie network semantics:
+    weight: binary (inferred), row_presence (inferred)
+  no group_data supplied

@@ -1,0 +1,18 @@
+# `make.py --dry` builds here for checking; the published copy lives in
+# pkgdown/assets/ and is the one that is committed.
+TUTORIAL.html
+tutorial-figures/
+logo.png
+
+# The refitted hierarchical chain, kept only so run-e.R can draw its panel
+# from the same chain run-d.R summarised. Large, and regenerable.
+out/hier.rds
+
+# Freshly rendered figures. The published copies under
+# pkgdown/assets/tutorial-figures/ are the committed ones, and build.py falls
+# back to them, so a clean checkout can rebuild the page without re-rendering.
+out/png/
+
+# Written when a captured block fails, or when a block marked as a refusal
+# does not refuse. Should never exist in a clean tree.
+out/*.problem

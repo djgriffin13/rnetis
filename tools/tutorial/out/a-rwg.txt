@@ -1,0 +1,9 @@
+Within-group agreement r_wg   [1 item(s)]
+  null variance: 2   (negative values truncated at 0)
+
+ group  n observed_var     rwg
+     a 10      0.09749 0.95125
+     b 10      0.18302 0.90849
+
+  Agreement WITHIN groups. Not reliability of differentiation BETWEEN
+  them -- see icc1()/icc2(); the two can point different ways.

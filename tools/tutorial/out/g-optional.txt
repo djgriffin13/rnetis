@@ -1,0 +1,9 @@
+amen           installed
+latentnet      installed
+sna            installed
+Registered S3 method overwritten by 'clubSandwich':
+  method    from    
+  bread.mlm sandwich
+clubSandwich   installed
+igraph         installed
+network        installed

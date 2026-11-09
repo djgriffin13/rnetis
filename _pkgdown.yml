@@ -28,6 +28,24 @@ url: https://djgriffin13.github.io/rnetis/
 template:
   bootstrap: 5
 
+# TUTORIAL.html is a standalone, self-contained page under pkgdown/assets/,
+# which pkgdown copies to the site root unchanged. It is not a vignette and
+# is not rendered here: it is generated, with every result captured from a
+# live R session, by the builder in tools/tutorial/. Rebuild it with
+#
+#   python tools/tutorial/make.py
+#
+# whenever the output it shows could have changed, then commit the result.
+# tools/clean-site.R lists both it and tutorial-figures/ as expected at the
+# site root; without those entries the deploy workflow fails the publish.
+navbar:
+  structure:
+    left: [tutorial, reference, articles, news]
+  components:
+    tutorial:
+      text: Tutorial
+      href: TUTORIAL.html
+
 reference:
 - title: The package
   contents:

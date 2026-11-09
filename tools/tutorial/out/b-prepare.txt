@@ -1,0 +1,8 @@
+<netis_data>
+  20 nodes in 1 group, 380 ties, directed, 2 waves, self-ties prohibited
+  node variables: static: tenure
+  tie variables: static: same_unit; dynamic: tie
+  tie network semantics:
+    tie: binary (inferred), complete_dyadic (inferred)
+    same_unit: binary (inferred), complete_dyadic (inferred)
+  no group_data supplied

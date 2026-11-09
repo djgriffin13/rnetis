@@ -1,0 +1,6 @@
+
+ between_group_sd group_coefficient          nuisance   population_mean 
+                2                24                48                 2 
+           shared 
+                1 
+[1] 1.0267

@@ -1,0 +1,1 @@
+[1] "sender(tenure) is measured at the same wave as the tie outcome, not a prior one. It is fit as an ordinary predictor, but this specification does not establish that tenure preceded the tie -- an attribute measured alongside a relation may be a consequence of it as easily as a cause. Consider sender(tenure, lag = 1) if the prior wave's value is a more defensible predictor."

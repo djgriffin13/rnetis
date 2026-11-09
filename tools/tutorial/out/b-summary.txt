@@ -1,0 +1,16 @@
+  Formula: tie ~ sender(tenure) + receiver(tenure) + dyad(same_unit) + prior_tie()
+  Family:  binary tie (probit)
+  Groups:  1
+  Backend: amen::ame(), one observed network per group
+  Waves: analyzed 1 -> 2 of 2 present; 0 waves not used
+  Coefficients are on the latent probit scale, not a probability or odds scale: exp(coefficient) is not an odds ratio for this model. Because they shift with the modeled sender, receiver, and dyadic heterogeneity, comparing them across specifications is not like comparing linear regression coefficients. Report probability-scale contrasts for magnitude.
+
+Coefficients:
+           Term Estimate     SE       95% interval
+1     intercept  -1.5696 0.2216 [-2.0335, -1.1850]
+2    snd_tenure   0.5220 0.1335   [0.2553, 0.7737]
+3    rcv_tenure   0.4068 0.1186   [0.1898, 0.6481]
+4 dyd_same_unit   0.1274 0.1891  [-0.2138, 0.5392]
+5     prior_tie   1.7409 0.2479   [1.2705, 2.2354]
+
+Fit-time findings: 3 WARNING, 0 NOTE. List them with netis_diagnostics(fit).

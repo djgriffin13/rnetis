@@ -1,0 +1,7 @@
+<netis_data>
+  4 nodes in 1 group, 3 ties, directed, 2 waves, self-ties prohibited
+  node variables: static: tenure; dynamic: y
+  tie variables: static: tie
+  tie network semantics:
+    tie: binary (inferred), row_presence (inferred)
+  no group_data supplied

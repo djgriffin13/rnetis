@@ -1,0 +1,6 @@
+<netis_selection_pooling>
+  random:   intercept, snd_extraversion
+  unpooled: none
+  everything else: shared across groups
+  tau prior: half-t(nu = 3, A0 = 0.5) per derived reference change
+  between-group covariance: diagonal (coefficients vary independently)
