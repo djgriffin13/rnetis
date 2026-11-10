@@ -422,10 +422,12 @@ figure img{max-width:100%;height:auto;border:1px solid var(--line);border-radius
    there is nothing to spare. The padding supplies the 4-module quiet zone the
    QR spec asks for (~22px at this module size) in white, the border moves
    outside that pad, and pixelated rendering stops a browser softening the
-   modules if it scales. box-sizing is border-box, so width includes the pad
-   and the image lands at its native 200px. */
+   modules if it scales. box-sizing is border-box, so the width has to cover
+   the pad AND the border for the image to land at its native 200px:
+   250 - 48 padding - 2 border = 200 exactly. At 248 it rendered at 198.4 and
+   the modules stopped falling on whole pixels. */
 figure.qr{text-align:center}
-figure.qr img{border-radius:0;padding:24px;width:248px;max-width:100%;
+figure.qr img{border-radius:0;padding:24px;width:250px;max-width:100%;
 background:#fff;image-rendering:pixelated;margin:0 auto}
 figcaption{font-size:13px;color:var(--muted);margin-top:5px}
 .hero{float:right;width:108px;margin:2px 0 10px 18px}
