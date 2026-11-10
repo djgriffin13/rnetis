@@ -1,3 +1,31 @@
+# rnetis (development version)
+
+* `netis_gof()` reports the posterior predictive check on a Selection fit: for
+  each of five network statistics, the value in the observed network against
+  its distribution across networks simulated from the posterior. `amen` was
+  already simulating them at every retained scan; they were discarded on the
+  way out of the backend adapter and are now carried through.
+
+  The check answers the question a coefficient table cannot. A sender/receiver
+  model can place every coefficient correctly and still generate networks with
+  none of the observed closure, and `trans.dep` and `cycle.dep` are where that
+  shows. Nothing additive accounts for either, so an `R = 0` fit reproducing
+  the two degree statistics and missing the two triadic ones is the expected
+  result rather than a defect — and it is the reason to consider `R > 0`.
+
+  `ppp` is one-sided, so both 0 and 1 are misfit; `z` is the distance from the
+  predictive mean in predictive standard deviations and assumes a roughly
+  symmetric predictive distribution; the reported quantiles assume nothing. No
+  threshold is applied to any of them.
+
+* `plot()` on a Selection fit takes `what = "gof"`, one facet per statistic
+  with the observed value against its predictive range.
+
+* A hierarchical fit (`pooling = selection_pooling()`) is refused by name: its
+  sampler does not simulate a network per scan, because the simulation does
+  not affect the posterior. So is a fit run with `gof = FALSE`, which recorded
+  the observed statistics and no distribution to read them against.
+
 # rnetis 0.1.0
 
 First release. `rnetis` gives applied researchers one interface to two established

@@ -1,7 +1,8 @@
 # Panels over a fitted Selection model.
 
 .NETIS_SELECTION_PANELS <- c("coefficients", "heterogeneity", "posterior", "trace",
-                             "actor_effects", "multiplicative", "mcmc", "groups")
+                             "actor_effects", "multiplicative", "mcmc", "groups",
+                             "gof")
 
 #' Plot a fitted Selection model
 #'
@@ -35,6 +36,9 @@
 #' error — the reason to look at a posterior is that it need not be normal.
 #' `"actor_effects"` draws posterior means without intervals, because the
 #' sampler reports actor effects only as posterior means; the caption says so.
+#' `"gof"` needs networks simulated from the posterior, so it refuses a
+#' hierarchical fit, whose sampler does not simulate any, and a fit run with
+#' `gof = FALSE`; [netis_gof()] states both refusals in full.
 #'
 #' Chain length is reported as a count, never judged: the caption states how many
 #' draws were retained and that Monte Carlo error scales with that number, and
@@ -59,6 +63,11 @@
 #' coefficient has only its population row. `"heterogeneity"` reads
 #' [netis_variance_components()], which refuses a hierarchical fit.
 #'
+#' `"gof"` is the one panel that needs no `group` on a multi-group fit: every
+#' group was fitted to its own network and so has its own observed statistics
+#' and its own simulated ones, and the panel shows them all, one row per group
+#' in each facet. Naming a group narrows it to that group.
+#'
 #' @param x A `netis_selection` fit.
 #' @param what Which panel. `"coefficients"` (default) draws each term's
 #'   posterior estimate and interval; `"heterogeneity"` the variance components;
@@ -67,7 +76,10 @@
 #'   a symmetric fit, each actor's one additive effect);
 #'   `"multiplicative"` the rotation-invariant product `U V'` per ordered pair of
 #'   different actors; `"mcmc"` per-parameter R-hat and effective sample size;
-#'   `"groups"` the per-group estimates (see **Multi-group fits**).
+#'   `"groups"` the per-group estimates (see **Multi-group fits**); `"gof"` the
+#'   posterior predictive check — each of five network statistics in the
+#'   observed network against its range across networks simulated from the
+#'   posterior, via [netis_gof()].
 #' @param terms Optional character vector selecting which terms to show, on
 #'   `"coefficients"`, `"posterior"` and `"trace"`. The other panels ignore it.
 #' @param group Optional group ID, for a multi-group fit (see **Multi-group
@@ -124,7 +136,8 @@ plot.netis_selection <- function(x, what = NULL, terms = NULL, group = NULL, ...
     actor_effects  = .netis_plot_actor_effects(d),
     multiplicative = .netis_plot_multiplicative(d),
     mcmc           = .netis_plot_mcmc(d),
-    groups         = .netis_groups_panel(d)
+    groups         = .netis_groups_panel(d),
+    gof            = .netis_plot_gof(d)
   )
 }
 
@@ -145,7 +158,10 @@ plot_data.netis_selection <- function(x, what = NULL, terms = NULL, group = NULL
     actor_effects  = .plot_data_actor_effects(x, group),
     multiplicative = .plot_data_multiplicative(x, group),
     mcmc           = .plot_data_mcmc(.selection_plot_draws_source(x, group, what)),
-    groups         = .plot_data_groups(x)
+    groups         = .plot_data_groups(x),
+    # Straight through: netis_gof() already owns every reporting decision in
+    # this table, and a second summary here could disagree with the first.
+    gof            = netis_gof(x, group = group)
   )
 }
 
@@ -455,6 +471,51 @@ plot_data.netis_selection <- function(x, what = NULL, terms = NULL, group = NULL
     ) +
     ggplot2::coord_equal() +
     ggplot2::labs(x = "receiver", y = "sender") +
+    .netis_theme() +
+    .netis_caption_lab(d)
+  .netis_declare_references(p, .netis_references())
+}
+
+# ---- posterior predictive check ---------------------------------------------
+
+#' The observed network against the networks the posterior generates
+#'
+#' TWO DIFFERENT QUANTITIES, DRAWN AS TWO DIFFERENT MARKS. The bar is where the
+#' fitted model said this statistic would fall; the point is where it actually
+#' fell. That is not an estimate with its uncertainty, which is why
+#' `.netis_interval_layer()` is deliberately not reused here -- its point sits
+#' at the centre of its interval by construction, and reusing it would make a
+#' misfit look like a wide confidence interval. `.netis_reference_layer()`'s own
+#' note sanctions an ordinary `geom_linerange()` for a predictive interval:
+#' there is no threshold anywhere in this panel.
+#'
+#' FREE X SCALES, one facet per statistic. The five statistics are five
+#' different quantities -- a standard deviation of row means and a triadic
+#' correlation -- and putting them on one axis would invite comparing their
+#' magnitudes, which means nothing. Each is read against its own predictive
+#' range and nothing else.
+#'
+#' No reference line at the predictive mean. The question is whether the point
+#' is inside the bar, and a line through the middle of every bar would be read
+#' as a target the observed value is supposed to hit.
+#' @noRd
+.netis_plot_gof <- function(d) {
+  # amen's own column order, not alphabetical: the two degree statistics, the
+  # dyadic one, then the two triadic ones. That is the order in which a reader
+  # works through them, because it is the order in which the model stops
+  # accounting for them.
+  d$statistic <- factor(d$statistic, levels = unique(d$statistic))
+  p <- ggplot2::ggplot(d, ggplot2::aes(y = grouping)) +
+    ggplot2::geom_linerange(
+      ggplot2::aes(xmin = predicted_lower, xmax = predicted_upper),
+      linewidth = 1.6, colour = "grey70", na.rm = TRUE
+    ) +
+    ggplot2::geom_point(
+      ggplot2::aes(x = observed),
+      size = 2.4, colour = "grey20", na.rm = TRUE
+    ) +
+    ggplot2::facet_wrap(~ statistic, scales = "free_x", nrow = 1) +
+    ggplot2::labs(x = "statistic", y = NULL) +
     .netis_theme() +
     .netis_caption_lab(d)
   .netis_declare_references(p, .netis_references())

@@ -206,6 +206,7 @@ reference:
   - netis_dependence
   - netis-dependence-methods
   - netis-dependence-plot
+  - netis_gof
   - influence_se_comparison
 
 - title: Effect sizes and explained variation

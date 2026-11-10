@@ -26,5 +26,11 @@ utils::globalVariables(c(
   # Data-layer summaries.
   "wave", "n", "family", "draw",
   # Coverage and missingness panels: the (group, node) axis label.
-  "unit", "effect"
+  "unit", "effect",
+  # The posterior predictive check: netis_gof()'s columns. `observed` and the
+  # two `predicted_*` bounds are two different quantities on one panel -- where
+  # the statistic fell against where the model said it would -- so they are
+  # NOT the `lower`/`upper`/`value` triple above, and must not be made to share
+  # those names.
+  "grouping", "statistic", "observed", "predicted_lower", "predicted_upper"
 ))

@@ -97,7 +97,7 @@
 #' [netis_variance_components()], [plot_data()].
 #'
 #' **Assumptions and dependence:** [netis_assumptions()], [netis_dependence()],
-#' [influence_se_comparison()].
+#' [netis_gof()], [influence_se_comparison()].
 #'
 #' **Effect sizes and explained variation:** [influence_effect()],
 #' [selection_effect()], [pseudo_r2()].

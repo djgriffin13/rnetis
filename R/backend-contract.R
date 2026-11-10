@@ -51,6 +51,11 @@ backend_fit <- function(backend, formula, data, ...) UseMethod("backend_fit")
 #'       `amen` supplies none.
 #'     \item `loglik`, `sigma`, `residual_df`, `r_squared`, `adj_r_squared`,
 #'       `random_effects`, `var_corr` — where the estimator defines them.
+#'     \item `posterior_predictive` and `gof` — `amen` only. `gof` is the
+#'       matrix of network statistics amen simulates per retained scan, with
+#'       the observed network in its first row; it holds that row alone when
+#'       the fit was run with `gof = FALSE`. Carried raw: summarizing it is
+#'       `netis_gof()`'s job, not an adapter's.
 #'     \item `rho`, `w1_spectral_radius`, `sar_operator_min_modulus`,
 #'       `sar_operator_invertible`, `dropped_nodes` — `lnam` only.
 #'     \item `aliased` and `leverage` — `stats` only. `aliased` is carried out

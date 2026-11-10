@@ -104,7 +104,7 @@ prefix or a plain name.
 \code{\link[=netis_variance_components]{netis_variance_components()}}, \code{\link[=plot_data]{plot_data()}}.
 
 \strong{Assumptions and dependence:} \code{\link[=netis_assumptions]{netis_assumptions()}}, \code{\link[=netis_dependence]{netis_dependence()}},
-\code{\link[=influence_se_comparison]{influence_se_comparison()}}.
+\code{\link[=netis_gof]{netis_gof()}}, \code{\link[=influence_se_comparison]{influence_se_comparison()}}.
 
 \strong{Effect sizes and explained variation:} \code{\link[=influence_effect]{influence_effect()}},
 \code{\link[=selection_effect]{selection_effect()}}, \code{\link[=pseudo_r2]{pseudo_r2()}}.

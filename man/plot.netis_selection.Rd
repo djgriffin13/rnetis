@@ -19,7 +19,10 @@ sequence; \code{"actor_effects"} each actor's sender against receiver effect (on
 a symmetric fit, each actor's one additive effect);
 \code{"multiplicative"} the rotation-invariant product \verb{U V'} per ordered pair of
 different actors; \code{"mcmc"} per-parameter R-hat and effective sample size;
-\code{"groups"} the per-group estimates (see \strong{Multi-group fits}).}
+\code{"groups"} the per-group estimates (see \strong{Multi-group fits}); \code{"gof"} the
+posterior predictive check — each of five network statistics in the
+observed network against its range across networks simulated from the
+posterior, via \code{\link[=netis_gof]{netis_gof()}}.}
 
 \item{terms}{Optional character vector selecting which terms to show, on
 \code{"coefficients"}, \code{"posterior"} and \code{"trace"}. The other panels ignore it.}
@@ -62,6 +65,9 @@ rather than drawing a normal curve built from the estimate and its standard
 error — the reason to look at a posterior is that it need not be normal.
 \code{"actor_effects"} draws posterior means without intervals, because the
 sampler reports actor effects only as posterior means; the caption says so.
+\code{"gof"} needs networks simulated from the posterior, so it refuses a
+hierarchical fit, whose sampler does not simulate any, and a fit run with
+\code{gof = FALSE}; \code{\link[=netis_gof]{netis_gof()}} states both refusals in full.
 
 Chain length is reported as a count, never judged: the caption states how many
 draws were retained and that Monte Carlo error scales with that number, and
@@ -85,6 +91,11 @@ term and none per group, so naming a group there is refused, as is \code{"groups
 a hierarchical fit a group's rows are its random and unpooled coefficients; a shared
 coefficient has only its population row. \code{"heterogeneity"} reads
 \code{\link[=netis_variance_components]{netis_variance_components()}}, which refuses a hierarchical fit.
+
+\code{"gof"} is the one panel that needs no \code{group} on a multi-group fit: every
+group was fitted to its own network and so has its own observed statistics
+and its own simulated ones, and the panel shows them all, one row per group
+in each facet. Naming a group narrows it to that group.
 }
 
 \examples{

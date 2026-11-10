@@ -166,6 +166,21 @@ backend_extract.netis_backend_amen <- function(backend, fit) {
     # eigen-parameterization.
     multiplicative = if (symmetric) fit$fit$ULUPM else fit$fit$UVPM,
     posterior_predictive = fit$fit$YPM,
+    # The five network statistics amen simulates each retained scan, kept as
+    # amen returns them: a matrix whose FIRST ROW is the observed network
+    # (amen names it "obs") and whose remaining rows are posterior predictive
+    # draws. Kept raw rather than summarized here, because the adapter's job
+    # is to carry what the estimator produced, and because every summary of it
+    # -- a tail probability, a standardized distance, an interval -- is a
+    # reporting decision that belongs with netis_gof() where it can be
+    # documented and refused.
+    #
+    # A fit run with `gof = FALSE` returns this matrix with the observed row
+    # ONLY and no draws. That is not an error here and is not patched: a
+    # one-row matrix is the truthful record of a fit that simulated nothing,
+    # and netis_gof() refuses it by name rather than comparing an observed
+    # value against an empty distribution.
+    gof = fit$fit$GOF,
     convergence = .amen_convergence(draws),
     loglik = NA,
     symmetric = symmetric
