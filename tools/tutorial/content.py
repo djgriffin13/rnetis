@@ -2667,6 +2667,54 @@ page(
 )
 
 # ---------------------------------------------------------------------------
+# Feedback
+# ---------------------------------------------------------------------------
+GF = "Feedback"
+
+page(
+    GF, "Feedback", "Under construction, and feedback is wanted",
+    '<p class="lede">This tutorial, and the package it documents, are under '
+    "construction. We greatly appreciate any feedback we receive.</p>",
+
+    h3("Why yours is worth sending"),
+    p("rnetis has been exercised by very few people so far, and first outside "
+      "use is what finds the parts of an interface that were only ever "
+      "obvious to the person who wrote them. Everything is useful here: a "
+      "refusal that did not tell you what to do next, a page that assumed "
+      "something it never said, a number you could not interpret, a function "
+      "you went looking for and did not find, or simply the step where you "
+      "got stuck."),
+    p("Refusals are worth singling out. They are this package's main "
+      "interface — it would rather decline than guess — so a refusal whose "
+      "message failed to name the fix is a defect in its own right, not a "
+      "usage error on your part."),
+
+    h3("How to send it"),
+    fig("feedback-qr", "Scan this code to send feedback."),
+    note("**Please do not send real or participant data.** The shipped demo "
+         "datasets (`demo_influence`, `demo_influence_groups`, "
+         "`demo_selection`) and `simulate_influence()` will reproduce almost "
+         "anything. If something genuinely cannot be shown without your own "
+         "data, say that and nothing else rather than attaching it. rnetis "
+         "writes nothing outside `tempdir()`, and a bug report is not the "
+         "place to make the exception."),
+    p("If you are reporting something specific, the R version and the "
+      "versions of `amen`, `latentnet`, `sna` and `lme4` usually decide the "
+      "answer, so `sessionInfo()` is worth pasting in. A few lines of code "
+      "that show the problem on demo data are worth more than a description "
+      "of it."),
+
+    h3("What is still moving"),
+    p("Two things on these pages are this package's own constructions rather "
+      "than established methods, and both say so where they are documented: "
+      "the hierarchical multi-group Selection model "
+      "([§B5](#p-several-groups-and-one-hierarchical-model)) and the "
+      "latent-scale variance share. `?rnetis-package` carries the full list. "
+      "Results from them are worth reporting as provisional, and feedback on "
+      "them is especially welcome."),
+)
+
+# ---------------------------------------------------------------------------
 # Reference
 # ---------------------------------------------------------------------------
 GR = "Reference"
