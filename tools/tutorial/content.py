@@ -172,8 +172,9 @@ page(
       "prose is the gloss."),
 
     h3("What you need"),
-    ul("**R 4.2 or later**, and the rnetis package — or a browser, if you "
-       "take the cloud route on the [installation](#p-installation) page.",
+    ul("**R 4.2 or later**, and the rnetis package. If installing it "
+       "locally is a problem, [installation](#p-installation) ends with a "
+       "browser-based option.",
        "No compiler: rnetis is pure R.",
        "No data of your own. Everything here is either typed out in front of "
        "you or ships with the package."),
@@ -218,54 +219,40 @@ page(
     GS, "Installation", "Installation",
     p("rnetis is not on CRAN. It is distributed by Griffin Dynamics LLC to "
       "people it gives a copy to, so how you install it depends on what you "
-      "were given — and for a workshop, the quickest answer is not to install "
-      "it at all."),
+      "were given."),
+    p("Install it locally if you can — that is the section below, and it "
+      "takes a couple of minutes. If your own machine fights you, "
+      "**Posit Cloud** — the last section of this page — gives you "
+      "R in a browser with nothing to install on your own machine."),
 
-    h3("Route 1: in a browser, with nothing installed"),
-    p("**If you are here for a workshop, start here.** A prepared "
-      "[Posit Cloud](https://posit.cloud) project gives you RStudio in a "
-      "browser tab with rnetis and every optional package already installed. "
-      "You click a link, sign in with a free account, and you are in a working "
-      "session. Nothing lands on your machine and there is nothing to uninstall "
-      "afterwards."),
-    note("**Workshop link:** *to be added before the session.* The project is "
-         "shared read-only; opening it makes your own private copy, so "
-         "whatever you do to it cannot affect anyone else's."),
-    p("This route is worth taking even if you do intend to install rnetis "
-      "properly. It separates two kinds of problem that otherwise arrive "
-      "together: whether you can get the package working, and whether you "
-      "understand the model. Do the second one first, in the browser, and "
-      "install at your leisure afterwards."),
-    p("What to know before you rely on it. Posit Cloud's free plan caps how "
-      "much compute you can use per month and gives each project a modest "
-      "amount of memory by default; the current limits are on "
-      "[posit.cloud](https://posit.cloud/plans). Path A is comfortable inside "
-      "them. Path B fits Markov chains, and the hierarchical model on its "
-      "fifth page is the one piece of this tutorial substantial enough to feel "
-      "the ceiling — if you are running a session, fit that model on the free "
-      "plan once, before the day, rather than finding out in front of a room."),
-    rare("Other ways to run it without installing",
-         p("**Binder** will build a throwaway R session from a repository and "
-           "a configuration file. It needs no account at all, which suits an "
-           "open workshop, but sessions are ephemeral and start slowly, and "
-           "the build has to be prepared in advance."),
-         p("**A container.** If you want a session you can reproduce exactly "
-           "in a year, a `rocker/rstudio` image with rnetis and its "
-           "dependencies pinned is the honest version of that promise, and it "
-           "runs the same on your laptop and on a server. It costs a Docker "
-           "install, which for a two-hour workshop is the wrong trade and for "
-           "a long project is the right one.")),
-
-    h3("Route 2: install it locally"),
+    h3("Install it locally"),
     p("Pick the card that matches what you were given."),
     cards(
         card("You were given a source tarball",
-             p("Nothing else needed — `install.packages()` is part of R, "
-               "and it pulls rnetis's four required packages from CRAN as it "
-               "goes."),
+             p("**Install the four required packages first.** Installing from "
+               "a file means `repos = NULL`, and R's `dependencies` argument "
+               "is *not used* in that case — so nothing fetches "
+               "`generics`, `ggplot2`, `lme4` and `reformulas` on your "
+               "behalf, and the install fails on the first one that is "
+               "missing:"),
              codeonly(
-                 'install.packages("rnetis_0.1.0.tar.gz", repos = NULL, '
-                 'type = "source")'),
+                 'install.packages(c("generics", "ggplot2", "lme4", '
+                 '"reformulas"))\n'
+                 '\n'
+                 'install.packages("rnetis_0.1.0.tar.gz", repos = NULL,\n'
+                 '                 type = "source")'),
+             p("Or let **remotes** do both, which resolves the dependencies "
+               "from CRAN and then installs the file:"),
+             codeonly(
+                 'if (!requireNamespace("remotes", quietly = TRUE)) {\n'
+                 '  install.packages("remotes")\n'
+                 '}\n'
+                 '\n'
+                 'remotes::install_local("rnetis_0.1.0.tar.gz")'),
+             p("A tarball is the right route for a workshop: it makes no "
+               "GitHub API calls, so a room full of people installing at once "
+               "cannot hit the rate limit that `install_github()` shares "
+               "across everyone on the same network."),
              num=1, open=True),
         card("You were given access to the repository",
              p("Installing from GitHub needs the **remotes** package, which "
@@ -346,8 +333,7 @@ page(
     ]),
 
     p("To follow every page of this tutorial you want `amen`, `latentnet`, "
-      "`clubSandwich` and `igraph`. The cloud project has all four. One line "
-      "gets them:"),
+      "`clubSandwich` and `igraph`. One line gets them:"),
     codeonly(
         'install.packages(c("amen", "latentnet", "clubSandwich", "igraph"))'),
     p("To see what you already have:"),
@@ -372,7 +358,37 @@ page(
            p("There is no way to say *“Suggests except those "
              "three”*: `dependencies` takes `TRUE` for all of them, "
              "`NA` for none, or an explicit set of fields. Naming the four "
-             "packages is the way to get the useful ones alone."))
+             "packages is the way to get the useful ones alone.")),
+
+    h3("If your own machine will not cooperate"),
+    p("[Posit Cloud](https://posit.cloud) runs R and RStudio in a browser "
+      "tab. It is worth knowing about for two situations: a managed laptop "
+      "that will not let you install anything, and an afternoon you would "
+      "rather spend on the models than on a toolchain."),
+    p("There is no prepared project to join — you make your own, and it "
+      "is yours. Sign up for a free account, create a new project, and run "
+      "exactly the same commands as above. A cloud session is an ordinary R "
+      "installation; nothing else on this page changes."),
+    p("Two things to know before relying on it. The free plan caps how much "
+      "compute you can use per month and gives each project a modest amount "
+      "of memory, and the current limits are on "
+      "[posit.cloud](https://posit.cloud/plans). Everything in Path A is "
+      "comfortable inside them; Path B fits Markov chains, and the "
+      "hierarchical model on its fifth page is the one piece of this tutorial "
+      "substantial enough to feel a ceiling. Run that one early if you are "
+      "working in the cloud, so a limit is something you meet with time to "
+      "spare."),
+    rare("Other ways to run R without installing it",
+         p("**Binder** builds a throwaway session from a repository and a "
+           "configuration file, and needs no account at all. Sessions are "
+           "ephemeral and slow to start, and the configuration has to be "
+           "prepared in advance."),
+         p("**A container.** For a session you can reproduce exactly in a "
+           "year, a `rocker/rstudio` image with rnetis and its dependencies "
+           "pinned is the honest version of that promise, and it runs the "
+           "same on a laptop and on a server. It costs a Docker install, "
+           "which is the wrong trade for an afternoon and the right one for "
+           "a long project.")),
 )
 
 # ---------------------------------------------------------------------------
