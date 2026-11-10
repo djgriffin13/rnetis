@@ -269,6 +269,40 @@ page(
                "the four packages it **requires** — `generics`, "
                "`ggplot2`, `lme4` and `reformulas` — without being "
                "asked. The optional ones below are a separate step."),
+             rare("If you get `401 Bad credentials`",
+                  p("The repository is **public**, so this install needs no "
+                    "credentials at all. The 401 means one is being sent "
+                    "anyway and GitHub has rejected it: `remotes` passes "
+                    "along whatever GitHub token it can find — a "
+                    "`GITHUB_PAT` environment variable, or a saved entry in "
+                    "your system's git credential store — and an "
+                    "expired or revoked token fails where no token would "
+                    "have succeeded. It usually surfaces as "
+                    "*“unknown package”* rather than as an "
+                    "authentication message."),
+                  p("**Quickest fix: go round the API.** `install_github()` "
+                    "calls GitHub's API to resolve the branch, which is the "
+                    "step that authenticates. Downloading the archive "
+                    "directly does not:"),
+                  codeonly(
+                      'remotes::install_url(\n'
+                      '  "https://github.com/djgriffin13/rnetis/archive/'
+                      'refs/heads/main.tar.gz"\n'
+                      ')'),
+                  p("**Or clear the stale credential**, which is worth doing "
+                    "anyway since it will break other things too:"),
+                  codeonly(
+                      '# shows which token is being found, and from where\n'
+                      'gitcreds::gitcreds_get()\n'
+                      '\n'
+                      '# remove it; gitcreds_set() stores a fresh one\n'
+                      'gitcreds::gitcreds_delete()'),
+                  p("On Windows the same entry is under **Credential "
+                    "Manager → Windows Credentials**, listed as "
+                    "`git:https://github.com`. A replacement token needs no "
+                    "scopes for a public repository."),
+                  p("**Or use a tarball**, which touches GitHub not at all "
+                    "— see the first card.")),
              num=2),
         card("You have a local checkout",
              p("Also **remotes**, and the same guard applies:"),
