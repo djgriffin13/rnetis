@@ -1,0 +1,88 @@
+# Publish the tutorial to GitHub Pages.
+#
+# WHY THIS IS NOT THE pkgdown WORKFLOW. TUTORIAL.html is one self-contained
+# file: no build step, no framework, no R. It was going out through pkgdown
+# only because pkgdown owned the site it landed in, and that cost five minutes
+# of dependency installation plus a site-root gate that has blocked the deploy
+# twice. Nothing here needs R, and a run takes seconds.
+#
+# pkgdown's own workflow still exists and still builds the reference site; it
+# is dispatch-only until its site-root allowlist is reconciled with what CI's
+# pkgdown actually emits. Only one workflow may deploy Pages at a time, which
+# is the other reason this one is the only one on `push`.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "pkgdown/assets/**"
+      - "man/figures/logo.png"
+      - ".github/workflows/tutorial.yaml"
+  workflow_dispatch:
+
+name: tutorial
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; let a running one finish rather than cancelling it
+# halfway through a publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/configure-pages@v5
+
+      # The site is assembled rather than published in place, because what the
+      # repository stores and what the site needs are not the same shape.
+      #
+      # TUTORIAL.html is copied twice ON PURPOSE. As index.html it makes the
+      # bare site URL the tutorial, which is the link to put in front of a
+      # room; as TUTORIAL.html it keeps every link already shared working.
+      #
+      # logo.png comes from man/figures/, where the package keeps it. The page
+      # loads it from the site root, which is where pkgdown would have put it
+      # -- publishing pkgdown/assets/ alone would serve a broken hero image.
+      - name: Assemble the site
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          cp pkgdown/assets/TUTORIAL.html _site/index.html
+          cp pkgdown/assets/TUTORIAL.html _site/TUTORIAL.html
+          cp -r pkgdown/assets/tutorial-figures _site/tutorial-figures
+          cp man/figures/logo.png _site/logo.png
+
+      # Every <img> the page references must exist in the artifact. A missing
+      # figure is invisible in CI and obvious to a reader, so it fails here
+      # instead: the page is published complete or not at all.
+      - name: Check every referenced asset is present
+        run: |
+          set -euo pipefail
+          missing=0
+          for src in $(grep -o 'src="[^"d][^"]*"' _site/index.html \
+                       | sed 's/^src="//; s/"$//' | sort -u); do
+            if [ ! -f "_site/$src" ]; then
+              echo "::error::referenced but not published: $src"
+              missing=1
+            fi
+          done
+          test "$missing" -eq 0
+          echo "all referenced assets present"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

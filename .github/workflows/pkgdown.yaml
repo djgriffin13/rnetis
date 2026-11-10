@@ -14,9 +14,20 @@
 # Only first-party actions are used, so publishing depends on nothing outside
 # GitHub and r-lib.
 
+# DISPATCH-ONLY, like R-CMD-check, and for a specific reason rather than as a
+# cleanup. The first run that ever reached the site-root gate failed on it:
+# this allowlist was written against a local pkgdown build and does not match
+# what CI's pkgdown emits. Until someone reconciles the two, a push trigger
+# here produces a failed run on every commit and deploys nothing.
+#
+# The tutorial no longer waits on that. tutorial.yaml publishes TUTORIAL.html
+# directly, needs no R, and is the workflow that owns Pages now -- only one
+# may deploy at a time. Re-enabling the push trigger below means deciding
+# which of the two publishes the site.
+#
+#   push:
+#     branches: [main]
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 name: pkgdown
