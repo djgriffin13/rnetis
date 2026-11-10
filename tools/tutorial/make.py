@@ -1,7 +1,12 @@
 """Build TUTORIAL.html and copy it, with its figures, into the rnetis repo.
 
   python make.py            # build into the repo's pkgdown/assets
-  python make.py --dry      # build to the scratchpad only
+  python make.py --dry      # build beside this script instead
+
+THE PUBLISHED BUILD. Pages come from content.py, with the draft markers off:
+`TUTORIAL_DRAFT` is left unset, so figtodo() renders nothing and a figure that
+is specified but not yet drawn leaves no trace on the page. Use
+make_preview.py to see what is outstanding.
 """
 
 import os
@@ -9,8 +14,7 @@ import shutil
 import sys
 
 import build
-import content_a  # noqa: F401  (importing registers the pages, in order)
-import content_b  # noqa: F401
+import content  # noqa: F401  (importing registers the pages, in order)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = build.REPO

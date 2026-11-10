@@ -39,7 +39,8 @@ This is the part that matters most, and it is a rule rather than an aspiration.
 ## Shape
 
 ```
-Getting started            Welcome · Install · How to read this
+(top level)                Welcome
+Getting started            Overview · Installation
 Path A · Influence         A1 Background → A2 Data → A3 Basic → A4 Latent → A5 Multilevel → A6 Other
 Path B · Selection         B1 Background → B2 Data → B3 SRM → B4 AME → B5 Multilevel → B6 Other
 Reference                  Formula terms · Importing and exporting · The rest of the package · What rnetis refuses
@@ -58,21 +59,37 @@ is; "Several groups" and "One hierarchical model" merge into B5; "Derived
 networks", "Derived variables", "Scope" and "Precision" fold into the Reference
 pages. "Nodes, ties and waves" becomes A2/B2.
 
-## Front matter
+## Front matter — **written**
 
-Three pages, largely as they stand, with two changes.
+Revised 2026-11-09 on the maintainer's instruction: Welcome stands alone as the
+front door, and **Getting started holds two pages**, Overview and Installation.
+"How to read this" is gone as a page and subsumed into Overview.
 
-- **Welcome.** Keeps the access notice exactly as written in pass 2 — public for
-  the workshop, full version under review, code in the distributables usable but
-  not redistributable, contact address. It sits above the two path boxes and must
-  survive the restructure untouched; it is the one block on the site with legal
-  weight. The two path boxes get rewritten to describe the new six-step shape.
-- **Install.** Unchanged.
-- **How to read this.** Rewritten around the six-step shape: both paths run
-  Background → Data → Model → Model → Model → Other, each model page adds one
-  idea to the one before, and each ends by checking its own fit. Say that the two
-  paths are independent and that a reader needs only one, and that the equations
-  are there to be skipped by anyone who wants the code.
+- **Welcome** (top level). Short, and the front door. The lede, the access
+  notice exactly as written in pass 2 — public for the workshop, full version
+  under review, code in the distributables usable but not redistributable,
+  contact address — the two path boxes, now describing six pages each, and a
+  pointer into Getting started. It is the one block on the site with legal
+  weight and it survived the restructure untouched.
+- **Overview.** What rnetis is for, and how to read what follows. The two
+  questions and why they are each other's rival explanation; the six-step shape
+  as a two-column table so the parallel is visible rather than asserted; that
+  one path is enough; that the equations are skippable; what you need; how long
+  it takes; that every result shown is real and every drawn figure carries no
+  numbers; quantities not verdicts; where the reference material is.
+- **Installation.** Two routes, cloud first, per the maintainer's instruction.
+  **Route 1** is a prepared Posit Cloud project: a browser tab with rnetis and
+  every optional package installed, nothing landing on the reader's machine. It
+  is argued for rather than just offered — it separates "can I get this
+  working" from "do I understand the model", which otherwise arrive together.
+  The free plan's limits are described in shape rather than in numbers, because
+  the published numbers disagree with each other; the page points at
+  posit.cloud and tells a session leader to fit the hierarchical model on the
+  free plan *before* the day. Binder and a `rocker` container are a collapsed
+  aside. **Route 2** is the three local-install cards from pass 2, unchanged.
+
+  **Open action:** the Posit Cloud project does not exist yet and the page
+  carries a marked placeholder for its link.
 
 ---
 

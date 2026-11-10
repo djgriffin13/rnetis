@@ -16,3 +16,9 @@ out/png/
 # Written when a captured block fails, or when a block marked as a refusal
 # does not refuse. Should never exist in a clean tree.
 out/*.problem
+
+# The skeleton preview: a review artifact for the third-pass structure, built
+# by make_skeleton.py. Regenerable from content_skeleton.py, and deliberately
+# not published -- the site root allowlist in tools/clean-site.R would fail the
+# publish on it, which is the right answer.
+preview/

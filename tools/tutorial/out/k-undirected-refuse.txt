@@ -1,0 +1,1 @@
+Error: This data declares its ties undirected (netis_data(directed = FALSE)), so fit it with symmetric = TRUE. Fitting an undirected relation as directed would treat the two directions of one tie as two separate observations.

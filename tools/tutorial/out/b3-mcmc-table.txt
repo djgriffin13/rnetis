@@ -1,0 +1,16 @@
+            term statistic     value missing_state
+1      intercept     R-hat   1.00006      observed
+2     snd_tenure     R-hat   1.00108      observed
+3     rcv_tenure     R-hat   1.00059      observed
+4  dyd_same_unit     R-hat   0.99808      observed
+5      prior_tie     R-hat   0.99808      observed
+6      intercept  Bulk ESS 466.62331      observed
+7     snd_tenure  Bulk ESS 520.13793      observed
+8     rcv_tenure  Bulk ESS 424.52624      observed
+9  dyd_same_unit  Bulk ESS 488.94975      observed
+10     prior_tie  Bulk ESS 492.87650      observed
+11     intercept  Tail ESS 424.51965      observed
+12    snd_tenure  Tail ESS 472.23649      observed
+13    rcv_tenure  Tail ESS 399.84045      observed
+14 dyd_same_unit  Tail ESS 400.78749      observed
+15     prior_tie  Tail ESS 400.78749      observed

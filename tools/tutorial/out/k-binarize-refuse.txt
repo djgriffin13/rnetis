@@ -1,0 +1,1 @@
+Error: binarize is for turning a valued outcome into a tie under family = "bin" -- it has no defined meaning for family = "nrm", which models the outcome's own values. Either drop binarize and fit the values directly with family = "nrm", or set family = "bin" if you meant to model tie presence.

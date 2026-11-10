@@ -1,0 +1,10 @@
+<netis_influence>
+  y ~ ar() + exposure(y, via = met)
+  Estimator: pooled ordinary least squares (the formula declares no random-effects term)  [backend: stats]
+  Waves: analyzed 1 -> 2 of 2 present; 0 waves not used
+  6 rows in the estimating sample
+
+         Term Estimate     SE      95% interval
+1 (Intercept)   1.5488 0.4938 [-0.0227, 3.1202]
+2      y_lag1   0.4919 0.1626 [-0.0257, 1.0095]
+3    ex_y_met   0.0137 0.0519 [-0.1514, 0.1789]

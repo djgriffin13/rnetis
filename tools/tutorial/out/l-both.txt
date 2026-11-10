@@ -1,0 +1,29 @@
+Influence model
+  Formula:   y ~ ar() + exposure(y, via = met)
+  Estimator: pooled ordinary least squares (the formula declares no random-effects term)
+  Backend:   stats 4.6.2
+  Waves: analyzed 1 -> 2 of 2 present; 0 waves not used
+  Estimand:  single transition
+
+Coefficients:
+         Term Estimate     SE      95% interval
+1 (Intercept)   1.5905 0.3867  [0.3599, 2.8210]
+2      y_lag1   0.4736 0.1402  [0.0276, 0.9197]
+3    ex_y_met   0.0136 0.0346 [-0.0966, 0.1238]
+
+Assumptions:
+  Network: undetermined timing (measured); exogeneity NOT DECLARED (rnetis assumes nothing about it).
+  [A4] the exposure coefficient -- assumed, not addressed [not testable]
+  [T2] the lagged-outcome coefficient -- persistence across ONE transition; not a stable autoregressive process [not testable]
+  [A1] all coefficients -- structural
+  [A2] all coefficients -- assumed, not addressed
+  [A3] the reported standard errors -- assumed, not addressed
+  [B] the lagged-outcome and exposure coefficients -- assumed, not addressed
+  [B2] the exposure coefficient -- assumed, not addressed
+  [C] the exposure coefficient -- assumed, not addressed
+  Full statements: netis_assumptions(fit).
+
+
+As data: netis_estimates(), netis_glance(), netis_variance_components().
+Computed on request: netis_dependence(), netis_assumptions(), pseudo_r2(), influence_effect().
+Design and estimation findings recorded at fit time: 1; netis_diagnostics() lists them.

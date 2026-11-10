@@ -219,23 +219,132 @@ def homophily_vs_influence():
 # 5. the latent space the first stage estimates
 # ===========================================================================
 def latent_space():
-    pos = [(108, "Dev"), (164, "Ada"), (330, "Eli"), (458, "Ben"),
-           (512, "Cyd"), (608, "Fay")]
-    b = ('<line x1="60" y1="150" x2="650" y2="150" stroke="var(--dline)" '
-         'stroke-width="1.4"/>')
-    b += ('<path d="M108,134 Q136,94 164,134" class="edge" stroke-width="2.4"/>'
-          '<path d="M458,134 Q485,96 512,134" class="edge" stroke-width="2.4"/>'
-          '<path d="M512,134 Q560,90 608,134" class="edge" stroke-width="2.4"/>')
-    b += ('<path d="M164,130 Q311,36 458,130" class="ghost" stroke-width="1.8"/>')
-    b += _t(485, 82, "close in z: a tie is likely", "sub")
-    b += _t(311, 28, "far apart in z: a tie is unlikely", "sub")
-    for x, lab in pos:
-        b += _node(x, 150, 15, "") + _t(x, 182, lab, "sub")
-    b += _t(355, 206, "estimated latent position  z", "lbl")
-    return _svg(700, 218, b,
-                "The first stage places every actor on a latent dimension so "
-                "that actors close together are likelier to be tied. Drawn at "
-                "d = 1, the dimension Xu's own example uses.")
+    """Actors placed in a plane, so distance is distance on the page.
+
+    DRAWN AT d = 2 RATHER THAN d = 1. On a line, "close" and "far" have to be
+    read off one axis while the picture itself is two-dimensional, and every
+    reader spends a moment working out that the vertical is meaningless. In a
+    plane the geometry on the page IS the geometry of the model: two actors
+    near each other are near each other, and the eye needs no translation.
+    """
+    # Two neighbourhoods and one actor between them, so the picture shows both
+    # what proximity buys and what it costs -- Eli is close to nobody in
+    # particular, which is a position the model can hold and a line cannot
+    # show without ambiguity.
+    pos = [
+        (150, 118, "Dev"), (218, 168, "Ada"), (352, 140, "Eli"),
+        (486, 238, "Ben"), (546, 170, "Cyd"), (604, 252, "Fay"),
+    ]
+    xy = {lab: (x, y) for x, y, lab in pos}
+
+    # The plane, as two axes rather than a box: a box reads as a bounded
+    # region, and the space is not bounded.
+    b = ('<line x1="74" y1="316" x2="668" y2="316" stroke="var(--dline)" '
+         'stroke-width="1.3"/>'
+         '<line x1="74" y1="316" x2="74" y2="58" stroke="var(--dline)" '
+         'stroke-width="1.3"/>')
+    b += _t(676, 321, "z₁", "lbl", anchor="start")
+    b += _t(74, 48, "z₂", "lbl")
+
+    def seg(a, c, cls, sw):
+        (x1, y1), (x2, y2) = xy[a], xy[c]
+        return ('<line x1="%s" y1="%s" x2="%s" y2="%s" class="%s" '
+                'stroke-width="%s"/>' % (x1, y1, x2, y2, cls, sw))
+
+    for a, c in (("Dev", "Ada"), ("Ben", "Cyd"), ("Cyd", "Fay"), ("Ben", "Fay")):
+        b += seg(a, c, "edge", 2.4)
+    b += seg("Ada", "Ben", "ghost", 1.8)
+
+    b += _t(150, 206, "close together:", "sub")
+    b += _t(150, 222, "a tie is likely", "sub")
+    # BELOW the dashed line, not on it. Centred on the Ada-Ben midpoint the
+    # label sits exactly where the line runs, and the strikethrough reads as
+    # though the text itself were crossed out.
+    b += _t(318, 246, "no tie here:", "sub")
+    b += _t(318, 262, "they are far apart", "sub")
+
+    for x, y, lab in pos:
+        b += _node(x, y, 15, "") + _t(x, y - 24, lab, "sub")
+
+    b += _t(371, 352, "estimated latent position  z = (z₁, z₂)", "lbl")
+    return _svg(700, 368, b,
+                "The first stage places every actor in a latent space so that "
+                "actors close together are likelier to be tied. Drawn at "
+                "d = 2, so distance on the page is distance in the model.")
+
+
+# ===========================================================================
+# 5b. two data frames in, one netis_data out
+# ===========================================================================
+def data_structure(kind="influence"):
+    """What the reader types, and what the object makes of it.
+
+    ONE FUNCTION, TWO PATHS. The node and tie tables are the same object on
+    both paths; what differs is which part the model reads as the outcome, and
+    that is the only thing a reader needs the picture to tell them apart. Two
+    near-identical drawings would drift.
+    """
+    selection = kind == "selection"
+
+    # TWO COLUMNS WITH THEIR OWN HEADERS, rather than one title over the whole
+    # drawing. The figure's argument is a transformation -- this becomes that
+    # -- and a single centred title describes neither side of it.
+    b = _t(148, 30, "what you type", "ttl")
+    b += _t(550, 30, "what you get", "ttl")
+
+    # The two input tables. Column names and a line on the row granularity;
+    # no values, because the point is the shape. The granularity line lives
+    # INSIDE each box: as a caption underneath it sat four pixels below the
+    # border and read as though it belonged to whatever came next.
+    b += _box(28, 52, 240, 92, [
+        "nodes",
+        "node · wave · y · x",
+        "one row per person, per occasion",
+    ])
+    b += _box(28, 184, 240, 92, [
+        "ties",
+        "source · target · wave · weight",
+        "one row per observed tie",
+    ])
+
+    # THE CALL IS A STEP, NOT A CAPTION. Floating `netis_data()` between two
+    # converging arrows put the word on top of one of them. Drawn as a node in
+    # the flow it has somewhere to sit, and it reads as the thing that does
+    # the work rather than as an annotation about the arrows.
+    b += ('<rect x="300" y="146" width="100" height="36" rx="18" '
+          'fill="var(--dsurf)" stroke="var(--dA)" stroke-width="1.6"/>')
+    b += _t(350, 169, "netis_data()", "mono")
+
+    b += _arrow(268, 98, 296, 156)
+    b += _arrow(268, 230, 296, 172)
+    b += _arrow(400, 164, 424, 164)
+
+    b += _panel(428, 52, 244, 224)
+    b += _t(550, 76, "netis_data", "ttl")
+    b += _box(444, 90, 212, 48, ["node table", "checked against the roster"])
+    b += _box(444, 146, 212, 48, ["tie table", "oriented, receiver-row"])
+    b += _box(444, 202, 212, 58, [
+        "declarations",
+        "waves · zero meaning · boundary",
+    ])
+
+    # A rule before the footer, so the closing statement reads as being about
+    # the whole picture rather than about the box nearest to it.
+    b += ('<line x1="28" y1="300" x2="672" y2="300" stroke="var(--dline)" '
+          'stroke-width="1" stroke-dasharray="3 4"/>')
+
+    if selection:
+        tail = ["The outcome is the TIE table:",
+                "wave 1 is the initial condition, wave 2 is what the model predicts."]
+    else:
+        tail = ["The outcome is a column of the NODE table:",
+                "wave 1 predicts wave 2, and the ties carry the exposure."]
+    b += _t(350, 324, tail[0], "lbl")
+    b += _t(350, 344, tail[1], "sub")
+
+    return _svg(700, 364, b,
+                "Two data frames go in; one object comes out, carrying the "
+                "declarations that make the tables mean something.")
 
 
 # ===========================================================================
