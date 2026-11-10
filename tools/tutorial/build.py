@@ -194,16 +194,23 @@ def figure_source(cid):
     return None
 
 
-def fig(cid, caption):
+def fig(cid, caption, cls=None):
+    """A captured PNG. `cls` adds a figure class; see `qr` in the CSS.
+
+    The default styling rounds corners and draws a border tight against the
+    image, which is right for a plot and wrong for anything a machine has to
+    read back. Pass cls="qr" for those.
+    """
     if figure_source(cid) is None:
         MISSING.append(cid + ".png")
         return '<p class="missing">[missing figure: %s]</p>' % cid
     FIGURES.append(cid)
+    klass = ' class="%s"' % cls if cls else ""
     return (
-        '<figure><a href="%s/%s.png" target="_blank" rel="noopener">'
+        '<figure%s><a href="%s/%s.png" target="_blank" rel="noopener">'
         '<img src="%s/%s.png" alt="%s" loading="lazy"></a>'
         "<figcaption>%s</figcaption></figure>"
-        % (FIGDIR, cid, FIGDIR, cid, html.escape(caption), inline(caption))
+        % (klass, FIGDIR, cid, FIGDIR, cid, html.escape(caption), inline(caption))
     )
 
 
@@ -409,6 +416,17 @@ font-size:17.5px;line-height:1.9;overflow-x:auto}
 text-align:left}
 .eq .tag{float:right;font-size:13px;color:var(--muted)}
 figure img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;display:block;background:#fff}
+/* A QR code is read by a machine, so the defaults above are all wrong for it.
+   border-radius clips an arc into the three finder patterns a scanner uses to
+   locate the code -- and this one ships with a zero-module quiet zone, so
+   there is nothing to spare. The padding supplies the 4-module quiet zone the
+   QR spec asks for (~22px at this module size) in white, the border moves
+   outside that pad, and pixelated rendering stops a browser softening the
+   modules if it scales. box-sizing is border-box, so width includes the pad
+   and the image lands at its native 200px. */
+figure.qr{text-align:center}
+figure.qr img{border-radius:0;padding:24px;width:248px;max-width:100%;
+background:#fff;image-rendering:pixelated;margin:0 auto}
 figcaption{font-size:13px;color:var(--muted);margin-top:5px}
 .hero{float:right;width:108px;margin:2px 0 10px 18px}
 .lede{font-size:17px;color:var(--ink)}

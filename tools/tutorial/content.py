@@ -2690,7 +2690,7 @@ page(
       "usage error on your part."),
 
     h3("How to send it"),
-    fig("feedback-qr", "Scan this code to send feedback."),
+    fig("feedback-qr", "Scan this code to send feedback.", cls="qr"),
     note("**Please do not send real or participant data.** The shipped demo "
          "datasets (`demo_influence`, `demo_influence_groups`, "
          "`demo_selection`) and `simulate_influence()` will reproduce almost "
