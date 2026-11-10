@@ -505,18 +505,60 @@ plot_data.netis_selection <- function(x, what = NULL, terms = NULL, group = NULL
   # works through them, because it is the order in which the model stops
   # accounting for them.
   d$statistic <- factor(d$statistic, levels = unique(d$statistic))
+
+  # A LEGEND, NOT A CAPTION ALONE. The two marks are two different quantities,
+  # and a reader who has to go to the caption to learn which is which has been
+  # given a puzzle rather than a figure. Mapping each layer's colour to a
+  # literal string is what makes ggplot2 emit a guide for marks that are
+  # otherwise unmapped; the strings are the labels.
+  obs_lab <- "observed network"
+  sim_lab <- "central 95% of networks the model generates"
   p <- ggplot2::ggplot(d, ggplot2::aes(y = grouping)) +
     ggplot2::geom_linerange(
-      ggplot2::aes(xmin = predicted_lower, xmax = predicted_upper),
-      linewidth = 1.6, colour = "grey70", na.rm = TRUE
+      ggplot2::aes(xmin = predicted_lower, xmax = predicted_upper,
+                   colour = sim_lab),
+      linewidth = 2.2, na.rm = TRUE
     ) +
     ggplot2::geom_point(
-      ggplot2::aes(x = observed),
-      size = 2.4, colour = "grey20", na.rm = TRUE
+      ggplot2::aes(x = observed, colour = obs_lab),
+      size = 2.6, na.rm = TRUE
+    ) +
+    # Grey for the model, ink for the data: the observed network is the thing
+    # being judged and should read as foreground. Breaks are given explicitly
+    # so the data entry leads, whatever order the layers happen to add them.
+    ggplot2::scale_colour_manual(
+      name = NULL,
+      breaks = c(obs_lab, sim_lab),
+      values = stats::setNames(c("grey15", "grey70"), c(obs_lab, sim_lab)),
+      guide = ggplot2::guide_legend(
+        override.aes = list(linetype = c("blank", "solid"),
+                            shape = c(16, NA), linewidth = c(0, 2.2))
+      )
     ) +
     ggplot2::facet_wrap(~ statistic, scales = "free_x", nrow = 1) +
-    ggplot2::labs(x = "statistic", y = NULL) +
+    # Few breaks and room between the panels. With free scales and five
+    # panels in a row, the last label of one panel and the first of the next
+    # are drawn a few pixels apart and overprint each other -- which looks
+    # like a rendering fault rather than two numbers on two different axes.
+    ggplot2::scale_x_continuous(n.breaks = 3) +
+    ggplot2::labs(x = "value of the statistic", y = NULL) +
     .netis_theme() +
-    .netis_caption_lab(d)
+    ggplot2::theme(
+      legend.position = "bottom",
+      panel.spacing.x = ggplot2::unit(14, "pt")
+    )
+
+  # A SINGLE-GROUP FIT HAS NOTHING TO PUT ON THE Y AXIS. The row exists so the
+  # layers have a position, not because the group label carries information,
+  # and printing "1" beside one row invites a reader to look for a second.
+  # A multi-group fit genuinely has one row per group and keeps its labels.
+  if (length(unique(d$grouping)) == 1L) {
+    p <- p + ggplot2::theme(
+      axis.text.y = ggplot2::element_blank(),
+      axis.ticks.y = ggplot2::element_blank()
+    )
+  }
+
+  p <- p + .netis_caption_lab(d)
   .netis_declare_references(p, .netis_references())
 }

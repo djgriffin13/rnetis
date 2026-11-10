@@ -318,11 +318,19 @@ netis_gof.netis_selection <- function(object, group = NULL, ...) {
 .gof_caption <- function(tbl, R = 0L) {
   n <- unique(tbl$n_draws[is.finite(tbl$n_draws)])
   lines <- c(
-    "Point: the observed network. Bar: the 2.5%-97.5% range of networks simulated from the posterior.",
+    # HOW TO READ IT, FIRST. The legend says what each mark is; this says what
+    # their relationship means, which is the whole content of the figure and
+    # the one thing a reader cannot work out from the marks themselves.
+    "Point inside its bar: the model reproduces that feature of the network. Point outside: it cannot.",
+    sprintf(
+      "Each bar spans the 2.5%%-97.5%% quantiles of the statistic across %s networks simulated from the fitted model.",
+      if (length(n) == 1L) format(n[[1]]) else "the retained"
+    ),
     sprintf(
       "ppp is one-sided, so 0 and 1 are both misfit and 0.5 is agreement; its granularity is 1/%s.",
       if (length(n) == 1L) format(n[[1]]) else "n_draws"
     ),
+    "Each panel has its own x scale: the five statistics are different quantities and their magnitudes are not comparable.",
     "No threshold is applied to any column."
   )
   triadic <- any(tbl$statistic %in% c("cycle.dep", "trans.dep"))

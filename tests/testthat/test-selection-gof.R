@@ -267,8 +267,13 @@ test_that("the gof panel draws exactly the table netis_gof() returned", {
 test_that("the panel's caption states what the marks mean and refuses a verdict", {
   d <- plot_data(.gof_fixture_fit(clustered = FALSE), what = "gof")
   caption <- paste(attr(d, "netis_caption"), collapse = " ")
-  expect_match(caption, "Point: the observed network")
-  expect_match(caption, "simulated from the posterior")
+  # The RELATIONSHIP between the marks, not just their names: the legend
+  # identifies the point and the bar, and the caption has to say what it
+  # means for one to be inside the other.
+  expect_match(caption, "Point inside its bar", fixed = TRUE)
+  expect_match(caption, "Point outside: it cannot", fixed = TRUE)
+  expect_match(caption, "simulated from the fitted model", fixed = TRUE)
+  expect_match(caption, "own x scale", fixed = TRUE)
   # Both ends are misfit, and the reader has to be told so: a one-sided
   # probability read as a p-value would call ppp = 0.98 a good fit.
   expect_match(caption, "0 and 1 are both misfit")

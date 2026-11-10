@@ -90,14 +90,15 @@ packageVersion("rnetis")
 #> [1] '0.1.0'
 ```
 
-`rnetis` needs **R 4.1 or later**. That is everything you need for the Influence
-workflow. Four required packages come with it — `generics`, `ggplot2`, `lme4`,
-`reformulas` — and the install step pulls them from CRAN for you. The package
-itself is pure R (`NeedsCompilation: no`), so no compiler is needed for it.
+`rnetis` needs **R 4.2 or later**. Four required packages come with it —
+`generics`, `ggplot2`, `lme4`, `reformulas` — and the install step pulls them
+from CRAN for you. The package itself is pure R (`NeedsCompilation: no`), so no
+compiler is needed for it.
 
-The floor is set by `ggplot2`, which also requires R >= 4.1; the other three go
-lower. Some **optional** packages require more than 4.1, though — see the table
-below — so the usable floor depends on which capabilities you want.
+The floor is set by the optional packages rather than by rnetis's own code,
+which runs on 4.1: `latentnet`, which `latent()` needs, depends on `ergm`, and
+`ergm` requires R >= 4.2. Declaring 4.2 means an install that succeeds can run
+every capability in the table below, rather than most of them.
 
 ### Optional packages, by what they unlock
 

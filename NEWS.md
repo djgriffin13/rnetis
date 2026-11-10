@@ -1,5 +1,22 @@
 # rnetis (development version)
 
+## Requirements
+
+* **The minimum R version is now 4.2**, raised from 4.1. rnetis's own code and
+  all four required packages still run on 4.1; the floor is set by `latentnet`,
+  which `latent()` needs and which depends on `ergm`, and current `ergm`
+  requires R >= 4.2. Declaring 4.2 means an installation that succeeds can run
+  every capability the package offers, rather than all but one.
+
+* `RSiena` and `lame` are no longer suggested packages. `RSiena` supplied
+  example data for one test in the non-shipping `comprehensive/` tier and was
+  never used by the package itself. `lame` backed a single corroboration test
+  of the pooling construction; that test moved to `comprehensive/` alongside
+  the gates that establish the pooling, which remain in the main suite.
+  Neither removal changes what any function does.
+
+## New
+
 * `netis_gof()` reports the posterior predictive check on a Selection fit: for
   each of five network statistics, the value in the observed network against
   its distribution across networks simulated from the posterior. `amen` was

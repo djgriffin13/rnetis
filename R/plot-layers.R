@@ -28,7 +28,7 @@
 }
 
 # Okabe-Ito, colourblind-safe, in grDevices since R 4.0 and therefore free at
-# rnetis's R (>= 4.1) floor. Categorical only: a SEQUENTIAL palette on a discrete
+# rnetis's R (>= 4.2) floor. Categorical only: a SEQUENTIAL palette on a discrete
 # scale reads as an ordering, and on ERROR/WARNING/NOTE that ordering reads as
 # severity, which rnetis never implies.
 .netis_palette <- function(n) {
@@ -72,9 +72,21 @@
 #' exactly the one nobody can afford to lose to a bad projector.
 #' @noRd
 .netis_scale_missing_shape <- function(...) {
+  # THE SAME LABELS AS THE COLOUR SCALE, and not a cosmetic duplication.
+  # ggplot2 merges a colour guide and a shape guide into one legend only when
+  # their name, breaks AND labels all match. Leaving these unset let the shape
+  # scale fall back to the raw factor levels, so the two guides disagreed
+  # ("structural zero" against "structural_zero") and could not merge -- every
+  # network plot drew the same five states twice, side by side, once prettily
+  # and once in snake_case. The point of the shape scale is that the
+  # distinction survives greyscale, and a reader who sees two legends cannot
+  # tell whether they encode two different things.
   ggplot2::scale_shape_manual(
     values = c(observed = 16, structural_zero = 15, missing = 4,
                absent_row = 3, undetermined = 1),
+    labels = c(observed = "observed", structural_zero = "structural zero",
+               missing = "missing", absent_row = "not on roster",
+               undetermined = "undetermined"),
     drop = FALSE, name = "state", ...
   )
 }

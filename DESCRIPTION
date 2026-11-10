@@ -58,7 +58,7 @@ Copyright: See inst/COPYRIGHTS
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Depends:
-    R (>= 4.1)
+    R (>= 4.2)
 Imports:
     generics,
     ggplot2,
@@ -69,12 +69,10 @@ Suggests:
     clubSandwich,
     igraph,
     knitr,
-    lame,
     latentnet,
     network,
     numDeriv,
     rmarkdown,
-    RSiena,
     sna,
     testthat (>= 3.0.0),
     tibble
