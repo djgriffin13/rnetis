@@ -1720,12 +1720,10 @@ page(
       "the formula, one per network, and let the model tell you which "
       "carries the effect. That estimates two coefficients instead of "
       "assuming a combination rule."),
-    note("**Experimental.** Multi-network exposure is less well exercised "
-         "than the single-network path, and the multi-group form of "
-         "`latent()` is explicitly experimental — Xu's procedure is defined "
-         "for one network, and the per-group extension is this package's own "
-         "and is not validated for statistical performance. Both are usable "
-         "and neither should carry a conclusion on its own."),
+    note("**Less exercised.** Multi-network exposure, whether through "
+         "`multiplex()` or two exposure terms, has had less use than the "
+         "single-network path. It is usable, and it should not carry a "
+         "conclusion on its own."),
 )
 
 # ---------------------------------------------------------------------------
