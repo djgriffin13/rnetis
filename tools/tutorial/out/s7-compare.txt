@@ -1,0 +1,3 @@
+         intercept dyd_affect_gap_lag1 dyd_same_project_lag1 prior_tie
+additive     -1.30               -0.47                  0.47      1.41
+latent       -1.31               -0.48                  0.47      1.44

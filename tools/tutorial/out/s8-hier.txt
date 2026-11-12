@@ -1,0 +1,26 @@
+<netis_selection>
+  confides ~ dyad(affect_gap, lag = 1) + dyad(same_project, lag = 1) + prior_tie(lag = 1)
+  Outcome family: binary tie (probit)
+  Groups: 10 (team01, team02, team03, team04, ...)
+  Backend: rnetis hierarchical sampler -- every group in one chain, using amen's conditional updates (see ?hierarchical_selection)
+  Waves: analyzed 1 -> 2 of 2 present; 0 waves not used
+  Shared across groups: dyd_same_project_lag1, prior_tie
+  Varying across groups (random), diagonal between-group covariance: intercept, dyd_affect_gap_lag1
+
+Coefficients:
+                  Term        Regime Estimate Post.SD       95% interval  Est/SD Tail prob.   
+             intercept random (mean)  -1.1612  0.0687 [-1.2925, -1.0223] -16.901     <0.003 **
+   dyd_affect_gap_lag1 random (mean)  -0.6352  0.0652 [-0.7668, -0.5048]  -9.745     <0.003 **
+ dyd_same_project_lag1        shared   0.4746  0.0577   [0.3638, 0.5874]   8.222     <0.003 **
+             prior_tie        shared   1.4307  0.0592   [1.3068, 1.5425]  24.159     <0.003 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Posterior summaries, not tests. Estimate is the posterior mean; Est/SD is its ratio to
+  the posterior SD; Tail prob. is twice the posterior probability that the coefficient
+  has the opposite sign, and the marks are on that. It is counted from the retained
+  draws, so its resolution is 2 / (number of draws).
+
+3800 observed dyads in 10 groups
+Pseudo R-squared and the posterior predictive check are not defined for a hierarchical
+  fit (see ?pseudo_r2 and ?netis_gof).
+Fit-time findings: 0 WARNING, 2 NOTE; netis_diagnostics(fit) lists them. More: summary(fit).

@@ -80,6 +80,12 @@
   outcome. The distances between actors are what the stage-one model
   identifies; the axes are not, and the caption says so.
 
+* `plot(fit, what = "latent")` on a Selection fit with `R > 0` draws each actor
+  in the first two dimensions of the multiplicative effects, once as a sender
+  and once as a receiver. The coordinates are a decomposition of the posterior
+  mean of the product `U V'`, which is identified, and not an average of `U`
+  and `V`, which are not.
+
 * `netis_gof()` reports the posterior predictive check on a Selection fit: for
   each of five network statistics, the value in the observed network against
   its distribution across networks simulated from the posterior. `amen` was

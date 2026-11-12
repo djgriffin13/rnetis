@@ -1,0 +1,10 @@
+Average marginal probability contrast
+
+Term:      dyd_affect_gap_lag1 (observed value + 1)
+Estimand:  conditional on the observed network
+Group:     team
+Dyads:     1560
+
+  -6.0 percentage points  [-8.1, -3.9] (95%)
+
+Actor effects are held at their posterior means rather than integrated over, because the fit keeps them only as posterior means. This interval reflects uncertainty in the coefficients only and is narrower than a fully propagated one.

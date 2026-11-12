@@ -1,0 +1,23 @@
+Pseudo R-squared (selection model, group team)
+------------------------------------------------------------
+  Latent-scale variance share (fixed effects)       0.285  [0.227, 0.339]
+  Tjur's D (probability scale)                      0.253
+  Null-comparison pseudo R2 (latent scale)         -0.013
+
+  The latent-scale variance share is this package's own
+  construction, not a published statistic.
+
+  The null comparison on a binary probit: the residual variance is
+  fixed at 1 for identification, so predictors cannot reduce it and
+  the reduction can appear only in the additive components. It
+  therefore understates explained variation relative to a
+  linear-scale analogue, and is not comparable with a linear-model
+  R-squared.
+
+  The null comparison is negative. It is deliberately not clipped
+  to zero: the full model did not reduce the unexplained latent
+  variance relative to the null. Because the two are separate MCMC
+  fits, a small negative value can also be Monte Carlo error; a
+  longer chain distinguishes the two.
+
+Different measures answer different questions; none is 'the' R-squared.

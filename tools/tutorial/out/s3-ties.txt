@@ -1,0 +1,7 @@
+   group source target same_project affect_gap advice talk wave confides
+2   team    p02    p01            0       0.16      0    0    2        0
+4   team    p03    p01            1       0.49      0    3    2        0
+6   team    p04    p01            1       1.27      0    1    2        0
+7   team    p05    p01            0       0.58      0    0    2        0
+10  team    p06    p01            0       1.20      0    1    2        0
+12  team    p07    p01            0       1.84      0    4    2        0

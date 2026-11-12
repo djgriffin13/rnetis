@@ -1,0 +1,6 @@
+  level
+1  NOTE
+2  NOTE
+                                                                                                                                                                   summary
+1   dyad(affect_gap, lag = 1) lags a variable that does not vary across waves in this data, so the lagged value is the same as the unlagged one and the lag has no effect.
+2 dyad(same_project, lag = 1) lags a variable that does not vary across waves in this data, so the lagged value is the same as the unlagged one and the lag has no effect.

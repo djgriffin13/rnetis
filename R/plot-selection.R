@@ -2,7 +2,7 @@
 
 .NETIS_SELECTION_PANELS <- c("coefficients", "heterogeneity", "posterior", "trace",
                              "actor_effects", "multiplicative", "mcmc", "groups",
-                             "gof")
+                             "gof", "latent")
 
 #' Plot a fitted Selection model
 #'
@@ -68,6 +68,19 @@
 #' and its own simulated ones, and the panel shows them all, one row of histograms per
 #' group and one column per statistic. Naming a group narrows it to that group.
 #'
+#' @section Latent coordinates:
+#' `U` and `V` are identified only up to rotation, reflection and scaling, and
+#' each retained draw sits in its own frame, so averaging them separately would
+#' shrink the structure toward nothing. `"latent"` does not do that. It takes the
+#' posterior mean of the **product** `U V'`, which is identified, and decomposes
+#' that one matrix by its singular value decomposition, scaling each side by the
+#' root of the singular value. The inner product of a sender's point and a
+#' receiver's point then reproduces the best rank-two approximation of the
+#' product. The coordinates are one frame for an identified quantity: read
+#' directions and distances from the centre, and not the axes. This construction
+#' is this package's own display choice, not a published estimator of `U` and
+#' `V`. `"multiplicative"` shows the product itself.
+#'
 #' @param x A `netis_selection` fit.
 #' @param what Which panel. `"coefficients"` (default) draws each term's
 #'   posterior estimate and interval; `"heterogeneity"` the variance components;
@@ -80,7 +93,10 @@
 #'   posterior predictive check — for each of five network statistics, a
 #'   histogram of its value across the networks simulated from the posterior,
 #'   with the central 95% of them shaded and the observed network's value drawn
-#'   as a line, via [netis_gof()].
+#'   as a line, via [netis_gof()]; `"latent"` each actor's coordinates in the
+#'   first two dimensions of the multiplicative effects, once as a sender and
+#'   once as a receiver, derived from the posterior mean of the product `U V'`
+#'   (a fit with `R > 0`; see **Latent coordinates**).
 #' @param terms Optional character vector selecting which terms to show, on
 #'   `"coefficients"`, `"posterior"` and `"trace"`. The other panels ignore it.
 #' @param group Optional group ID, for a multi-group fit (see **Multi-group
@@ -138,7 +154,8 @@ plot.netis_selection <- function(x, what = NULL, terms = NULL, group = NULL, ...
     multiplicative = .netis_plot_multiplicative(d),
     mcmc           = .netis_plot_mcmc(d),
     groups         = .netis_groups_panel(d),
-    gof            = .netis_plot_gof(d)
+    gof            = .netis_plot_gof(d),
+    latent         = .netis_plot_selection_latent(d)
   )
 }
 
@@ -162,7 +179,8 @@ plot_data.netis_selection <- function(x, what = NULL, terms = NULL, group = NULL
     groups         = .plot_data_groups(x),
     # Straight through: netis_gof() already owns every reporting decision in
     # this table, and a second summary here could disagree with the first.
-    gof            = netis_gof(x, group = group)
+    gof            = netis_gof(x, group = group),
+    latent         = .plot_data_selection_latent(x, group)
   )
 }
 

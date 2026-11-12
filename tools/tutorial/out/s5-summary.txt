@@ -1,0 +1,37 @@
+  Formula: confides ~ dyad(affect_gap, lag = 1) + dyad(same_project, lag = 1) + prior_tie(lag = 1)
+  Family:  binary tie (probit)
+  Groups:  1
+  Backend: amen::ame(), one observed network per group
+  Waves: analyzed 1 -> 2 of 2 present; 0 waves not used
+  Coefficients are on the latent probit scale, not a probability or odds scale: exp(coefficient) is not an odds ratio for this model. Because they shift with the modeled sender, receiver, and dyadic heterogeneity, comparing them across specifications is not like comparing linear regression coefficients. Report probability-scale contrasts for magnitude.
+
+Coefficients:
+                  Term Estimate Post.SD       95% interval  Est/SD Tail prob.   
+             intercept  -1.2986  0.1074 [-1.5131, -1.0862] -12.091     <0.005 **
+   dyd_affect_gap_lag1  -0.4656  0.0964 [-0.6589, -0.2838]  -4.828     <0.005 **
+ dyd_same_project_lag1   0.4663  0.0922   [0.2988, 0.6430]   5.056     <0.005 **
+             prior_tie   1.4087  0.1072   [1.2033, 1.6136]  13.136     <0.005 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Posterior summaries, not tests. Estimate is the posterior mean; Est/SD is its ratio to
+  the posterior SD; Tail prob. is twice the posterior probability that the coefficient
+  has the opposite sign, and the marks are on that. It is counted from the retained
+  draws, so its resolution is 2 / (number of draws).
+
+Model fit:
+  1560 observed dyads among 40 actors
+  Pseudo R-squared: latent-scale variance share 0.285 [0.227, 0.339]; Tjur's D 0.253.
+    What each measures: pseudo_r2(fit).
+  Posterior predictive check (400 simulated networks): the observed network is inside
+    the simulated 95% range on 5 of 5 statistics.
+    Table: netis_gof(fit). Histograms: plot(fit, what = "gof").
+
+ Statistic  Measures          Observed Simulated 95% range ppp  Counted
+ sd.rowmean out-degree spread 0.059    [0.052, 0.083]      0.82 yes    
+ sd.colmean in-degree spread  0.056    [0.051, 0.082]      0.90 yes    
+ dyad.dep   dyadic dependence 0.014    [-0.047, 0.145]     0.72 yes    
+ cycle.dep  cyclic triads     0.003    [-0.006, 0.026]     0.82 yes    
+ trans.dep  transitive triads 0.004    [-0.001, 0.022]     0.85 yes    
+  ppp is one-sided: near 0 and near 1 are both misfit, 0.5 is agreement.
+
+Fit-time findings: 0 WARNING, 2 NOTE. List them with netis_diagnostics(fit).

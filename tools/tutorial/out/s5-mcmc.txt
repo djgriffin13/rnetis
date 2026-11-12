@@ -1,0 +1,5 @@
+                   term value.R-hat value.Bulk ESS value.Tail ESS
+1             intercept     0.99759         414.84         404.28
+2   dyd_affect_gap_lag1     0.99859         353.30         409.99
+3 dyd_same_project_lag1     0.99815         385.16         364.65
+4             prior_tie     1.00090         329.07         332.30

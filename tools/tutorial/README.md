@@ -27,11 +27,12 @@ last section.
 
 ```
 Rscript cap.R            # sourced by the run scripts; not run directly
-Rscript run-inf.R out    # the Influence sequence, A1 to A8, and its figures (~3 min)
+Rscript run-inf.R out    # the Influence sequence, A1 to A8, and its figures (~7 min)
+Rscript run-sel.R out    # the Selection sequence, B1 to B8, and its figures (~25 min)
 Rscript run-a.R out      # Getting started and the reference pages' data blocks (~10 s)
 Rscript run-c.R out      # reference pages                       (~1 s)
 Rscript run-g.R out      # the hand-built team data, fit statistics, interop (~30 s)
-Rscript run-b.R out      # the Selection path                    (~5 min)
+Rscript run-b.R out      # captures from the earlier Selection pages; no page shows them now (~5 min)
 Rscript run-d.R out      # the hierarchical block, as one unit   (~8 min)
 Rscript run-f.R out      # the convergence block, from that chain  (~1 s)
 Rscript run-e.R out      # every figure, at publication width    (~3 min)
@@ -58,9 +59,10 @@ committed; without it `run-e.R` skips the hierarchical panel and says so.
   `result()` and `block()` read `out/`; `fig()` places a captured ggplot;
   `dia()` places a hand-drawn SVG; `eq()` places a display equation.
 - `content.py` — the pages, in order. It imports `content_start.py` (Welcome
-  and Getting started) and `content_influence.py` (the Influence sequence, A1
-  to A8) at the point where their pages belong, and holds the Selection pages,
-  Feedback, Reference and Help itself. Importing registers the pages.
+  and Getting started) `content_influence.py` (the Influence sequence, A1
+  to A8) and `content_selection.py` (the Selection sequence, B1 to B8) at the
+  point where their pages belong, and holds Feedback, Reference and Help
+  itself. Importing registers the pages.
 - `diagrams.py` — the SVG diagrams. These are *conceptual* figures and carry
   no number from a fit; anything reporting an estimate is a captured ggplot,
   so no drawing on the page can disagree with a result.

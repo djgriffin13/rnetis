@@ -36,5 +36,5 @@ utils::globalVariables(c(
   # The same panel's in-panel label, built from `ppp`.
   "ppp_label",
   # The latent-positions panel.
-  "x", "y", "outcome", "node"
+  "x", "y", "outcome", "node", "role"
 ))

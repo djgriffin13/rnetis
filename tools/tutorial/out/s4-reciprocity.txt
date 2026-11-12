@@ -1,0 +1,4 @@
+            intercept   dyd_affect_gap_lag1 dyd_same_project_lag1             prior_tie 
+                -1.25                 -0.50                  0.50                  1.40 
+          prior_recip 
+                -0.29 

@@ -30,9 +30,9 @@ page(
     "multilevel versions.</p>"
     '<p><a href="#p-influence-run-a-model-first">Start Influence →</a></p></div>'
     '<div><h4>Selection</h4>'
-    "<p>Who comes to confide in whom? The same team and the same data, with "
-    "the tie as the outcome.</p>"
-    '<p><a href="#p-selection-the-question">Start Selection →</a></p></div>'
+    "<p>Who comes to confide in whom? Eight pages to the same plan, on the "
+    "same team and the same data, with the tie as the outcome.</p>"
+    '<p><a href="#p-selection-run-a-model-first">Start Selection →</a></p></div>'
     "</div>",
 
     p("New here? [Installation](#p-installation) takes a couple of minutes, "
@@ -92,11 +92,9 @@ page(
         ["4", "Running the model", "Running the model"],
         ["5", "Interpreting the model", "Interpreting the model"],
         ["6", "Visualizing the model", "Visualizing the model"],
-        ["7", "The latent space", "Multiplicative effects"],
+        ["7", "The latent space", "Latent factors"],
         ["8", "Several teams", "Several teams"],
     ]),
-    note("The Influence sequence is in its new form. The Selection pages are "
-         "being rewritten to the same plan and still show the earlier layout."),
 
     h3("What you need"),
     ul("**R 4.2 or later** and the rnetis package: see "
@@ -163,7 +161,7 @@ page(
         ['`install.packages("latentnet")`', "`latent()`, the latent-space adjustment",
          "[Influence, page 7](#p-the-latent-space-influence-model)"],
         ['`install.packages("amen")`', "`fit_selection()`, the Selection model",
-         "All of Selection"],
+         "[All of Selection](#p-selection-run-a-model-first)"],
         ['`install.packages("igraph")`', "network layouts, and importing from `igraph`",
          "[Importing and exporting](#p-importing-exporting-and-deriving)"],
     ]),

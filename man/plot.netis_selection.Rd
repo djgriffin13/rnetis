@@ -23,7 +23,10 @@ different actors; \code{"mcmc"} per-parameter R-hat and effective sample size;
 posterior predictive check — for each of five network statistics, a
 histogram of its value across the networks simulated from the posterior,
 with the central 95\% of them shaded and the observed network's value drawn
-as a line, via \code{\link[=netis_gof]{netis_gof()}}.}
+as a line, via \code{\link[=netis_gof]{netis_gof()}}; \code{"latent"} each actor's coordinates in the
+first two dimensions of the multiplicative effects, once as a sender and
+once as a receiver, derived from the posterior mean of the product \verb{U V'}
+(a fit with \code{R > 0}; see \strong{Latent coordinates}).}
 
 \item{terms}{Optional character vector selecting which terms to show, on
 \code{"coefficients"}, \code{"posterior"} and \code{"trace"}. The other panels ignore it.}
@@ -97,6 +100,21 @@ coefficient has only its population row. \code{"heterogeneity"} reads
 group was fitted to its own network and so has its own observed statistics
 and its own simulated ones, and the panel shows them all, one row of histograms per
 group and one column per statistic. Naming a group narrows it to that group.
+}
+
+\section{Latent coordinates}{
+
+\code{U} and \code{V} are identified only up to rotation, reflection and scaling, and
+each retained draw sits in its own frame, so averaging them separately would
+shrink the structure toward nothing. \code{"latent"} does not do that. It takes the
+posterior mean of the \strong{product} \verb{U V'}, which is identified, and decomposes
+that one matrix by its singular value decomposition, scaling each side by the
+root of the singular value. The inner product of a sender's point and a
+receiver's point then reproduces the best rank-two approximation of the
+product. The coordinates are one frame for an identified quantity: read
+directions and distances from the centre, and not the axes. This construction
+is this package's own display choice, not a published estimator of \code{U} and
+\code{V}. \code{"multiplicative"} shows the product itself.
 }
 
 \examples{

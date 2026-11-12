@@ -1,0 +1,1 @@
+Error: Selection formulas give every predictor an explicit role, so a bare term is not interpretable: extraversion. Wrap each one in sender(), receiver(), or dyad() -- for example sender(extraversion) for a property of the tie's sender, or sender(extraversion) + receiver(extraversion) to allow both.

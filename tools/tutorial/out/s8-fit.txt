@@ -1,0 +1,42 @@
+  Formula: confides ~ dyad(affect_gap, lag = 1) + dyad(same_project, lag = 1) + prior_tie(lag = 1)
+  Family:  binary tie (probit)
+  Groups:  10
+  Backend: amen::ame(), one observed network per group
+  Waves: analyzed 1 -> 2 of 2 present; 0 waves not used
+  Coefficients are on the latent probit scale, not a probability or odds scale: exp(coefficient) is not an odds ratio for this model. Because they shift with the modeled sender, receiver, and dyadic heterogeneity, comparing them across specifications is not like comparing linear regression coefficients. Report probability-scale contrasts for magnitude.
+
+  Coefficients pooled across 10 groups by two-stage common-beta precision weighting.
+    This assumes beta is COMMON across groups: there is no between-group variance
+    component, so heterogeneity in beta is assumed away rather than estimated.
+    Pooling is coefficient-wise, so no covariance between coefficients survives
+    it -- per-coefficient intervals are valid, joint tests are not.
+
+Coefficients:
+                  Term Estimate     SE       95% interval z value Pr(>|z|)    
+             intercept  -1.1684 0.0640 [-1.2939, -1.0430] -18.254   <0.001 ***
+   dyd_affect_gap_lag1  -0.6317 0.0597 [-0.7487, -0.5146] -10.577   <0.001 ***
+ dyd_same_project_lag1   0.4768 0.0574   [0.3644, 0.5892]   8.314   <0.001 ***
+             prior_tie   1.4294 0.0630   [1.3060, 1.5529]  22.692   <0.001 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+z tests from the pooled estimates and their standard errors, on the normal quantile:
+  two-stage pooling keeps no pooled draws to count a tail probability from.
+
+Model fit:
+  3800 observed dyads in 10 groups
+  Pseudo R-squared across 10 groups: latent-scale variance share median 0.349, range
+    0.277 to 0.407; Tjur's D median 0.306, range 0.219 to 0.376. One group:
+    pseudo_r2(fit, group = ).
+  Posterior predictive check (300 simulated networks per group): the observed network
+    is inside the simulated 95% range on 46 of 50 group-by-statistic checks. Outside:
+    sd.rowmean (2 groups), sd.colmean (2 groups).
+    Table: netis_gof(fit). Histograms: plot(fit, what = "gof").
+
+ Statistic  Measures          Groups inside 95% range
+ sd.rowmean out-degree spread 8 of 10                
+ sd.colmean in-degree spread  8 of 10                
+ dyad.dep   dyadic dependence 10 of 10               
+ cycle.dep  cyclic triads     10 of 10               
+ trans.dep  transitive triads 10 of 10               
+
+Fit-time findings: 0 WARNING, 2 NOTE. List them with netis_diagnostics(fit).

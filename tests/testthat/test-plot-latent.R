@@ -64,3 +64,59 @@ test_that("a fit with no latent() term is refused, and told what would give one"
   expect_error(plot(fit, what = "latent"), "has no latent() term", fixed = TRUE)
   expect_error(plot_data(fit, what = "latent"), "latent(<network>, d = 2)", fixed = TRUE)
 })
+
+# ---- a Selection fit's latent coordinates -----------------------------------
+
+test_that("a Selection fit's coordinates reproduce the product they came from", {
+  skip_if_not_installed("amen")
+  fit <- .cached_fixture("plot_selection_latent_r1", fit_selection(
+    tie ~ sender(tenure) + receiver(tenure) + prior_tie(), data = demo_selection,
+    nscan = 200, burn = 50, odens = 10, seed = 1, R = 1
+  ))
+  d <- plot_data(fit, what = "latent")
+  uv <- fit$per_group[[1]]$multiplicative
+  expect_identical(nrow(d), nrow(uv))
+  expect_true(all(d$dims == 1L))
+  # One dimension: sending coordinate times receiving coordinate is the rank-one
+  # approximation of the posterior mean product.
+  approx <- outer(d$x, d$y)
+  sv <- svd(uv)
+  expect_equal(approx, sv$d[1] * tcrossprod(sv$u[, 1], sv$v[, 1]),
+               tolerance = 1e-8, ignore_attr = TRUE)
+  expect_s3_class(plot(fit, what = "latent"), "ggplot")
+})
+
+test_that("two dimensions place every actor twice, in one frame", {
+  skip_if_not_installed("amen")
+  fit <- .cached_fixture("plot_selection_latent_r2", fit_selection(
+    tie ~ sender(tenure) + receiver(tenure) + prior_tie(), data = demo_selection,
+    nscan = 200, burn = 50, odens = 10, seed = 1, R = 2
+  ))
+  d <- plot_data(fit, what = "latent")
+  uv <- fit$per_group[[1]]$multiplicative
+  expect_identical(nrow(d), 2L * nrow(uv))
+  expect_setequal(d$role, c("as sender", "as receiver"))
+  snd <- as.matrix(d[d$role == "as sender", c("x", "y")])
+  rcv <- as.matrix(d[d$role == "as receiver", c("x", "y")])
+  sv <- svd(uv)
+  rank2 <- sv$u[, 1:2] %*% diag(sv$d[1:2]) %*% t(sv$v[, 1:2])
+  expect_equal(snd %*% t(rcv), rank2, tolerance = 1e-8, ignore_attr = TRUE)
+  # The sign rule: the largest sending coordinate on each dimension is positive.
+  expect_gt(snd[which.max(abs(snd[, 1])), 1], 0)
+  expect_gt(snd[which.max(abs(snd[, 2])), 2], 0)
+  expect_match(paste(attr(d, "netis_caption"), collapse = " "),
+               "only the product is identified", fixed = TRUE)
+  p <- plot(fit, what = "latent")
+  expect_s3_class(p, "ggplot")
+  expect_identical(p$coordinates$ratio, 1)
+})
+
+test_that("a fit with R = 0 is refused, and told what would give coordinates", {
+  skip_if_not_installed("amen")
+  fit <- .cached_fixture("plot_selection_latent_r0", fit_selection(
+    tie ~ sender(tenure) + prior_tie(), data = demo_selection,
+    nscan = 100, burn = 20, odens = 10, seed = 1
+  ))
+  expect_error(plot(fit, what = "latent"), "fit with R = 0", fixed = TRUE)
+  expect_error(plot_data(fit, what = "latent"), "R = 2", fixed = TRUE)
+})
