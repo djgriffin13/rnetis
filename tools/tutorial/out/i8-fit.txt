@@ -1,5 +1,5 @@
 Influence model
-  Formula:   affect ~ ar() + exposure(affect, via = confides, normalize = "row") + (1 | group)
+  Formula:   affect ~ ar() + exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row") + (1 | group)
   Estimator: mixed-effects (lme4) (the formula declares a random-effects term)
   Backend:   lme4 2.1.0
   Waves: analyzed 1 -> 2 of 2 present; 0 waves not used

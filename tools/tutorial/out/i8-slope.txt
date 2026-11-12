@@ -2,7 +2,7 @@ boundary (singular) fit: see help('isSingular')
 Warning message:
 Model failed to converge with 1 negative eigenvalue: -5.7e-03
 <netis_influence>
-  affect ~ ar() + exposure(affect, via = confides, normalize = "row") + (1 + ex_affect_confides | group)
+  affect ~ ar() + exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row") + (1 + ex_affect_confides | group)
   Estimator: mixed-effects (lme4) (the formula declares a random-effects term)  [backend: lme4]
   Waves: analyzed 1 -> 2 of 2 present; 0 waves not used
   200 rows in the estimating sample

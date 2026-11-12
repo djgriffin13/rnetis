@@ -1,3 +1,6 @@
-fit <- fit_influence(affect ~ ar() + exposure(affect, via = confides, normalize = "row"),
-                     data = team)
+fit <- fit_influence(
+  affect ~ ar() +
+    exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row"),
+  data = team
+)
 fit

@@ -34,14 +34,16 @@ def F(fid):
 # ---------------------------------------------------------------------------
 page(
     GA, "A1 · Start here", "Influence: run a model first",
-    '<p class="lede">Two lines of code, a fitted model, and what it says. '
-    "The rest of the sequence goes back over how it worked.</p>",
+    '<p class="lede">'
+    "This page fits an influence model with one call and reads the result. The pages after it go back over how each part worked.</p>",
 
+    h3("The model"),
     p("A team of forty people was surveyed twice. Each time, everyone "
       "reported their **affect** (how positive their mood has been, on a "
-      "1-to-5 scale) and who they **confide** in. The question: *does a "
-      "person's affect move toward the affect of the people who confide in "
-      "them?* That is affect contagion, and this fits it:"),
+      "1-to-5 scale) and who they **confide** in. The question is whether a "
+      "person's affect moves toward the affect of the people who confide in "
+      "them. That is called affect contagion, and these lines fit a model "
+      "of it:"),
     block("i1-run"),
 
     h3("What it says"),
@@ -60,14 +62,14 @@ page(
        "**R-squared** is %s: the two terms together account for about "
        "two-thirds of the variation in affect at the second survey."
        % F("i-r2")),
-    p("In one sentence: *in this team, people's affect moved toward the "
-      "affect of those who confided in them.*"),
+    p("Put in one sentence, the result is that *people's affect in this "
+      "team moved toward the affect of those who confided in them.*"),
     note("The data are simulated, so the right answer is known: the "
          "contagion effect was built in at 0.5 and the carry-over at 0.4. "
          "The model recovered both."),
 
     h3("How that worked, and where this goes next"),
-    p("Those two lines did a lot. They found each person's confiders, "
+    p("That one call did a lot. It found each person's confiders, "
       "averaged the confiders' earlier affect, lined that up with each "
       "person's own earlier and later affect, and fitted a regression. The "
       "next pages take that apart:"),
@@ -96,8 +98,8 @@ page(
 # ---------------------------------------------------------------------------
 page(
     GA, "A2 · Theory", "The theory and the hypothesis",
-    '<p class="lede">What a claim of social influence says, and the five '
-    "things a hypothesis has to pin down before a model can test it.</p>",
+    '<p class="lede">'
+    "This page explains what a claim of social influence says, and the six things a hypothesis has to pin down before a model can test it.</p>",
 
     h3("What influence means"),
     p("**Influence** is a claim about change in a person: *something about "
@@ -121,7 +123,7 @@ page(
       "person's own earlier affect."),
 
     h3("Writing the hypothesis"),
-    p("A testable influence hypothesis names five things. Each one becomes "
+    p("A testable influence hypothesis names six things. Each one becomes "
       "a piece of the model formula on [page A4](#p-running-the-influence-model)."),
     table(["The hypothesis has to say", "In this example", "In the formula"], [
         ["What changes", "A person's affect at the second survey", "`affect ~`"],
@@ -130,6 +132,9 @@ page(
          "`exposure(affect, ...)`"],
         ["Through which relationship, in which direction",
          "From the people who confide in them", "`via = confides`"],
+        ["Measured when",
+         "Their affect and the confiding ties, both at the first survey",
+         "`x_lag = 1, w_lag = 1`"],
         ["How exposures combine", "The average across their confiders",
          '`normalize = "row"`'],
     ]),
@@ -174,9 +179,8 @@ page(
 # ---------------------------------------------------------------------------
 page(
     GA, "A3 · Data", "The data: people, ties and waves",
-    '<p class="lede">Two tables and one function. One table describes '
-    "people, the other describes pairs of people, and `netis_data()` joins "
-    "them into the object every model on these pages uses.</p>",
+    '<p class="lede">'
+    "rnetis needs two tables: one that describes people and one that describes pairs of people. <code>netis_data()</code> joins them into the object that every model on these pages uses.</p>",
 
     p("The model on page A1 used `demo_affect`, which ships with rnetis. "
       "This page builds the same data from scratch, so you can see what "
@@ -235,7 +239,7 @@ page(
     p("Read the printout as a receipt: forty people, one team, two waves; "
       "which variables describe people and which describe ties; and which of "
       "them change between waves (`affect` and `confides`)."),
-    p("And it is the dataset page A1 used:"),
+    p("The object is identical to the dataset page A1 used:"),
     block("i3-identical"),
 
     rare("What the `tie_meta` lines are for",
@@ -308,21 +312,23 @@ page(
 # ---------------------------------------------------------------------------
 page(
     GA, "A4 · Running the model", "Running the influence model",
-    '<p class="lede">One function, one formula. This page runs it, then '
-    "reads the formula a term at a time.</p>",
+    '<p class="lede">'
+    "<code>fit_influence()</code> takes a formula and a data object. This page runs it and then reads the formula one term at a time.</p>",
 
+    h3("The model"),
     block("i4-fit"),
     p("This is the model from page A1, now on the `team` object you built. "
       "The next page reads the output; this one is about what you typed."),
 
     h3("The formula as a whole"),
-    codeonly('affect ~ ar() + exposure(affect, via = confides, normalize = "row")'),
+    codeonly('affect ~ ar() +\n'
+             '  exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row")'),
     p("Read `~` as *is explained by*. The outcome is on the left and each "
       "term on the right, separated by `+`, adds one explanation:"),
     table(["Piece", "In words"], [
         ["`affect ~`", "A person's affect at the later survey is explained by..."],
         ["`ar()`", "...their own affect at the earlier survey..."],
-        ['`exposure(affect, via = confides, normalize = "row")`',
+        ['`exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row")`',
          "...and the average earlier affect of the people who confide in them."],
     ]),
 
@@ -340,24 +346,41 @@ page(
 
     h3("`exposure()`: what reached them through the network"),
     p("`exposure()` is the heart of an influence model. It builds one number "
-      "per person: a summary of the people they are tied to. It has three "
-      "parts."),
+      "per person: a summary of the people they are tied to. The call "
+      "has five parts."),
     table(["Argument", "Here", "What it means"], [
         ["first argument (the content)", "`affect`",
          "*What* travels: the other people's affect"],
         ["`via`", "`confides`", "*Which tie* carries it"],
+        ["`x_lag`", "`1`",
+         "*When the content was measured*: one wave before the outcome"],
+        ["`w_lag`", "`1`",
+         "*When the tie was measured*: one wave before the outcome"],
         ["`normalize`", '`"row"`',
          "*How it combines*: `\"row\"` averages over a person's confiders"],
     ]),
-    p("So for each person, rnetis finds everyone who confides in them, takes "
-      "those people's affect at the earlier survey, and averages it. In the "
-      "output that column is named `ex_affect_confides`."),
+    p("So for each person, rnetis finds everyone who confided in them at "
+      "the earlier survey, takes those people's affect at the earlier "
+      "survey, and averages it. In the output that column is named "
+      "`ex_affect_confides`."),
 
-    h3("Timing: the lag"),
-    p("By default both `ar()` and `exposure()` look **one wave back**. "
-      "Affect at survey 2 is explained by affect and confiders at survey 1. "
-      "The line `Waves: analyzed 1 -> 2` in the output confirms which pair "
-      "of surveys was used. Cause before effect is built in."),
+    h3("Timing: `x_lag` and `w_lag`"),
+    p("The two lag arguments say *when* each ingredient was measured, "
+      "counted back from the wave of the outcome."),
+    ul("**`x_lag = 1`** takes the content, the confiders' affect, from one "
+       "wave before the outcome.",
+       "**`w_lag = 1`** takes the network, who confides in whom, from one "
+       "wave before the outcome."),
+    p("Affect at survey 2 is therefore explained by the affect and the "
+      "confiding ties of survey 1, so the cause is measured before the "
+      "effect. The line `Waves: analyzed 1 -> 2` in the output confirms "
+      "which pair of surveys was used."),
+    p("Both values are the defaults, and leaving them out fits the same "
+      "model. They are written out on these pages so that the timing can be "
+      "read in the code. `ar()` looks one wave back in the same way, and "
+      "`ar(lag = 1)` says so explicitly. Give `w_lag` a different value "
+      "from `x_lag` when the network and the content were measured at "
+      "different waves."),
 
     h3("`data`"),
     p("`data = team` is the object from the last page. The formula can use "
@@ -396,12 +419,15 @@ page(
          block("i4-other-tie"),
          h4("A different content"),
          p("The content does not have to be the outcome. "
-           "`exposure(extraversion, via = confides, normalize = \"row\")` "
+           "`exposure(extraversion, via = confides, x_lag = 1, w_lag = 1, "
+           "normalize = \"row\")` "
            "asks whether having extraverted confiders changes your affect.")),
     rare("Terms you can add to the formula",
          table(["Term", "What it adds"], [
              ["`ar()`", "The outcome at the earlier wave"],
-             ["`exposure(content, via = tie)`", "A network exposure"],
+             ["`exposure(content, via = tie, x_lag = 1, w_lag = 1)`",
+              "A network exposure, with the content and the tie both taken "
+              "from one wave back"],
              ["a node variable, such as `tenure`", "A covariate"],
              ["`x * z`", "An interaction (moderation)"],
              ["`latent(tie, d = 2)`", "A latent-space adjustment: page A7"],
@@ -427,9 +453,10 @@ page(
 # ---------------------------------------------------------------------------
 page(
     GA, "A5 · Interpreting", "Interpreting the influence model",
-    '<p class="lede">`summary()` in four parts: what was fitted, the '
-    "coefficients, how well the model fits, and what the result rests on.</p>",
+    '<p class="lede">'
+    "The output of <code>summary()</code> has four parts: what was fitted, the coefficients, how well the model fits, and what the result rests on. This page goes through them in order.</p>",
 
+    h3("The output"),
     block("i5-summary"),
 
     h3("1. The header: what was fitted"),
@@ -455,9 +482,10 @@ page(
     ul("**`(Intercept)`** is the predicted later affect for someone whose "
        "earlier affect and exposure were both zero. Affect runs from about 1 "
        "to 5, so nobody is there, and the row is rarely of interest.",
-       "**`affect_lag1`** = %s. Stability. Two people one point apart at "
-       "the first survey are about %s apart at the second." % (F("i-ar"), F("i-ar")),
-       "**`ex_affect_confides`** = %s. The contagion effect. Two people "
+       "**`affect_lag1`** = %s. This is stability: two people one point "
+       "apart at the first survey are about %s apart at the second."
+       % (F("i-ar"), F("i-ar")),
+       "**`ex_affect_confides`** = %s. This is the contagion effect: two people "
        "who started in the same mood, one of whom has confiders averaging a "
        "full point happier, end up about %s of a point apart."
        % (F("i-ex"), F("i-ex"))),
@@ -530,8 +558,8 @@ page(
 # ---------------------------------------------------------------------------
 page(
     GA, "A6 · Visualizing", "Visualizing the influence model",
-    '<p class="lede">Two pictures worth making for every model: the '
-    "network the influence travels through, and the coefficients.</p>",
+    '<p class="lede">'
+    "Two pictures are worth making for every model: the network the influence travels through, and the coefficients.</p>",
 
     h3("The network"),
     p("`plot()` on the data object draws the network. Say which tie and "
@@ -584,8 +612,8 @@ page(
 # ---------------------------------------------------------------------------
 page(
     GA, "A7 · Latent space", "The latent-space influence model",
-    '<p class="lede">The same model, with one added term that guards '
-    "against people having chosen confidants who were already like them.</p>",
+    '<p class="lede">'
+    "This page fits the same model with one added term, which guards against people having chosen confidants who were already like them.</p>",
 
     h3("Where we are"),
     p("So far: `affect ~ ar() + exposure(...)` estimated a contagion effect "
@@ -624,7 +652,7 @@ page(
     p("The estimate fell from %s to %s, and its interval now includes zero. "
       "Part of what the basic model called contagion is accounted for by "
       "where people sit in the network." % (F("i-ex"), F("i7-ex"))),
-    quote("**How to report this.** Both numbers. The basic model is the "
+    quote("**How to report this.** Report both numbers. The basic model is the "
           "estimate under the assumption that confidants were not chosen on "
           "anything that drives mood. The adjusted model relaxes that "
           "assumption and costs precision. In these simulated data the "
@@ -642,6 +670,50 @@ page(
       "with similar moods sitting together, position and mood are related, "
       "which is exactly the situation the adjustment is for."),
 
+    rare("What is `homophily =` for, and what should I put in it?",
+         p("By default the positions are estimated from the network alone. "
+           "They then stand in for *every* reason people confide in one "
+           "another, including similarity on characteristics you measured "
+           "and already have in the model."),
+         p("`homophily =` names person characteristics that people may sort "
+           "on. The network model then accounts for similarity on each of "
+           "them directly, and the positions are left to describe what "
+           "those characteristics do not explain. That remainder is what "
+           "the adjustment is for: the traits you could not measure."),
+         h4("What to put in it"),
+         p("Generally, name the core person characteristics in your study "
+           "that could plausibly shape who confides in whom. Those are the "
+           "covariates in your influence model whose coefficients you care "
+           "about, and anything else people are known to sort on. Xu, whose "
+           "method this is, recommends conditioning the network model on "
+           "observed homophily for the same reason."),
+         h4("Why it helps"),
+         p("Suppose people sort on extraversion and the network model is "
+           "not told. The positions then absorb part of extraversion, and "
+           "the influence model holds the same information twice: once in "
+           "the `extraversion` column and once in the position columns. "
+           "That overlap is collinearity, and it makes the coefficients you "
+           "care about less clear. Naming the characteristic takes that "
+           "information out of the positions before they enter the "
+           "influence model."),
+         p("The example below adds `extraversion` as a covariate and fits "
+           "the model both ways. `overlap()` reports how much of "
+           "extraversion the two position columns can reproduce, as an "
+           "R-squared:"),
+         block("i7-homophily"),
+         p("Without `homophily`, the positions carry about %s of the "
+           "variation in extraversion. With it they carry about %s, so the "
+           "`extraversion` coefficient and the position coefficients are "
+           "no longer describing the same thing. This is the usual "
+           "direction and not a guarantee, which is why the advice above "
+           "says *generally*." % (F("i7-ov-without"), F("i7-ov-with"))),
+         h4("Two practical points"),
+         ul("`homophily` compares two people by the absolute difference in "
+            "a number, so it suits numeric and 0/1 variables such as "
+            "`extraversion`, `tenure` and `remote`.",
+            "Each variable you add can make the first step slower. For a "
+            "term `homophily` cannot express, `terms =` passes model terms "
+            "to `latentnet` directly: see `?latent`.")),
     rare("How many dimensions?",
          p("`d` is the number of dimensions. More dimensions can represent "
            "a more complicated pattern of who-is-near-whom, and each one "
@@ -654,8 +726,9 @@ page(
     rare("Other settings",
          table(["Argument", "What it does"], [
              ["`d`", "Number of latent dimensions"],
-             ['`homophily = c("tenure")`',
-              "Also condition the positions on observed similarity in these variables"],
+             ['`homophily = c("extraversion", "tenure")`',
+              "Account for similarity on these variables in the network "
+              "model, so the positions describe what is left: see the box above"],
              ["`seed`", "Makes the positions reproducible: they come from a random sampler"],
              ["`lag`", "Which wave's network to read positions from (default: the earlier one)"],
          ])),
@@ -674,8 +747,8 @@ page(
 # ---------------------------------------------------------------------------
 page(
     GA, "A8 · Multilevel", "The multilevel influence model",
-    '<p class="lede">Ten teams, not one. The formula gains one term, and '
-    "the summary gains a section.</p>",
+    '<p class="lede">'
+    "This page moves from one team to ten. The formula gains one term and the summary gains a section.</p>",
 
     h3("Where we are"),
     p("Everything so far used one team of forty. Most studies have several "

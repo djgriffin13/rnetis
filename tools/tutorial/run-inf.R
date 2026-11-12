@@ -19,8 +19,11 @@ W <- 11.5
 cap("i1-run", R(
   'library(rnetis)',
   '',
-  'fit <- fit_influence(affect ~ ar() + exposure(affect, via = confides, normalize = "row"),',
-  '                     data = demo_affect)',
+  'fit <- fit_influence(',
+  '  affect ~ ar() +',
+  '    exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row"),',
+  '  data = demo_affect',
+  ')',
   'summary(fit)'
 ))
 
@@ -115,14 +118,18 @@ stopifnot(identical(netis_nodes(ENV$team), netis_nodes(demo_affect)),
 # A4 - running the model
 # ===========================================================================
 cap("i4-fit", R(
-  'fit <- fit_influence(affect ~ ar() + exposure(affect, via = confides, normalize = "row"),',
-  '                     data = team)',
+  'fit <- fit_influence(',
+  '  affect ~ ar() +',
+  '    exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row"),',
+  '  data = team',
+  ')',
   'fit'
 ))
 
 cap("i4-covariates", R(
   'fit2 <- fit_influence(',
-  '  affect ~ ar() + exposure(affect, via = confides, normalize = "row") +',
+  '  affect ~ ar() +',
+  '    exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row") +',
   '    extraversion + remote,',
   '  data = team',
   ')',
@@ -130,23 +137,29 @@ cap("i4-covariates", R(
 ))
 
 cap("i4-sum", R(
-  'fit_sum <- fit_influence(affect ~ ar() + exposure(affect, via = confides),',
-  '                         data = team)',
+  'fit_sum <- fit_influence(',
+  '  affect ~ ar() + exposure(affect, via = confides, x_lag = 1, w_lag = 1),',
+  '  data = team',
+  ')',
   'coef(fit_sum)'
 ))
 
 cap("i4-direction", R(
   'fit_rev <- fit_influence(',
-  '  affect ~ ar() + exposure(affect, via = confides, normalize = "row",',
-  '                           direction = "target_influences_source"),',
+  '  affect ~ ar() +',
+  '    exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row",',
+  '             direction = "target_influences_source"),',
   '  data = team',
   ')',
   'coef(fit_rev)'
 ))
 
 cap("i4-other-tie", R(
-  'fit_talk <- fit_influence(affect ~ ar() + exposure(affect, via = talk, normalize = "row"),',
-  '                          data = team)',
+  'fit_talk <- fit_influence(',
+  '  affect ~ ar() +',
+  '    exposure(affect, via = talk, x_lag = 1, w_lag = 1, normalize = "row"),',
+  '  data = team',
+  ')',
   'coef(fit_talk)'
 ))
 
@@ -179,7 +192,8 @@ capfig("i6-coef",    R('plot(fit)'), width = W, height = 4.6)
 .log("latent-space fit (about a minute and a half)")
 cap("i7-fit", R(
   'fit_latent <- fit_influence(',
-  '  affect ~ ar() + exposure(affect, via = confides, normalize = "row") +',
+  '  affect ~ ar() +',
+  '    exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row") +',
   '    latent(confides, d = 2, seed = 1),',
   '  data = team',
   ')',
@@ -192,12 +206,39 @@ cap("i7-compare", R(
 capfig("i7-latent", R('plot(fit_latent, what = "latent")'), width = 8.5, height = 7.0)
 cap("i7-d1", R(
   'fit_latent1 <- fit_influence(',
-  '  affect ~ ar() + exposure(affect, via = confides, normalize = "row") +',
+  '  affect ~ ar() +',
+  '    exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row") +',
   '    latent(confides, d = 1, seed = 1),',
   '  data = team',
   ')',
   'coef(fit_latent1)'
 ))
+.log("latent-space fits for the homophily box (several minutes)")
+cap("i7-homophily", R(
+  '# How much of extraversion do the two position columns carry?',
+  'overlap <- function(fit) {',
+  '  X <- model.matrix(fit$backend_fit)',
+  '  positions <- X[, grep("^lat_", colnames(X))]',
+  '  summary(lm(X[, "extraversion"] ~ positions))$r.squared',
+  '}',
+  '',
+  'fit_plain <- fit_influence(',
+  '  affect ~ ar() +',
+  '    exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row") +',
+  '    extraversion + latent(confides, d = 2, seed = 1),',
+  '  data = team',
+  ')',
+  'fit_homophily <- fit_influence(',
+  '  affect ~ ar() +',
+  '    exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row") +',
+  '    extraversion + latent(confides, d = 2, homophily = "extraversion", seed = 1),',
+  '  data = team',
+  ')',
+  '',
+  'round(c(without = overlap(fit_plain), with = overlap(fit_homophily)), 2)'
+))
+fact("i7-ov-without", 'sprintf("%.2f", overlap(fit_plain))')
+fact("i7-ov-with",    'sprintf("%.2f", overlap(fit_homophily))')
 fact("i7-ex", 'sprintf("%.2f", coef(fit_latent)[["ex_affect_confides"]])')
 
 # ===========================================================================
@@ -205,12 +246,17 @@ fact("i7-ex", 'sprintf("%.2f", coef(fit_latent)[["ex_affect_confides"]])')
 # ===========================================================================
 cap("i8-data", R('demo_affect_teams'))
 cap("i8-refuse", R(
-  'fit_influence(affect ~ ar() + exposure(affect, via = confides, normalize = "row"),',
-  '              data = demo_affect_teams)'
+  'fit_influence(',
+  '  affect ~ ar() +',
+  '    exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row"),',
+  '  data = demo_affect_teams',
+  ')'
 ), expect_error = TRUE)
 cap("i8-fit", R(
   'fit_teams <- fit_influence(',
-  '  affect ~ ar() + exposure(affect, via = confides, normalize = "row") + (1 | group),',
+  '  affect ~ ar() +',
+  '    exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row") +',
+  '    (1 | group),',
   '  data = demo_affect_teams',
   ')',
   'summary(fit_teams)'
@@ -218,7 +264,8 @@ cap("i8-fit", R(
 capfig("i8-heterogeneity", R('plot(fit_teams, what = "heterogeneity")'), width = W, height = 4.6)
 cap("i8-slope", R(
   'fit_slope <- fit_influence(',
-  '  affect ~ ar() + exposure(affect, via = confides, normalize = "row") +',
+  '  affect ~ ar() +',
+  '    exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row") +',
   '    (1 + ex_affect_confides | group),',
   '  data = demo_affect_teams',
   ')',

@@ -322,6 +322,14 @@ transition:transform .15s}
 .navgrp:not(.open) .grpbody{display:none}
 aside a.top{margin-top:12px;font-weight:600}
 aside a.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+/* The sections of the page being read, under its link. Only the current
+   page's list is open, and a page with fewer than two sections has none. */
+.secs{display:none;margin:2px 0 6px}
+.secs.open{display:block}
+aside a.sec{margin-left:24px;padding:3px 8px 3px 12px;font-size:13.5px;line-height:1.35;
+color:var(--muted);border-left:2px solid var(--line);border-radius:0}
+aside a.top+.secs a.sec{margin-left:12px}
+aside a.sec.cur{color:var(--accent);border-left-color:var(--accent);font-weight:600}
 main{flex:1;min-width:0;padding:18px 16px 60px}
 .page{background:var(--panel);border:1px solid var(--line);border-radius:12px;
 padding:6px 24px 18px;margin-bottom:18px;scroll-margin-top:72px}
@@ -453,19 +461,58 @@ header h1{font-size:15px}.hero{width:84px;margin-left:12px}}
 JS = r"""
 (function(){
   var pages=[].slice.call(document.querySelectorAll('.page')),
-      links=[].slice.call(document.querySelectorAll('#nav a'));
+      links=[].slice.call(document.querySelectorAll('#nav a:not(.sec)')),
+      secLinks=[].slice.call(document.querySelectorAll('#nav a.sec')),
+      secLists=[].slice.call(document.querySelectorAll('#nav .secs')),
+      heads=[].slice.call(document.querySelectorAll('h3[data-sec]'));
   var cur=0, showAll=false;
   function store(k,v){try{localStorage.setItem(k,v)}catch(e){}}
   function load(k){try{return localStorage.getItem(k)}catch(e){return null}}
+  // The sidebar's state for page `cur`: its link lit, its group open, and
+  // its section list showing.
+  function mark(){
+    links.forEach(function(a){a.classList.toggle('on',+a.getAttribute('data-page')===cur)});
+    secLists.forEach(function(s){s.classList.toggle('open',+s.getAttribute('data-for')===cur)});
+    [].slice.call(document.querySelectorAll('.navgrp')).forEach(function(g){
+      g.classList.toggle('open',!!g.querySelector('[data-page="'+cur+'"]'))});
+  }
   function show(n){
     cur=Math.max(0,Math.min(pages.length-1,n));
     pages.forEach(function(p,i){p.classList.toggle('hidden',!showAll&&i!==cur)});
-    links.forEach(function(a){a.classList.toggle('on',+a.getAttribute('data-page')===cur)});
-    [].slice.call(document.querySelectorAll('.navgrp')).forEach(function(g){
-      g.classList.toggle('open',!!g.querySelector('[data-page="'+cur+'"]'))});
+    mark();
     var t=document.getElementById('toc'); if(t) t.value='';
     store('rnetis-tut-page',cur);
+    spy();
   }
+  // Which section is being read: the last heading that has passed under the
+  // header. Above a page's first heading none is lit. At the very bottom the
+  // last one is, because a short final section can never reach the top.
+  function spy(){
+    var act=null,last=null;
+    heads.forEach(function(h){
+      if(h.offsetParent===null)return;
+      last=h;
+      if(h.getBoundingClientRect().top<=150)act=h});
+    if(last&&window.scrollY>0&&
+       window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-4)act=last;
+    secLinks.forEach(function(a){
+      a.classList.toggle('cur',!!act&&a.getAttribute('href')==='#'+act.id)});
+    if(showAll&&act){
+      var i=pages.indexOf(act.closest('.page'));
+      if(i>=0&&i!==cur){cur=i;mark()}}
+  }
+  var ticking=false;
+  window.addEventListener('scroll',function(){
+    if(ticking)return;ticking=true;
+    requestAnimationFrame(function(){ticking=false;spy()})},{passive:true});
+  // Go to something inside a page: bring its page up first if it is hidden.
+  function go(el){
+    var i=pages.indexOf(el.closest('.page')); if(i<0)return false;
+    if(!showAll&&i!==cur)show(i);
+    el.scrollIntoView();return true}
+  secLinks.forEach(function(a){a.addEventListener('click',function(e){
+    var el=document.getElementById(a.getAttribute('href').slice(1));
+    if(el){e.preventDefault();go(el)}})});
   links.forEach(function(a){a.addEventListener('click',function(e){
     if(!showAll){e.preventDefault();show(+a.getAttribute('data-page'));window.scrollTo(0,0)}})});
   var groups=[].slice.call(document.querySelectorAll('.navgrp'));
@@ -540,9 +587,11 @@ JS = r"""
       p.classList.toggle('hidden',!any)});
     count.textContent=hits+' match'+(hits===1?'':'es')});
   document.addEventListener('click',function(e){
-    var a=e.target.closest('a[href^="#p-"]'); if(!a||a.closest('#nav'))return;
-    var i=pages.findIndex(function(p){return '#'+p.id===a.getAttribute('href')});
-    if(i>=0&&!showAll){e.preventDefault();show(i);window.scrollTo(0,0)}});
+    var a=e.target.closest('a[href^="#"]'); if(!a||a.closest('#nav'))return;
+    var el=document.getElementById(a.getAttribute('href').slice(1)); if(!el)return;
+    var i=pages.indexOf(el);
+    if(i>=0){if(!showAll){e.preventDefault();show(i);window.scrollTo(0,0)}return}
+    if(el.closest('.page')&&!showAll){e.preventDefault();go(el)}});
   document.addEventListener('input',function(e){
     if(!e.target.classList.contains('filter'))return;
     var t=e.target.value.trim().toLowerCase();
@@ -551,7 +600,11 @@ JS = r"""
   function fromHash(){
     if(!location.hash)return false;
     var i=pages.findIndex(function(p){return '#'+p.id===location.hash});
-    if(i<0)return false;
+    if(i<0){
+      // a section inside a page: show the page and land on the section
+      var el=document.getElementById(location.hash.slice(1));
+      if(el&&el.closest('.page'))go(el);
+      return false}
     show(i);return true}
   // A hash arriving after load -- a deep link followed in place, or the back
   // button -- changes no document, so the initial run above would miss it.
@@ -563,25 +616,87 @@ JS = r"""
 """
 
 
+def _slug(text):
+    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+
+
+def _sections(pg, taken):
+    """Find a page's sections: its <h3> headings outside any expandable box.
+
+    Returns the body with an id on each of those headings, and the list of
+    (id, label) the sidebar shows under the page. A page with fewer than two
+    sections gets an empty list: a single entry would only repeat the page's
+    own link one level down.
+    """
+    body, out, secs, pos, depth = pg["body"], [], [], 0, 0
+    pattern = r'<details\b|</details>|<h3(?: id="([^"]+)")?>(.*?)</h3>'
+    for m in re.finditer(pattern, body, flags=re.S):
+        tok = m.group(0)
+        if tok.startswith("<details"):
+            depth += 1
+            continue
+        if tok == "</details>":
+            depth -= 1
+            continue
+        if depth:
+            continue
+        label = html.unescape(re.sub(r"<[^>]+>", "", m.group(2))).strip()
+        sid = m.group(1)
+        if not sid:
+            sid = base = "%s-%s" % (pg["id"], _slug(label))
+            n = 2
+            while sid in taken:
+                sid = "%s-%d" % (base, n)
+                n += 1
+        taken.add(sid)
+        out.append(body[pos:m.start()])
+        out.append('<h3 id="%s" data-sec>%s</h3>' % (sid, m.group(2)))
+        pos = m.end()
+        secs.append((sid, label))
+    out.append(body[pos:])
+    if len(secs) < 2:
+        return body, []
+    return "".join(out), secs
+
+
 def render(stamp):
+    # A group holding one page is not a group: the page is listed at the top
+    # level under its own name, the way Welcome is. The same rule one level
+    # down is why a page with one section lists none.
+    sizes = {}
+    for pg in PAGES:
+        if pg["group"] is not None:
+            sizes[pg["group"]] = sizes.get(pg["group"], 0) + 1
+
+    def grp(pg):
+        g = pg["group"]
+        return None if g is None or sizes[g] == 1 else g
+
+    taken = set(pg["id"] for pg in PAGES)
+    bodies = []
+
+    def link(cls, pg, i):
+        body, secs = _sections(pg, taken)
+        bodies.append(body)
+        a = '<a class="%s" href="#%s" data-page="%d">%s</a>' % (
+            cls, pg["id"], i, html.escape(pg["nav"]))
+        if not secs:
+            return a
+        return a + '<div class="secs" data-for="%d">%s</div>' % (i, "".join(
+            '<a class="sec" href="#%s">%s</a>' % (sid, html.escape(label))
+            for sid, label in secs))
+
     # sidebar + select
     nav = []
-    toc = ['<option value="">Contents\u2026</option>']
     seen = []
     for i, pg in enumerate(PAGES):
-        if pg["group"] is None:
-            nav.append(
-                '<a class="top" href="#%s" data-page="%d">%s</a>'
-                % (pg["id"], i, html.escape(pg["nav"]))
-            )
+        if grp(pg) is None:
+            nav.append(link("top", pg, i))
             continue
         if not seen or seen[-1] != pg["group"]:
             seen.append(pg["group"])
             nav.append("__GROUP__" + pg["group"])
-        nav.append(
-            '<a class="sub" href="#%s" data-page="%d">%s</a>'
-            % (pg["id"], i, html.escape(pg["nav"]))
-        )
+        nav.append(link("sub", pg, i))
 
     # fold the flat list into groups
     out, i = [], 0
@@ -590,7 +705,8 @@ def render(stamp):
             gname = nav[i][len("__GROUP__"):]
             i += 1
             body = []
-            while i < len(nav) and not nav[i].startswith("__GROUP__") and 'class="top"' not in nav[i]:
+            while (i < len(nav) and not nav[i].startswith("__GROUP__")
+                   and not nav[i].startswith('<a class="top"')):
                 body.append(nav[i])
                 i += 1
             out.append(
@@ -611,7 +727,7 @@ def render(stamp):
     toc_groups = ['<option value="">Contents…</option>']
     last = None
     for i, pg in enumerate(PAGES):
-        if pg["group"] is None:
+        if grp(pg) is None:
             if last is not None:
                 toc_groups.append("</optgroup>")
                 last = None
@@ -632,7 +748,7 @@ def render(stamp):
             '<section class="page" id="%s" data-page="%d"><h2>%s</h2>%s'
             '<nav class="pager"><button type="button" class="prev">\u2190 Previous</button>'
             '<button type="button" class="next">Next \u2192</button></nav></section>'
-            % (pg["id"], i, inline(pg["title"]), pg["body"])
+            % (pg["id"], i, inline(pg["title"]), bodies[i])
         )
 
     logo = data_uri(os.path.join(REPO, "man", "figures", "logo.png"))

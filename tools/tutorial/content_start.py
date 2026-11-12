@@ -55,8 +55,8 @@ page(
 
 page(
     GS, "Overview", "Overview",
-    '<p class="lede">Two questions, one team, and how these pages are laid '
-    "out.</p>",
+    '<p class="lede">'
+    "This page introduces the two questions the tutorial asks about one team, and explains how the pages are laid out.</p>",
 
     h3("Two questions about the same team"),
     p("Suppose the people on a team who confide in each other end up in "

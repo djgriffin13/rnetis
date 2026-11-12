@@ -1076,8 +1076,8 @@ GR = "Reference"
 
 page(
     GR, "Formula terms", "Formula terms at a glance",
-    '<p class="lede">Every term, and the question it answers. This is the '
-    "page to come back to.</p>",
+    '<p class="lede">'
+    "This page lists every formula term with the question it answers. It is the page to come back to.</p>",
 
     h3("Influence terms"),
     table(["Term", "What it does", "Key arguments"], [
@@ -1123,8 +1123,8 @@ page(
 
 page(
     GR, "Importing and exporting", "Importing, exporting and deriving",
-    '<p class="lede">Getting your data into the shape rnetis wants, and back '
-    "out again.</p>",
+    '<p class="lede">'
+    "This page covers getting your data into the shape rnetis wants, and getting it back out again.</p>",
 
     h3("Importers"),
     table(["You have", "Use"], [
@@ -1182,9 +1182,8 @@ page(
 
 page(
     GR, "The rest of the package", "The rest of the package",
-    '<p class="lede">One line per function, saying <em>why you would reach '
-    "for it</em> — which is the thing a function index never tells "
-    "you.</p>",
+    '<p class="lede">'
+    "This page gives one line per function, saying <em>why you would reach for it</em>, which a function index does not tell you.</p>",
 
     h3("Reading a fit"),
     table(["Function", "Reach for it when"], [
@@ -1308,7 +1307,8 @@ GH = "Help"
 
 page(
     GH, "Common errors", "Common errors",
-    '<p class="lede">Roughly in the order you will meet them.</p>',
+    '<p class="lede">'
+    "The errors are listed roughly in the order you will meet them.</p>",
 
     p("rnetis's messages are written to be read, and most of them name the "
       "fix. If you have hit one not listed here, the message itself is "
@@ -1364,8 +1364,8 @@ page(
 
 page(
     GH, "Slow fits", "Slow fits and MCMC settings",
-    '<p class="lede">What the chain arguments trade against each other, and '
-    "what to do when a fit is taking too long.</p>",
+    '<p class="lede">'
+    "This page explains what the chain arguments trade against each other, and what to do when a fit is taking too long.</p>",
 
     h3("The four arguments"),
     table(["Argument", "What it controls", "Raising it"], [
@@ -1408,8 +1408,8 @@ page(
 
 page(
     GH, "Read more", "Where to read more",
-    '<p class="lede">What rnetis is built on, and where the methods come '
-    "from.</p>",
+    '<p class="lede">'
+    "This page lists what rnetis is built on and where the methods come from.</p>",
 
     h3("The packages rnetis builds on"),
     table(["Package", "What it does here"], [
