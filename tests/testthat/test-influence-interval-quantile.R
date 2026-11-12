@@ -1,14 +1,34 @@
 # The default Wald interval uses the reference distribution each backend's own
-# inference supports: t for least squares, normal for lme4 and lnam. Each is
-# compared with the backend's own interval, computed from the backend object,
+# inference supports: t on the residual degrees of freedom for least squares, t
+# on lmerTest's Satterthwaite degrees of freedom for lme4, normal for lnam. Each
+# is compared with the backend's own numbers, computed from the backend object,
 # or with the normal formula written out by hand.
 
-test_that("an lme4 fit's default interval is lme4's own Wald interval", {
+test_that("an lme4 fit's default interval is the t interval on lmerTest's Satterthwaite df", {
   skip_if_not_installed("lme4")
   fit <- .vc_intercept_fit()
-  ref <- stats::confint(fit$backend_fit, method = "Wald", parm = "beta_")
+  # The reference is lmerTest's own table, read from the backend object: the
+  # estimate, its standard error and its Satterthwaite degrees of freedom.
+  tab <- stats::coef(summary(fit$backend_fit))
+  half <- stats::qt(0.975, tab[, "df"]) * tab[, "Std. Error"]
+  ref <- cbind(tab[, "Estimate"] - half, tab[, "Estimate"] + half)
   ours <- stats::confint(fit)
   expect_lt(max(abs(ours[rownames(ref), ] - ref)), 1e-10)
+
+  # THE POINT OF IT: an interval excludes zero exactly when its printed test's
+  # p-value is below 0.05, for every coefficient.
+  excludes <- ours[rownames(ref), 1] > 0 | ours[rownames(ref), 2] < 0
+  expect_identical(unname(excludes), unname(tab[, "Pr(>|t|)"] < 0.05))
+
+  # lme4's own normal-quantile interval is still there, under its own name,
+  # and it is the narrower of the two.
+  wald <- stats::confint(fit, method = "Wald")[rownames(ours), ]
+  expect_true(all(wald[, 2] - wald[, 1] < ours[, 2] - ours[, 1]))
+
+  # A fit carrying no lmerTest results falls back to the normal quantile.
+  bare <- fit
+  bare$coef_tests <- NULL
+  expect_lt(max(abs(stats::confint(bare) - wald)), 1e-10)
 
   # The printed table and netis_estimates() carry the same interval.
   est <- netis_estimates(fit)
@@ -19,6 +39,7 @@ test_that("an lme4 fit's default interval is lme4's own Wald interval", {
   # And the effect layer.
   eff <- influence_effect(fit)$exposures[["ex_x_tie"]]
   expect_lt(abs(eff$ci_low - ref["ex_x_tie", 1]), 1e-10)
+  expect_lt(abs(eff$ci_high - ref["ex_x_tie", 2]), 1e-10)
 })
 
 test_that("an lnam fit's default interval is the asymptotic normal one", {

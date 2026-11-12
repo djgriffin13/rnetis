@@ -28,7 +28,10 @@ group's alone.}
 A data frame with one row per statistic per group: \code{grouping},
 \code{statistic} (amen's name), \code{feature} (what it measures, in words),
 \code{observed}, \code{predicted_mean}, \code{predicted_sd}, \code{predicted_lower},
-\code{predicted_upper}, \code{ppp}, \code{z} and \code{n_draws}.
+\code{predicted_upper}, \code{ppp}, \code{z} and \code{n_draws}. The attribute \code{netis_draws}
+holds the simulated values the rows were reduced from, one row per
+simulated network per statistic (\code{grouping}, \code{statistic}, \code{value}): the
+histograms of \code{plot(fit, what = "gof")} are drawn from it.
 }
 \description{
 For each of five network statistics, the value in the observed network

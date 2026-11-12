@@ -63,6 +63,8 @@ Imports:
     generics,
     ggplot2,
     lme4,
+    lmerTest,
+    methods,
     reformulas
 Suggests:
     amen,

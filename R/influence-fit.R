@@ -604,6 +604,9 @@ fit_influence <- function(formula, data, waves = NULL,
       r_squared = extracted$r_squared,
       adj_r_squared = extracted$adj_r_squared,
       residual_df = extracted$residual_df,
+      # Satterthwaite t tests on the lme4 route, NULL on every other: the other
+      # backends' tests are arithmetic on the coefficients and their covariance.
+      coef_tests = extracted$coef_tests,
       sigma = extracted$sigma,
       var_corr = extracted$var_corr,
       # THE ADAPTER'''S RESIDUALS, named by the rows the fit actually used.
@@ -1902,11 +1905,12 @@ fit_influence <- function(formula, data, waves = NULL,
 #' \itemize{
 #'   \item `stats` (ordinary least squares): the exact t distribution on the
 #'     residual degrees of freedom, as `stats::confint.lm()` uses.
-#'   \item `lme4`: normal. `lme4` reports no denominator degrees of freedom for
-#'     a fixed effect, and its own Wald interval
-#'     (`confint(fit, method = "Wald")`) uses the normal quantile. Its
-#'     `df.residual()` is the conditional `n - p`, which is not a degrees of
-#'     freedom for a fixed-effect test.
+#'   \item `lme4`: normal HERE, which is the basis for a linear combination of
+#'     coefficients (a moderated term's conditional table and its
+#'     Johnson-Neyman boundaries). A single coefficient's interval uses
+#'     Satterthwaite's degrees of freedom instead: see `.influence_coef_df()`.
+#'     lme4's `df.residual()` is the conditional `n - p`, which is not a
+#'     degrees of freedom for a fixed-effect test.
 #'   \item `lnam`: normal. `sna::lnam()` estimates by maximum likelihood and
 #'     its inference is asymptotically normal (its `summary()` reports z
 #'     values).
@@ -1922,6 +1926,66 @@ fit_influence <- function(formula, data, waves = NULL,
   } else {
     NA_real_
   }
+}
+
+#' The degrees of freedom each coefficient's own interval and test use
+#'
+#' ONE PLACE, so a coefficient's printed interval and its printed test cannot
+#' sit on different reference distributions:
+#'
+#' \itemize{
+#'   \item `stats`: the residual degrees of freedom, the same for every
+#'     coefficient.
+#'   \item `lme4`: Satterthwaite's degrees of freedom, one per coefficient, as
+#'     lmerTest reports them (`coef_tests`). They differ by coefficient -- a
+#'     group-level predictor has roughly the number of groups behind it, a
+#'     row-level one the number of rows -- which is why a single value cannot
+#'     stand in. `NA` (the normal quantile) where the fit carries none.
+#'   \item `lnam`: `NA`, the normal quantile.
+#' }
+#'
+#' This is per COEFFICIENT. A linear combination of coefficients -- a moderated
+#' term's conditional effect -- has its own Satterthwaite degrees of freedom,
+#' which this does not supply; `.influence_inference_df()` remains the basis
+#' there.
+#'
+#' @param backend the fit's backend name.
+#' @param residual_df the backend's residual degrees of freedom.
+#' @param coef_tests the fit's `coef_tests` (lme4 route), or `NULL`.
+#' @param nms the coefficient names.
+#' @return a numeric vector named by `nms`; `NA` means the normal quantile.
+#' @noRd
+.influence_coef_df <- function(backend, residual_df, coef_tests, nms) {
+  out <- stats::setNames(rep(NA_real_, length(nms)), nms)
+  if (identical(backend, "stats") && length(residual_df) == 1L) {
+    out[] <- residual_df
+  } else if (identical(backend, "lme4") && !is.null(coef_tests)) {
+    out[] <- coef_tests$df[match(nms, coef_tests$term)]
+  }
+  out
+}
+
+#' `.netis_wald_critical()` over a vector of degrees of freedom
+#' @noRd
+.netis_wald_critical_each <- function(df, level = 0.95) {
+  vapply(df, function(d) .netis_wald_critical(d, level), numeric(1))
+}
+
+#' The critical value for ONE coefficient's interval in the effects layer
+#'
+#' The unmoderated exposure entry reports the coefficient's own interval, so it
+#' uses the coefficient's own degrees of freedom and agrees with `confint()`.
+#' `extracted` is either a backend extraction (fit time) or the list
+#' `influence_effect()` assembles; both carry `backend_name` and `coef_tests`
+#' where the route has them, and fall back to the shared critical value.
+#'
+#' @noRd
+.effects_coef_critical <- function(extracted, nm) {
+  ct <- extracted$coef_tests
+  if (!is.null(ct) && nm %in% ct$term) {
+    return(.netis_wald_critical(ct$df[match(nm, ct$term)], level = 0.95))
+  }
+  .effects_critical_value(extracted)
 }
 
 #' The two-sided Wald critical value for a fit's own inference basis

@@ -239,7 +239,8 @@ test_that("print() shows uncertainty, not a bare coefficient vector", {
   for (fit in list(.rs_influence(), .rs_selection())) {
     out <- paste(utils::capture.output(print(fit)), collapse = "\n")
     expect_match(out, "Estimate")
-    expect_match(out, "SE")
+    # A Selection fit's spread is a posterior SD and is labelled as one.
+    expect_match(out, if (inherits(fit, "netis_selection")) " Post\\.SD " else " SE ")
     # THE MASS IS NAMED, not left to be assumed. The column used to read
     # "Interval", which invites the reader to supply "95%" from habit; an
     # interval whose coverage is assumed rather than stated is the kind of

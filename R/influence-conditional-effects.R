@@ -354,12 +354,15 @@
     }, interactions)
 
     if (length(inter) == 0L) {
+      # The coefficient's own interval, on the coefficient's own degrees of
+      # freedom: identical to confint() for this term.
+      crit_coef <- .effects_coef_critical(extracted, nm)
       entry <- list(
         term = nm,
         moderated = FALSE,
         coefficient = beta,
-        ci_low = beta - crit * beta_se,
-        ci_high = beta + crit * beta_se,
+        ci_low = beta - crit_coef * beta_se,
+        ci_high = beta + crit_coef * beta_se,
         # THE CONTRAST, AND THE CONVENTION THAT CHOSE ITS ENDPOINTS. The
         # quantity is an ordinary model contrast -- yhat at `contrast_high`
         # minus yhat at `contrast_low`, which for a linear term is
@@ -456,8 +459,14 @@
 #' the same shape is returned under `ar`.
 #'
 #' A moderated term's conditional table and Johnson-Neyman boundaries use the fit's
-#' 95% critical value; `probs` sets the moderator values reported as well as the
-#' contrast.
+#' 95% critical value for a linear combination of coefficients: the `t` quantile
+#' on the residual degrees of freedom for least squares, and the normal quantile
+#' for `lme4` and `sna::lnam` fits. On an `lme4` fit that differs from the
+#' coefficient table, whose intervals use Satterthwaite's degrees of freedom per
+#' coefficient: a conditional effect is a combination of two coefficients, whose
+#' Satterthwaite degrees of freedom change with the moderator value, and the
+#' Johnson-Neyman solution is defined for one critical value. `probs` sets the
+#' moderator values reported as well as the contrast.
 #'
 #' @section Computed on request, not at fit time:
 #' [fit_influence()] returns estimates, and this reads a completed fit. A fitted
@@ -474,8 +483,9 @@
 #' @section What the interval covers:
 #' A Wald interval built from the fit's own `coef()` and `vcov()`, with the
 #' same critical value as [confint()][netis-influence-methods]: a `t` quantile
-#' on the residual degrees of freedom for an ordinary least squares fit, and a
-#' normal quantile for `lme4` and `sna::lnam` fits. It covers uncertainty in the
+#' on the residual degrees of freedom for an ordinary least squares fit, a `t`
+#' quantile on the coefficient's Satterthwaite degrees of freedom for an `lme4`
+#' fit, and a normal quantile for an `sna::lnam` fit. It covers uncertainty in the
 #' COEFFICIENTS. The percentile range the change is evaluated over is taken
 #' from the estimating sample and treated as fixed, so the interval does not
 #' carry uncertainty about the range itself.
@@ -564,6 +574,9 @@ influence_effect <- function(object, probs = c(0.1, 0.9), ...) {
     # The INFERENCE degrees of freedom, so the effect intervals use the same
     # critical value as confint(): t for least squares, normal otherwise.
     residual_df = .influence_inference_df(object$backend, object$residual_df),
+    # Per-coefficient Satterthwaite degrees of freedom on the lme4 route, for
+    # the unmoderated entries, which report a coefficient's own interval.
+    coef_tests = object$coef_tests,
     var_corr = object$var_corr,
     random_effects = object$random_effects
   )

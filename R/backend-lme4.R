@@ -11,7 +11,37 @@ backend_info.netis_backend_lme4 <- function(backend) {
 
 #' @exportS3Method
 backend_fit.netis_backend_lme4 <- function(backend, formula, data, ...) {
-  lme4::lmer(formula, data = data, ...)
+  # lmerTest::lmer() IS lme4::lmer() -- the same optimiser, the same estimates,
+  # an object that extends `lmerMod` -- with the derivatives Satterthwaite's
+  # degrees of freedom need computed while the data are still in scope. An
+  # `lmerMod` cannot be converted afterwards from here: the conversion
+  # re-evaluates the model call, whose `data` no longer exists.
+  lmerTest::lmer(formula, data = data, ...)
+}
+
+#' Satterthwaite t tests for the fixed effects, as lmerTest reports them
+#'
+#' `NULL` for a plain `lmerMod` (a fit saved before the backend fitted through
+#' lmerTest), and `NULL` where lmerTest cannot compute them -- the printed table
+#' then says there are none, and reports no degrees of freedom of its own.
+#'
+#' @param fit the backend's fitted model.
+#' @return a data frame with `term`, `df`, `statistic`, `p.value`, or `NULL`.
+#' @noRd
+.lme4_coef_tests <- function(fit) {
+  if (!methods::is(fit, "lmerModLmerTest")) return(NULL)
+  cf <- tryCatch(stats::coef(summary(fit, ddf = "Satterthwaite")),
+                 error = function(e) NULL)
+  if (is.null(cf) || !all(c("df", "t value", "Pr(>|t|)") %in% colnames(cf))) {
+    return(NULL)
+  }
+  data.frame(
+    term = gsub("^`|`$", "", rownames(cf)),
+    df = unname(cf[, "df"]),
+    statistic = unname(cf[, "t value"]),
+    p.value = unname(cf[, "Pr(>|t|)"]),
+    stringsAsFactors = FALSE
+  )
 }
 
 #' Extract fields from an lme4 fit
@@ -22,9 +52,9 @@ backend_fit.netis_backend_lme4 <- function(backend, formula, data, ...) {
 #' guessing which one a caller wants could give a silently wrong number.
 #' residual_df is lme4's conditional n - p, recorded as
 #' the backend reports it. It is not a degrees of freedom for a fixed-effect
-#' test -- lme4 deliberately provides none -- so the default Wald interval on
-#' an lme4 fit uses the normal quantile, as lme4's own
-#' `confint(method = "Wald")` does (see `.influence_inference_df()`).
+#' test, and nothing uses it as one: a coefficient's test and its default Wald
+#' interval use Satterthwaite's degrees of freedom from `coef_tests` (see
+#' `.influence_coef_df()`).
 #'
 #' @noRd
 #' @exportS3Method
@@ -77,6 +107,7 @@ backend_extract.netis_backend_lme4 <- function(backend, fit) {
     residuals = stats::residuals(fit),
     residual_type = "conditional",
     residual_df = stats::df.residual(fit),
+    coef_tests = .lme4_coef_tests(fit),
     sigma = stats::sigma(fit),
     warnings = character(0)
   )

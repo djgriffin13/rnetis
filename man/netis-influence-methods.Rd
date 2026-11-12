@@ -74,8 +74,10 @@ level; see \code{\link[stats:confint]{stats::confint()}}.}
 \item{method}{how the interval is
 constructed. \code{"wald"} (the default) builds it from the fit's own \code{coef()}
 and \code{vcov()}: with a t quantile on the residual degrees of freedom for an
-ordinary least squares (\code{stats}) fit, and a normal quantile for \code{lme4} and
-\code{sna::lnam} fits.
+ordinary least squares (\code{stats}) fit, a t quantile on each coefficient's
+Satterthwaite degrees of freedom for an \code{lme4} fit (the degrees of freedom
+\code{lmerTest} reports, and the ones the printed t tests use), and a normal
+quantile for an \code{sna::lnam} fit.
 On an \code{lme4} fit \code{"profile"} (lme4's own default), \code{"boot"} (bootstrap) and
 \code{"Wald"} are passed to \code{\link[lme4:confint.merMod]{lme4::confint.merMod()}} as its \code{method} argument, which also
 return rows for the variance parameters unless \code{parm} selects (see that page for
@@ -112,10 +114,13 @@ the two agree by construction rather than by coincidence.
 
 The reference distribution is the one the backend's own inference
 supports. For a \code{stats}-backed fit it is the exact t distribution, and
-the result is identical to \code{stats::confint.lm()}. \code{lme4} reports no
-denominator degrees of freedom for a fixed effect, and its own Wald
-interval (\code{confint(fit, method = "Wald")}) uses the normal quantile, so
-the default interval on an \code{lme4} fit is identical to that one.
+the result is identical to \code{stats::confint.lm()}. An \code{lme4} fit is
+fitted through \code{lmerTest}, whose t tests use Satterthwaite's degrees of
+freedom, one value per coefficient; the default interval uses the same
+ones, so an interval excludes zero exactly when its test's p-value is
+below one minus the level. lme4's own normal-quantile Wald interval is
+\code{method = "Wald"}. A fit that carries no \code{lmerTest} results (one saved by
+an earlier rnetis) falls back to the normal quantile.
 \code{sna::lnam} estimates by maximum likelihood with asymptotically normal
 inference (its own \code{summary()} reports z values), so it gets the normal
 quantile too. \code{sna} has no \code{confint()} method to delegate to.

@@ -3,7 +3,7 @@
 ## Requirements
 
 * **The minimum R version is now 4.2**, raised from 4.1. rnetis's own code and
-  all four required packages still run on 4.1; the floor is set by `latentnet`,
+  its required packages still run on 4.1; the floor is set by `latentnet`,
   which `latent()` needs and which depends on `ergm`, and current `ergm`
   requires R >= 4.2. Declaring 4.2 means an installation that succeeds can run
   every capability the package offers, rather than all but one.
@@ -16,6 +16,58 @@
   Neither removal changes what any function does.
 
 ## New
+
+* `print()` and `summary()` of a fit now follow the layout of `summary.lm()`.
+  The coefficient table gains a test statistic, degrees of freedom where the
+  method defines them, a p-value and significance marks, beside the estimate,
+  standard error and 95% interval it already had:
+  - a least-squares Influence fit prints t tests on the residual degrees of
+    freedom, as `summary.lm()` does;
+  - a mixed Influence fit prints t tests on Satterthwaite's degrees of freedom,
+    as `lmerTest` reports them, and says so under the table. The mixed backend
+    now fits through `lmerTest::lmer()`, which gives the estimates
+    `lme4::lmer()` gives; `lmerTest` is a new required package. The default
+    interval of a mixed fit -- in `print()`, `summary()`, `confint()`,
+    `netis_estimates()` and an unmoderated `influence_effect()` entry -- now
+    uses the same Satterthwaite degrees of freedom, so an interval and its
+    test agree; it previously used the normal quantile, which is still
+    `confint(fit, method = "Wald")`. A moderated term's conditional table and
+    Johnson-Neyman boundaries keep the normal quantile;
+  - an `sna::lnam` fit prints z tests;
+  - a Selection fit is a posterior, so its parallel columns are labelled as
+    posterior summaries: the posterior SD, the ratio of the posterior mean to
+    it (`Est/SD`), and a two-sided posterior tail probability (`Tail prob.`),
+    with the marks on that. The tail probability is counted from the retained
+    draws and resolves nothing below `2 / n_draws`; a smaller value prints as
+    `<` that bound and is marked from the bound. A two-stage pooled fit has no
+    pooled draws and prints z tests from its pooled standard errors.
+
+* Model fit is printed under the table. Influence: the residual standard error
+  and its degrees of freedom, R-squared and adjusted R-squared for least
+  squares, the Nakagawa-Schielzeth marginal and conditional R-squared for a
+  mixed fit; `summary()` adds the overall F test, the log-likelihood, AIC and
+  BIC, and a mixed fit's random-effects variance table. Selection: the number
+  of observed dyads, the latent-scale variance share and Tjur's D from
+  `pseudo_r2()`, and one line of posterior predictive check -- how many of the
+  observed network statistics fall inside the central 95% of their simulated
+  distributions, naming any that do not. A statistic with no usable simulated
+  distribution, one the model reproduces as a constant, and one identical to
+  another statistic (as on a symmetric fit) are not counted as checks, and the
+  line says how many were left out. `summary()` adds the table behind that
+  line.
+
+* `summary()` of an Influence fit no longer lists the assumption ledger. It and
+  `print()` say how many assumptions the fit rests on, how many no statistic
+  can test, and that `netis_assumptions(fit)` lists them. The one-line-per-row
+  form `summary()` used to print is `print(netis_assumptions(fit), compact = TRUE)`.
+
+* `plot(fit, what = "gof")` draws histograms. Each panel is one network
+  statistic across the networks simulated from the posterior, with the central
+  95% of them shaded, the observed network's value drawn as a line, and `ppp`
+  printed in the panel. A multi-group fit gets one row of panels per group.
+  The table `netis_gof()` returns carries the simulated values as its
+  `netis_draws` attribute. The previous figure drew only the 95% range as a
+  bar.
 
 * `netis_gof()` reports the posterior predictive check on a Selection fit: for
   each of five network statistics, the value in the observed network against

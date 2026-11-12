@@ -15,11 +15,16 @@
 #' oversight -- see *Methods that refuse* below.
 #'
 #' `print()` gives the compact view: the relation being modeled, the outcome
-#' family, the transition structure, the coefficient table with its
-#' uncertainty, and the pooling statement. [summary()][summary.netis_selection]
-#' adds the scale the coefficients are on and the count of fit-time findings, with
-#' [netis_diagnostics()] named as the way to list them; on a hierarchical fit it
-#' also adds the worst convergence diagnostics. Neither prints a fit verdict. On
+#' family, the transition structure, the pooling statement, the coefficient
+#' table with its posterior summaries and significance marks (see
+#' [print.netis_selection()]), and under it the count of observed dyads, the
+#' pseudo R-squared measures, one line of posterior predictive check and the
+#' count of fit-time findings. [summary()][summary.netis_selection] adds the
+#' scale the coefficients are on and the posterior predictive table -- each
+#' network statistic's observed value beside its simulated 95% range and its
+#' `ppp` -- with [netis_gof()] and [netis_diagnostics()] named as the ways to
+#' get the detail; on a hierarchical fit it also adds the worst convergence
+#' diagnostics. On
 #' the per-group route the diagnostics are in `fit$convergence`, one entry per
 #' group.
 #'
@@ -115,7 +120,24 @@ NULL
 
 #' Print a Selection fit
 #'
-#' Reports what was fitted and what it was fitted to. Effect sizes are not
+#' Reports what was fitted and what it was fitted to, then the coefficient table
+#' in a layout parallel to `summary.lm()`'s, labelled for a posterior: the
+#' posterior mean, the posterior SD, the 95% posterior interval, the ratio of
+#' the mean to the SD (`Est/SD`), and a two-sided posterior tail probability
+#' (`Tail prob.`, twice the posterior probability that the coefficient has the
+#' opposite sign) with significance marks on `lm()`'s cutoffs. These are
+#' posterior summaries and not tests, and the note under the table says so. The
+#' tail probability is counted from the retained draws, so it resolves nothing
+#' below `2 / n_draws`: a value below that prints as `<` the bound and is marked
+#' from the bound. A two-stage pooled fit keeps no pooled draws and reports z
+#' tests from its pooled standard errors instead.
+#'
+#' Under the table: the number of observed dyads, the pseudo R-squared measures
+#' that need no refit (see [pseudo_r2()]), one line of posterior predictive
+#' check -- how many of the observed network statistics fall inside the central
+#' 95% of their simulated distributions, naming those that do not, with
+#' [netis_gof()] and `plot(fit, what = "gof")` named for the table and the
+#' histograms -- and the count of fit-time findings. Effect sizes are not
 #' computed at fit time and are not printed here.
 #'
 #' @param x a `netis_selection` fit.
@@ -136,8 +158,13 @@ print.netis_selection <- function(x, ...) {
   if (.selection_is_hierarchical(x)) {
     cat(paste0("  ", .selection_regime_lines(x), "\n"), sep = "")
   }
+  cat("\nCoefficients:\n")
+  .print_coef_table(.selection_estimate_table(x))
   cat("\n")
-  print(.selection_estimate_table(x))
+  .cat_fit_lines(.selection_fit_lines(x))
+  counts <- .diagnostic_counts(x$diagnostics)
+  cat(sprintf("Fit-time findings: %d WARNING, %d NOTE; netis_diagnostics(fit) lists them. More: summary(fit).\n",
+              counts[["n_warning"]], counts[["n_note"]]))
   invisible(x)
 }
 
@@ -217,16 +244,29 @@ print.netis_selection <- function(x, ...) {
     return(.selection_estimate_table_hierarchical(x))
   }
   est <- x$coefficients
+  interval <- function(e) {
+    sprintf("[%s, %s]", format(round(e$conf.low, 4), trim = TRUE),
+            format(round(e$conf.high, 4), trim = TRUE))
+  }
   if (is.matrix(est)) {
     # Unpooled multi-group: one row per group, and no single table of
     # estimates to print. Report per group rather than inventing an average.
+    # Each group is its own posterior, so each row's summaries come from that
+    # group's draws.
+    e <- netis_estimates(x)
     out <- data.frame(
-      Group = rep(rownames(est), times = ncol(est)),
-      Term = rep(colnames(est), each = nrow(est)),
-      Estimate = round(as.vector(est), 4),
-      stringsAsFactors = FALSE
+      Group = e$group, Term = e$term,
+      Estimate = round(e$estimate, 4),
+      `Post.SD` = round(e$std.error, 4),
+      `95% interval` = interval(e),
+      check.names = FALSE, stringsAsFactors = FALSE
     )
-    return(out[order(match(out$Group, rownames(est))), , drop = FALSE])
+    tails <- lapply(seq_len(nrow(e)), function(i) {
+      g <- match(e$group[i], as.character(x$groups))
+      beta <- .selection_beta_draws(x$per_group[[g]]$draws, e$term[i])
+      if (is.null(beta)) NULL else .posterior_tail(beta[, e$term[i]])
+    })
+    return(.add_posterior_columns(out, tails))
   }
   # The same interval netis_estimates() reports, so that the printed table and
   # the accessor cannot disagree: a posterior quantile interval from the draws,
@@ -247,7 +287,23 @@ print.netis_selection <- function(x, ...) {
   # wrong label. Both families say it, so neither has to be remembered
   # separately.
   names(out)[names(out) == "Interval"] <- "95% interval"
-  out
+  beta <- .selection_beta_draws(x$draws, e$term)
+  if (is.null(beta)) {
+    # No draws of the reported coefficients: a two-stage pooled fit, whose
+    # estimates are precision-weighted means. Its test is the normal one its
+    # interval already uses.
+    z <- e$estimate / e$std.error
+    p <- 2 * stats::pnorm(-abs(z))
+    out[["z value"]] <- ifelse(is.na(z), "", sprintf("%.3f", z))
+    out[["Pr(>|z|)"]] <- .netis_format_p(p)
+    out[[" "]] <- .netis_stars(p)
+    attr(out, "netis_notes") <- .SELECTION_POOLED_NOTE
+    return(out)
+  }
+  # A POSTERIOR SD, and named as one: the column is the spread of the draws,
+  # not the standard error of an estimator.
+  names(out)[names(out) == "SE"] <- "Post.SD"
+  .add_posterior_columns(out, lapply(e$term, function(k) .posterior_tail(beta[, k])))
 }
 
 #' Summarize a Selection fit
@@ -282,7 +338,18 @@ print.summary.netis_selection <- function(x, ...) {
     cat(paste0("  ", pool, "\n"), sep = "")
   }
   cat("\nCoefficients:\n")
-  print(.selection_estimate_table(fit))
+  .print_coef_table(.selection_estimate_table(fit))
+  cat("\nModel fit:\n")
+  fit_lines <- .selection_fit_lines(fit, full = TRUE)
+  .cat_fit_lines(paste0("  ", fit_lines))
+  ppc <- attr(fit_lines, "ppc_table")
+  if (!is.null(ppc)) {
+    cat("\n")
+    .print_one_block(ppc, right = FALSE)
+    if ("ppp" %in% names(ppc)) {
+      cat("  ppp is one-sided: near 0 and near 1 are both misfit, 0.5 is agreement.\n")
+    }
+  }
   if (.selection_is_hierarchical(fit)) {
     conv <- .selection_convergence_lines(fit)
     if (length(conv)) {
@@ -313,7 +380,7 @@ print.summary.netis_selection <- function(x, ...) {
   rows <- lapply(names(reg), function(k) {
     if (identical(unname(reg[k]), "group")) {
       return(data.frame(Term = k, Regime = "unpooled", Estimate = NA_real_,
-                        `Posterior SD` = NA_real_, `95% interval` = "see per-group results",
+                        `Post.SD` = NA_real_, `95% interval` = "see per-group results",
                         check.names = FALSE, stringsAsFactors = FALSE))
     }
     v <- d$mu[, k]
@@ -323,12 +390,15 @@ print.summary.netis_selection <- function(x, ...) {
       Regime = if (identical(unname(reg[k]), "random")) {
         if (has_mod) "random (mean at z = 0)" else "random (mean)"
       } else "shared",
-      Estimate = round(mean(v), 4), `Posterior SD` = round(stats::sd(v), 4),
+      Estimate = round(mean(v), 4), `Post.SD` = round(stats::sd(v), 4),
       `95% interval` = sprintf("[%s, %s]", format(round(q[1], 4), trim = TRUE),
                                format(round(q[2], 4), trim = TRUE)),
       check.names = FALSE, stringsAsFactors = FALSE)
   })
-  do.call(rbind, rows)
+  out <- do.call(rbind, rows)
+  .add_posterior_columns(out, lapply(names(reg), function(k) {
+    if (identical(unname(reg[k]), "group")) NULL else .posterior_tail(d$mu[, k])
+  }))
 }
 
 #' Convergence summary lines for a hierarchical fit, without a verdict

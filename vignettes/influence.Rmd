@@ -139,7 +139,8 @@ netis_variance_components(mg)
 
 ## Read the results
 
-`summary()` adds what the fit is assuming:
+`summary()` adds the tests, the model fit, and how many assumptions the fit
+rests on; `netis_assumptions(fit)` lists them:
 
 ```{r}
 summary(fit)

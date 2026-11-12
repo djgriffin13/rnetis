@@ -53,8 +53,14 @@ the same shape is returned under \code{ar}.
 }
 \details{
 A moderated term's conditional table and Johnson-Neyman boundaries use the fit's
-95\% critical value; \code{probs} sets the moderator values reported as well as the
-contrast.
+95\% critical value for a linear combination of coefficients: the \code{t} quantile
+on the residual degrees of freedom for least squares, and the normal quantile
+for \code{lme4} and \code{sna::lnam} fits. On an \code{lme4} fit that differs from the
+coefficient table, whose intervals use Satterthwaite's degrees of freedom per
+coefficient: a conditional effect is a combination of two coefficients, whose
+Satterthwaite degrees of freedom change with the moderator value, and the
+Johnson-Neyman solution is defined for one critical value. \code{probs} sets the
+moderator values reported as well as the contrast.
 }
 \section{Computed on request, not at fit time}{
 
@@ -74,8 +80,9 @@ column to give a contrast, so its term has no entry here.
 
 A Wald interval built from the fit's own \code{coef()} and \code{vcov()}, with the
 same critical value as \link[=netis-influence-methods]{confint()}: a \code{t} quantile
-on the residual degrees of freedom for an ordinary least squares fit, and a
-normal quantile for \code{lme4} and \code{sna::lnam} fits. It covers uncertainty in the
+on the residual degrees of freedom for an ordinary least squares fit, a \code{t}
+quantile on the coefficient's Satterthwaite degrees of freedom for an \code{lme4}
+fit, and a normal quantile for an \code{sna::lnam} fit. It covers uncertainty in the
 COEFFICIENTS. The percentile range the change is evaluated over is taken
 from the estimating sample and treated as fixed, so the interval does not
 carry uncertainty about the range itself.

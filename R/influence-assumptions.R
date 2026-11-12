@@ -361,7 +361,11 @@ NULL
 }
 
 #' @exportS3Method
-format.netis_assumptions <- function(x, ...) {
+format.netis_assumptions <- function(x, compact = FALSE, ...) {
+  # `compact = TRUE` is the one-line-per-row form: identifier, scope and
+  # handling, without the statements. `print(netis_assumptions(fit),
+  # compact = TRUE)` reaches it.
+  if (isTRUE(compact)) return(.format_assumptions_compact(x))
   lines <- "Assumptions carrying this fit:"
   net <- x$network
   lines <- c(lines, sprintf(
@@ -385,12 +389,13 @@ format.netis_assumptions <- function(x, ...) {
   lines
 }
 
-#' The compact ledger for `summary()`
+#' The compact ledger
 #'
-#' One line per row: identifier, scope, and the three fields. The full
-#' statements are reachable on the fit; printing every one of them on every
-#' summary would bury the coefficient table under a page of prose that does not
-#' change between fits.
+#' One line per row: identifier, scope, and the three fields, without the
+#' statements. Reached by `print(netis_assumptions(fit), compact = TRUE)`.
+#' `summary()` prints neither form: it counts the rows and names
+#' [netis_assumptions()], because a ledger printed on every summary buries the
+#' coefficient table under text that does not change between fits.
 #'
 #' Rows are ordered so the ones a reader must act on come first: anything
 #' declared (because a declaration is a claim the reader is making), then the

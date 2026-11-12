@@ -15,10 +15,18 @@
 \code{x}, invisibly. Called for its output.
 }
 \description{
-Reports what was fitted and what it was fitted to, with the coefficient table.
-Diagnostics and assumptions, recorded at fit time, and effect sizes, computed on
-request, are not printed here: see \code{\link[=summary.netis_influence]{summary.netis_influence()}},
-\code{\link[=netis_diagnostics]{netis_diagnostics()}}, \code{\link[=netis_assumptions]{netis_assumptions()}} and \code{\link[=influence_effect]{influence_effect()}}.
+Reports what was fitted and what it was fitted to, then the coefficient table
+in the layout of \code{summary.lm()}: estimate, standard error, 95\% interval, test
+statistic, degrees of freedom where the method defines them, p-value and
+significance marks. A least-squares fit gets t tests on the residual degrees of
+freedom; a mixed fit gets t tests on Satterthwaite's degrees of freedom, as
+\code{lmerTest} reports them, and says so under the table; an \code{sna::lnam} fit gets z
+tests. Under the table: the residual scale, R-squared (ordinary for least
+squares, Nakagawa-Schielzeth marginal and conditional for a mixed fit), one line
+saying how many assumptions the fit rests on with \code{\link[=netis_assumptions]{netis_assumptions()}} named as
+the way to list them, and the count of fit-time findings. The assumptions and
+findings themselves are not printed: see \code{\link[=summary.netis_influence]{summary.netis_influence()}},
+\code{\link[=netis_assumptions]{netis_assumptions()}}, \code{\link[=netis_diagnostics]{netis_diagnostics()}} and \code{\link[=influence_effect]{influence_effect()}}.
 }
 \seealso{
 \code{\link[=summary.netis_influence]{summary.netis_influence()}}, \code{\link[=fit_influence]{fit_influence()}}

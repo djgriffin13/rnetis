@@ -248,6 +248,45 @@ test_that("every group of a multi-group fit gets its own statistics", {
 
 # ---- the panel --------------------------------------------------------------
 
+test_that("the table carries the simulated draws it was reduced from", {
+  fit <- .gof_fixture_fit(clustered = FALSE)
+  g <- netis_gof(fit)
+  draws <- attr(g, "netis_draws")
+  expect_named(draws, c("grouping", "statistic", "value"))
+  # One row per simulated network per statistic: the histogram has exactly the
+  # observations the row's n_draws says its summaries were computed from.
+  expect_identical(nrow(draws), sum(g$n_draws))
+  for (s in g$statistic) {
+    v <- draws$value[draws$statistic == s]
+    row <- g[g$statistic == s, ]
+    expect_equal(mean(v), row$predicted_mean)
+    expect_equal(unname(stats::quantile(v, 0.025)), row$predicted_lower)
+    expect_equal(unname(stats::quantile(v, 0.975)), row$predicted_upper)
+    expect_equal(mean(v >= row$observed), row$ppp)
+  }
+})
+
+test_that("the gof panel is a histogram with the 95% band and the observed line", {
+  fit <- .gof_fixture_fit(clustered = FALSE)
+  p <- plot(fit, what = "gof")
+  geoms <- vapply(p$layers, function(l) class(l$geom)[1], character(1))
+  expect_true("GeomBar" %in% geoms)      # geom_histogram()
+  expect_true("GeomRect" %in% geoms)     # the central 95% band
+  expect_true("GeomSegment" %in% geoms)  # the observed network
+  built <- ggplot2::ggplot_build(p)
+  # One panel per statistic, and every simulated network is in a bar.
+  hist <- built$data[[which(geoms == "GeomBar")]]
+  g <- netis_gof(fit)
+  expect_identical(length(unique(hist$PANEL)), nrow(g))
+  expect_equal(sum(hist$count), sum(g$n_draws))
+  # The band is drawn at the table's quantiles and the line at its observed
+  # value: the figure and the table cannot disagree.
+  band <- built$data[[which(geoms == "GeomRect")]]
+  expect_equal(band$xmin, g$predicted_lower)
+  expect_equal(band$xmax, g$predicted_upper)
+  expect_equal(built$data[[which(geoms == "GeomSegment")]]$x, g$observed)
+})
+
 test_that("the gof panel draws exactly the table netis_gof() returned", {
   fit <- .gof_fixture_fit(clustered = FALSE)
   d <- plot_data(fit, what = "gof")
@@ -270,8 +309,9 @@ test_that("the panel's caption states what the marks mean and refuses a verdict"
   # The RELATIONSHIP between the marks, not just their names: the legend
   # identifies the point and the bar, and the caption has to say what it
   # means for one to be inside the other.
-  expect_match(caption, "Point inside its bar", fixed = TRUE)
-  expect_match(caption, "Point outside: it cannot", fixed = TRUE)
+  expect_match(caption, "Line inside the shaded band", fixed = TRUE)
+  expect_match(caption, "Line outside: it cannot", fixed = TRUE)
+  expect_match(caption, "Each histogram is the statistic across", fixed = TRUE)
   expect_match(caption, "simulated from the fitted model", fixed = TRUE)
   expect_match(caption, "own x scale", fixed = TRUE)
   # Both ends are misfit, and the reader has to be told so: a one-sided

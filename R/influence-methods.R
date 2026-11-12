@@ -41,10 +41,18 @@ NULL
 
 #' Print an Influence fit
 #'
-#' Reports what was fitted and what it was fitted to, with the coefficient table.
-#' Diagnostics and assumptions, recorded at fit time, and effect sizes, computed on
-#' request, are not printed here: see [summary.netis_influence()],
-#' [netis_diagnostics()], [netis_assumptions()] and [influence_effect()].
+#' Reports what was fitted and what it was fitted to, then the coefficient table
+#' in the layout of `summary.lm()`: estimate, standard error, 95% interval, test
+#' statistic, degrees of freedom where the method defines them, p-value and
+#' significance marks. A least-squares fit gets t tests on the residual degrees of
+#' freedom; a mixed fit gets t tests on Satterthwaite's degrees of freedom, as
+#' `lmerTest` reports them, and says so under the table; an `sna::lnam` fit gets z
+#' tests. Under the table: the residual scale, R-squared (ordinary for least
+#' squares, Nakagawa-Schielzeth marginal and conditional for a mixed fit), one line
+#' saying how many assumptions the fit rests on with [netis_assumptions()] named as
+#' the way to list them, and the count of fit-time findings. The assumptions and
+#' findings themselves are not printed: see [summary.netis_influence()],
+#' [netis_assumptions()], [netis_diagnostics()] and [influence_effect()].
 #'
 #' @param x a `netis_influence` fit.
 #' @param ... unused; present for S3 consistency.
@@ -73,8 +81,14 @@ print.netis_influence <- function(x, ...) {
   if (length(st)) cat(paste0('  ', st, '\n'), sep = '')
   la <- .format_latent_adjustment(x)
   if (length(la)) cat(paste0('  ', la, '\n'), sep = '')
+  cat('\nCoefficients:\n')
+  .print_coef_table(.add_influence_tests(.format_estimate_table(.estimate_frame(x)),
+                                         .influence_coef_tests(x)))
   cat('\n')
-  print(.format_estimate_table(.estimate_frame(x)))
+  .cat_fit_lines(c(.influence_fit_lines(x), .format_assumptions_pointer(x$assumptions)))
+  n_found <- length(x$diagnostics %||% list())
+  cat(sprintf('Fit-time findings: %s. More: summary(fit).\n',
+              if (n_found > 0L) sprintf('%d; netis_diagnostics(fit) lists them', n_found) else 'none'))
   invisible(x)
 }
 
@@ -213,9 +227,13 @@ print.netis_influence <- function(x, ...) {
 #' @noRd
 .estimate_frame <- function(x, level = 0.95) {
   se <- sqrt(diag(x$vcov))[names(x$coefficients)]
-  # The same critical value confint() and the effect-size layer use: a t
-  # quantile for least squares, a normal one for lme4 and lnam.
-  crit <- .netis_wald_critical(.influence_inference_df(x$backend, x$residual_df), level)
+  # The same critical value confint() and the effect-size layer use, one per
+  # coefficient: a t quantile on the residual degrees of freedom for least
+  # squares, on Satterthwaite's for lme4, and a normal quantile for lnam.
+  crit <- .netis_wald_critical_each(
+    .influence_coef_df(x$backend, x$residual_df, x$coef_tests, names(x$coefficients)),
+    level
+  )
   data.frame(
     term = names(x$coefficients),
     estimate = unname(x$coefficients),
@@ -301,8 +319,10 @@ predict.netis_influence <- function(object, newdata = NULL, ...) {
 #' @param method how the interval is
 #' constructed. `"wald"` (the default) builds it from the fit's own `coef()`
 #' and `vcov()`: with a t quantile on the residual degrees of freedom for an
-#' ordinary least squares (`stats`) fit, and a normal quantile for `lme4` and
-#' `sna::lnam` fits.
+#' ordinary least squares (`stats`) fit, a t quantile on each coefficient's
+#' Satterthwaite degrees of freedom for an `lme4` fit (the degrees of freedom
+#' `lmerTest` reports, and the ones the printed t tests use), and a normal
+#' quantile for an `sna::lnam` fit.
 #' On an `lme4` fit `"profile"` (lme4's own default), `"boot"` (bootstrap) and
 #' `"Wald"` are passed to [lme4::confint.merMod()] as its `method` argument, which also
 #' return rows for the variance parameters unless `parm` selects (see that page for
@@ -320,10 +340,13 @@ predict.netis_influence <- function(object, newdata = NULL, ...) {
 #'
 #'   The reference distribution is the one the backend's own inference
 #'   supports. For a `stats`-backed fit it is the exact t distribution, and
-#'   the result is identical to `stats::confint.lm()`. `lme4` reports no
-#'   denominator degrees of freedom for a fixed effect, and its own Wald
-#'   interval (`confint(fit, method = "Wald")`) uses the normal quantile, so
-#'   the default interval on an `lme4` fit is identical to that one.
+#'   the result is identical to `stats::confint.lm()`. An `lme4` fit is
+#'   fitted through `lmerTest`, whose t tests use Satterthwaite's degrees of
+#'   freedom, one value per coefficient; the default interval uses the same
+#'   ones, so an interval excludes zero exactly when its test's p-value is
+#'   below one minus the level. lme4's own normal-quantile Wald interval is
+#'   `method = "Wald"`. A fit that carries no `lmerTest` results (one saved by
+#'   an earlier rnetis) falls back to the normal quantile.
 #'   `sna::lnam` estimates by maximum likelihood with asymptotically normal
 #'   inference (its own `summary()` reports z values), so it gets the normal
 #'   quantile too. `sna` has no `confint()` method to delegate to.
@@ -337,7 +360,8 @@ confint.netis_influence <- function(object, parm, level = 0.95,
   .assert_confint_method(method, object$backend)
   if (identical(method, "wald")) {
     return(.wald_confint(object$coefficients, object$vcov,
-                         .influence_inference_df(object$backend, object$residual_df),
+                         .influence_coef_df(object$backend, object$residual_df,
+                                            object$coef_tests, names(object$coefficients)),
                          parm, level))
   }
   # Anything other than "backend" is lme4's method vocabulary, forwarded as its
@@ -410,14 +434,15 @@ confint.netis_influence <- function(object, parm, level = 0.95,
 #' one coefficient.
 #'
 #' @noRd
-.wald_confint <- function(coefs, vcov_mat, residual_df, parm, level) {
+.wald_confint <- function(coefs, vcov_mat, coef_df, parm, level) {
   if (missing(parm) || is.null(parm)) {
     parm <- names(coefs)
   } else if (is.numeric(parm)) {
     parm <- names(coefs)[parm]
   }
   se <- sqrt(diag(vcov_mat))[parm]
-  crit <- .netis_wald_critical(residual_df, level)
+  # One critical value per coefficient: `coef_df` is named by coefficient.
+  crit <- .netis_wald_critical_each(coef_df[parm], level)
   est <- coefs[parm]
   out <- cbind(est - crit * se, est + crit * se)
   colnames(out) <- sprintf("%.1f %%", 100 * c((1 - level) / 2, 1 - (1 - level) / 2))
@@ -475,9 +500,14 @@ update.netis_influence <- function(object, ...) {
 #'
 #' Prints the formula, estimator and backend, the waves analyzed and not used, the
 #' estimand, any supplied mechanism parameters, the simultaneous system on an
-#' `sna::lnam` fit, the coefficient table with 95% intervals, what a moderated term's
-#' coefficient is conditional on, the random-effects level count, a compact assumption
-#' ledger, and how many design and estimation findings were recorded at fit time.
+#' `sna::lnam` fit, the coefficient table with 95% intervals, test statistics,
+#' degrees of freedom, p-values and significance marks (see
+#' [print.netis_influence()] for which test each backend supplies), what a moderated
+#' term's coefficient is conditional on, the random-effects variance table of a mixed
+#' fit, the model-fit lines (residual scale, R-squared, the overall F test of a
+#' least-squares fit, log-likelihood, AIC and BIC), how many assumptions the fit rests
+#' on, and how many design and estimation findings were recorded at fit time. The
+#' assumptions are counted and [netis_assumptions()] is named; they are not listed.
 #'
 #' @param object a `netis_influence` fit.
 #' @param ... unused; present for S3 consistency.
@@ -511,18 +541,24 @@ print.summary.netis_influence <- function(x, ...) {
   mp <- .format_moderation_provenance(fit)
   if (length(mp)) cat(paste0('  ', mp, '\n'), sep = '')
   cat('\nCoefficients:\n')
-  print(.format_estimate_table(.estimate_frame(fit)))
+  .print_coef_table(.add_influence_tests(.format_estimate_table(.estimate_frame(fit)),
+                                         .influence_coef_tests(fit)))
   mod <- .format_moderated_terms(fit)
   if (length(mod)) cat('\n', paste0(mod, '\n'), sep = '')
-  if (!is.null(fit$re_levels)) {
-    cat('\nRandom effects: ',
-        paste(sprintf('%s (%d levels)', names(fit$re_levels), fit$re_levels),
-              collapse = ', '), '\n', sep = '')
+  re <- if (identical(fit$backend, 'lme4')) .influence_random_table(fit) else NULL
+  if (!is.null(re)) {
+    cat('\nRandom effects:\n')
+    .print_one_block(re, right = FALSE)
   }
-  if (!is.null(fit$assumptions)) {
+  cat('\n')
+  .cat_fit_lines(.influence_fit_lines(fit, full = TRUE))
+  # NAMED, NOT LISTED. The ledger runs to a page and does not change between
+  # fits of one specification; what a summary owes the reader is that it exists,
+  # how much of it no statistic can test, and the call that prints it.
+  ap <- .format_assumptions_pointer(fit$assumptions)
+  if (length(ap)) {
     cat('\n')
-    cat(.format_assumptions_compact(fit$assumptions), sep = '\n')
-    cat('\n')
+    .cat_fit_lines(ap)
   }
   # POINT AT THE ACCESSORS. Everything a printed summary shows is also
   # available as data, and a reader who wants the numbers should not have to
@@ -582,8 +618,9 @@ print.summary.netis_influence <- function(x, ...) {
 }
 #' Format an estimate frame for printing
 #'
-#' Deliberately spare: term, estimate, standard error, interval. Printing a
-#' column this fit cannot populate would be worse than not printing it.
+#' Term, estimate, standard error, interval. The test columns are appended by
+#' `.add_influence_tests()`, which adds only the ones the fit's backend supplies:
+#' printing a column this fit cannot populate would be worse than not printing it.
 #'
 #' @param est a frame from `.estimate_frame()`.
 #' @param digits rounding for display.

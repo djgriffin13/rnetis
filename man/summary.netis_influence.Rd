@@ -23,9 +23,14 @@ with a \code{print()} method that returns it invisibly.
 \description{
 Prints the formula, estimator and backend, the waves analyzed and not used, the
 estimand, any supplied mechanism parameters, the simultaneous system on an
-\code{sna::lnam} fit, the coefficient table with 95\% intervals, what a moderated term's
-coefficient is conditional on, the random-effects level count, a compact assumption
-ledger, and how many design and estimation findings were recorded at fit time.
+\code{sna::lnam} fit, the coefficient table with 95\% intervals, test statistics,
+degrees of freedom, p-values and significance marks (see
+\code{\link[=print.netis_influence]{print.netis_influence()}} for which test each backend supplies), what a moderated
+term's coefficient is conditional on, the random-effects variance table of a mixed
+fit, the model-fit lines (residual scale, R-squared, the overall F test of a
+least-squares fit, log-likelihood, AIC and BIC), how many assumptions the fit rests
+on, and how many design and estimation findings were recorded at fit time. The
+assumptions are counted and \code{\link[=netis_assumptions]{netis_assumptions()}} is named; they are not listed.
 }
 \seealso{
 \code{\link[=print.netis_influence]{print.netis_influence()}}, \code{\link[=fit_influence]{fit_influence()}}

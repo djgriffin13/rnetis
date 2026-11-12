@@ -57,11 +57,16 @@ oversight -- see \emph{Methods that refuse} below.
 }
 \details{
 \code{print()} gives the compact view: the relation being modeled, the outcome
-family, the transition structure, the coefficient table with its
-uncertainty, and the pooling statement. \link[=summary.netis_selection]{summary()}
-adds the scale the coefficients are on and the count of fit-time findings, with
-\code{\link[=netis_diagnostics]{netis_diagnostics()}} named as the way to list them; on a hierarchical fit it
-also adds the worst convergence diagnostics. Neither prints a fit verdict. On
+family, the transition structure, the pooling statement, the coefficient
+table with its posterior summaries and significance marks (see
+\code{\link[=print.netis_selection]{print.netis_selection()}}), and under it the count of observed dyads, the
+pseudo R-squared measures, one line of posterior predictive check and the
+count of fit-time findings. \link[=summary.netis_selection]{summary()} adds the
+scale the coefficients are on and the posterior predictive table -- each
+network statistic's observed value beside its simulated 95\% range and its
+\code{ppp} -- with \code{\link[=netis_gof]{netis_gof()}} and \code{\link[=netis_diagnostics]{netis_diagnostics()}} named as the ways to
+get the detail; on a hierarchical fit it also adds the worst convergence
+diagnostics. On
 the per-group route the diagnostics are in \code{fit$convergence}, one entry per
 group.
 

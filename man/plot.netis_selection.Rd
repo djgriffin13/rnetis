@@ -20,9 +20,10 @@ a symmetric fit, each actor's one additive effect);
 \code{"multiplicative"} the rotation-invariant product \verb{U V'} per ordered pair of
 different actors; \code{"mcmc"} per-parameter R-hat and effective sample size;
 \code{"groups"} the per-group estimates (see \strong{Multi-group fits}); \code{"gof"} the
-posterior predictive check — each of five network statistics in the
-observed network against its range across networks simulated from the
-posterior, via \code{\link[=netis_gof]{netis_gof()}}.}
+posterior predictive check — for each of five network statistics, a
+histogram of its value across the networks simulated from the posterior,
+with the central 95\% of them shaded and the observed network's value drawn
+as a line, via \code{\link[=netis_gof]{netis_gof()}}.}
 
 \item{terms}{Optional character vector selecting which terms to show, on
 \code{"coefficients"}, \code{"posterior"} and \code{"trace"}. The other panels ignore it.}
@@ -94,8 +95,8 @@ coefficient has only its population row. \code{"heterogeneity"} reads
 
 \code{"gof"} is the one panel that needs no \code{group} on a multi-group fit: every
 group was fitted to its own network and so has its own observed statistics
-and its own simulated ones, and the panel shows them all, one row per group
-in each facet. Naming a group narrows it to that group.
+and its own simulated ones, and the panel shows them all, one row of histograms per
+group and one column per statistic. Naming a group narrows it to that group.
 }
 
 \examples{

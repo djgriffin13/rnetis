@@ -65,8 +65,8 @@
 #'
 #' `"gof"` is the one panel that needs no `group` on a multi-group fit: every
 #' group was fitted to its own network and so has its own observed statistics
-#' and its own simulated ones, and the panel shows them all, one row per group
-#' in each facet. Naming a group narrows it to that group.
+#' and its own simulated ones, and the panel shows them all, one row of histograms per
+#' group and one column per statistic. Naming a group narrows it to that group.
 #'
 #' @param x A `netis_selection` fit.
 #' @param what Which panel. `"coefficients"` (default) draws each term's
@@ -77,9 +77,10 @@
 #'   `"multiplicative"` the rotation-invariant product `U V'` per ordered pair of
 #'   different actors; `"mcmc"` per-parameter R-hat and effective sample size;
 #'   `"groups"` the per-group estimates (see **Multi-group fits**); `"gof"` the
-#'   posterior predictive check — each of five network statistics in the
-#'   observed network against its range across networks simulated from the
-#'   posterior, via [netis_gof()].
+#'   posterior predictive check — for each of five network statistics, a
+#'   histogram of its value across the networks simulated from the posterior,
+#'   with the central 95% of them shaded and the observed network's value drawn
+#'   as a line, via [netis_gof()].
 #' @param terms Optional character vector selecting which terms to show, on
 #'   `"coefficients"`, `"posterior"` and `"trace"`. The other panels ignore it.
 #' @param group Optional group ID, for a multi-group fit (see **Multi-group
@@ -480,83 +481,124 @@ plot_data.netis_selection <- function(x, what = NULL, terms = NULL, group = NULL
 
 #' The observed network against the networks the posterior generates
 #'
-#' TWO DIFFERENT QUANTITIES, DRAWN AS TWO DIFFERENT MARKS. The bar is where the
-#' fitted model said this statistic would fall; the point is where it actually
-#' fell. That is not an estimate with its uncertainty, which is why
-#' `.netis_interval_layer()` is deliberately not reused here -- its point sits
-#' at the centre of its interval by construction, and reusing it would make a
-#' misfit look like a wide confidence interval. `.netis_reference_layer()`'s own
-#' note sanctions an ordinary `geom_linerange()` for a predictive interval:
-#' there is no threshold anywhere in this panel.
+#' A HISTOGRAM PER STATISTIC, because the question is where the observed value
+#' sits in a distribution and a distribution reduced to two quantiles hides its
+#' shape -- `dyad.dep` in particular need not be symmetric, and a bar from the
+#' 2.5% to the 97.5% quantile cannot show that. The histogram is every network
+#' the fitted model simulated; the shaded band is the central 95% of them; the
+#' line is the network that was observed.
 #'
-#' FREE X SCALES, one facet per statistic. The five statistics are five
+#' THREE DIFFERENT QUANTITIES, DRAWN AS THREE DIFFERENT MARKS. None of this is
+#' an estimate with its uncertainty, which is why `.netis_interval_layer()` is
+#' deliberately not reused here -- its point sits at the centre of its interval
+#' by construction, and reusing it would make a misfit look like a wide
+#' confidence interval.
+#'
+#' FREE X SCALES, one column per statistic. The five statistics are five
 #' different quantities -- a standard deviation of row means and a triadic
 #' correlation -- and putting them on one axis would invite comparing their
 #' magnitudes, which means nothing. Each is read against its own predictive
-#' range and nothing else.
+#' distribution and nothing else. A multi-group fit gets one row of panels per
+#' group; within a column the groups share the x axis, so they can be compared.
 #'
-#' No reference line at the predictive mean. The question is whether the point
-#' is inside the bar, and a line through the middle of every bar would be read
-#' as a target the observed value is supposed to hit.
+#' No reference line at the predictive mean. The question is whether the line
+#' is inside the band, and a second line through the middle of every histogram
+#' would be read as a target the observed value is supposed to hit.
 #' @noRd
 .netis_plot_gof <- function(d) {
+  draws <- attr(d, "netis_draws")
   # amen's own column order, not alphabetical: the two degree statistics, the
   # dyadic one, then the two triadic ones. That is the order in which a reader
   # works through them, because it is the order in which the model stops
   # accounting for them.
-  d$statistic <- factor(d$statistic, levels = unique(d$statistic))
+  stat_levels <- unique(d$statistic)
+  group_levels <- unique(d$grouping)
+  d$statistic <- factor(d$statistic, levels = stat_levels)
+  d$grouping <- factor(d$grouping, levels = group_levels)
+  draws$statistic <- factor(draws$statistic, levels = stat_levels)
+  draws$grouping <- factor(draws$grouping, levels = group_levels)
+  d$ppp_label <- ifelse(is.na(d$ppp), "", sprintf("ppp = %.2f", d$ppp))
 
-  # A LEGEND, NOT A CAPTION ALONE. The two marks are two different quantities,
-  # and a reader who has to go to the caption to learn which is which has been
-  # given a puzzle rather than a figure. Mapping each layer's colour to a
-  # literal string is what makes ggplot2 emit a guide for marks that are
-  # otherwise unmapped; the strings are the labels.
+  # WHAT THE STATISTIC MEASURES, above amen's name for it. `sd.rowmean` does
+  # not tell an applied reader what was checked; the name stays because it is
+  # the key into netis_gof()'s table.
+  short <- sub(" \\(.*$", "", .NETIS_GOF_FEATURES[stat_levels])
+  strip <- stats::setNames(
+    ifelse(is.na(short), stat_levels, paste0(short, "\n", stat_levels)),
+    stat_levels
+  )
+
+  # Bins from the number of simulated networks, so a short chain is not drawn
+  # as thirty one-network spikes.
+  n_sim <- suppressWarnings(max(d$n_draws, na.rm = TRUE))
+  bins <- if (is.finite(n_sim)) as.integer(min(30, max(8, ceiling(sqrt(n_sim))))) else 15L
+
+  # A LEGEND, NOT A CAPTION ALONE. The marks are different quantities, and a
+  # reader who has to go to the caption to learn which is which has been given
+  # a puzzle rather than a figure. Mapping each layer's aesthetic to a literal
+  # string is what makes ggplot2 emit a guide for marks that are otherwise
+  # unmapped; the strings are the labels.
   obs_lab <- "observed network"
-  sim_lab <- "central 95% of networks the model generates"
-  p <- ggplot2::ggplot(d, ggplot2::aes(y = grouping)) +
-    ggplot2::geom_linerange(
+  sim_lab <- "networks the model generates"
+  band_lab <- "central 95% of them"
+  p <- ggplot2::ggplot() +
+    ggplot2::geom_rect(
+      data = d,
       ggplot2::aes(xmin = predicted_lower, xmax = predicted_upper,
-                   colour = sim_lab),
-      linewidth = 2.2, na.rm = TRUE
+                   ymin = -Inf, ymax = Inf, fill = band_lab),
+      na.rm = TRUE
     ) +
-    ggplot2::geom_point(
-      ggplot2::aes(x = observed, colour = obs_lab),
-      size = 2.6, na.rm = TRUE
+    ggplot2::geom_histogram(
+      data = draws,
+      ggplot2::aes(x = value, fill = sim_lab),
+      bins = bins, colour = "white", linewidth = 0.2, na.rm = TRUE
     ) +
-    # Grey for the model, ink for the data: the observed network is the thing
-    # being judged and should read as foreground. Breaks are given explicitly
-    # so the data entry leads, whatever order the layers happen to add them.
-    ggplot2::scale_colour_manual(
+    # Ink for the data: the observed network is the thing being judged and
+    # should read as foreground. A SEGMENT, NOT A VLINE: the observed value is
+    # a datum, and the reference geoms are reserved for declared references
+    # (`.netis_reference_layer()`), of which this panel has none.
+    ggplot2::geom_segment(
+      data = d,
+      ggplot2::aes(x = observed, xend = observed, y = -Inf, yend = Inf,
+                   colour = obs_lab),
+      linewidth = 1, na.rm = TRUE
+    ) +
+    ggplot2::geom_text(
+      data = d,
+      ggplot2::aes(x = Inf, y = Inf, label = ppp_label),
+      hjust = 1.08, vjust = 1.6, size = 3, colour = "grey25"
+    ) +
+    ggplot2::scale_fill_manual(
       name = NULL,
-      breaks = c(obs_lab, sim_lab),
-      values = stats::setNames(c("grey15", "grey70"), c(obs_lab, sim_lab)),
-      guide = ggplot2::guide_legend(
-        override.aes = list(linetype = c("blank", "solid"),
-                            shape = c(16, NA), linewidth = c(0, 2.2))
-      )
+      breaks = c(sim_lab, band_lab),
+      values = stats::setNames(c("grey55", "grey88"), c(sim_lab, band_lab))
     ) +
-    ggplot2::facet_wrap(~ statistic, scales = "free_x", nrow = 1) +
+    ggplot2::scale_colour_manual(
+      name = NULL, values = stats::setNames("grey10", obs_lab)
+    ) +
     # Few breaks and room between the panels. With free scales and five
     # panels in a row, the last label of one panel and the first of the next
     # are drawn a few pixels apart and overprint each other -- which looks
     # like a rendering fault rather than two numbers on two different axes.
     ggplot2::scale_x_continuous(n.breaks = 3) +
-    ggplot2::labs(x = "value of the statistic", y = NULL) +
+    # Headroom above the tallest bar, so the ppp label sits over the histogram
+    # and not on it.
+    ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, 0.2))) +
+    ggplot2::labs(x = "value of the statistic", y = "simulated networks") +
     .netis_theme() +
     ggplot2::theme(
       legend.position = "bottom",
       panel.spacing.x = ggplot2::unit(14, "pt")
     )
 
-  # A SINGLE-GROUP FIT HAS NOTHING TO PUT ON THE Y AXIS. The row exists so the
-  # layers have a position, not because the group label carries information,
-  # and printing "1" beside one row invites a reader to look for a second.
-  # A multi-group fit genuinely has one row per group and keeps its labels.
-  if (length(unique(d$grouping)) == 1L) {
-    p <- p + ggplot2::theme(
-      axis.text.y = ggplot2::element_blank(),
-      axis.ticks.y = ggplot2::element_blank()
-    )
+  # A SINGLE-GROUP FIT HAS NO ROWS TO LABEL. One row of panels, and no strip
+  # reading "1" that invites a reader to look for a second. A multi-group fit
+  # has one row per group and labels each.
+  lab <- ggplot2::labeller(statistic = ggplot2::as_labeller(strip))
+  p <- p + if (length(group_levels) == 1L) {
+    ggplot2::facet_wrap(~ statistic, scales = "free_x", nrow = 1, labeller = lab)
+  } else {
+    ggplot2::facet_grid(grouping ~ statistic, scales = "free_x", labeller = lab)
   }
 
   p <- p + .netis_caption_lab(d)

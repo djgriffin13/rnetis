@@ -32,5 +32,7 @@ utils::globalVariables(c(
   # the statistic fell against where the model said it would -- so they are
   # NOT the `lower`/`upper`/`value` triple above, and must not be made to share
   # those names.
-  "grouping", "statistic", "observed", "predicted_lower", "predicted_upper"
+  "grouping", "statistic", "observed", "predicted_lower", "predicted_upper",
+  # The same panel's in-panel label, built from `ppp`.
+  "ppp_label"
 ))

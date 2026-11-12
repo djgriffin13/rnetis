@@ -90,9 +90,9 @@ packageVersion("rnetis")
 #> [1] '0.1.0'
 ```
 
-`rnetis` needs **R 4.2 or later**. Four required packages come with it —
-`generics`, `ggplot2`, `lme4`, `reformulas` — and the install step pulls them
-from CRAN for you. The package itself is pure R (`NeedsCompilation: no`), so no
+`rnetis` needs **R 4.2 or later**. Five required packages come with it —
+`generics`, `ggplot2`, `lme4`, `lmerTest`, `reformulas` — and the install step
+pulls them from CRAN for you. The package itself is pure R (`NeedsCompilation: no`), so no
 compiler is needed for it.
 
 The floor is set by the optional packages rather than by rnetis's own code,

@@ -15,7 +15,25 @@
 \code{x}, invisibly. Called for its output.
 }
 \description{
-Reports what was fitted and what it was fitted to. Effect sizes are not
+Reports what was fitted and what it was fitted to, then the coefficient table
+in a layout parallel to \code{summary.lm()}'s, labelled for a posterior: the
+posterior mean, the posterior SD, the 95\% posterior interval, the ratio of
+the mean to the SD (\code{Est/SD}), and a two-sided posterior tail probability
+(\verb{Tail prob.}, twice the posterior probability that the coefficient has the
+opposite sign) with significance marks on \code{lm()}'s cutoffs. These are
+posterior summaries and not tests, and the note under the table says so. The
+tail probability is counted from the retained draws, so it resolves nothing
+below \code{2 / n_draws}: a value below that prints as \code{<} the bound and is marked
+from the bound. A two-stage pooled fit keeps no pooled draws and reports z
+tests from its pooled standard errors instead.
+}
+\details{
+Under the table: the number of observed dyads, the pseudo R-squared measures
+that need no refit (see \code{\link[=pseudo_r2]{pseudo_r2()}}), one line of posterior predictive
+check -- how many of the observed network statistics fall inside the central
+95\% of their simulated distributions, naming those that do not, with
+\code{\link[=netis_gof]{netis_gof()}} and \code{plot(fit, what = "gof")} named for the table and the
+histograms -- and the count of fit-time findings. Effect sizes are not
 computed at fit time and are not printed here.
 }
 \seealso{

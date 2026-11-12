@@ -96,7 +96,10 @@
 #' @return A data frame with one row per statistic per group: `grouping`,
 #'   `statistic` (amen's name), `feature` (what it measures, in words),
 #'   `observed`, `predicted_mean`, `predicted_sd`, `predicted_lower`,
-#'   `predicted_upper`, `ppp`, `z` and `n_draws`.
+#'   `predicted_upper`, `ppp`, `z` and `n_draws`. The attribute `netis_draws`
+#'   holds the simulated values the rows were reduced from, one row per
+#'   simulated network per statistic (`grouping`, `statistic`, `value`): the
+#'   histograms of `plot(fit, what = "gof")` are drawn from it.
 #'
 #' @references
 #' Gelman, A., Meng, X.-L. and Stern, H. (1996) Posterior predictive assessment
@@ -184,7 +187,34 @@ netis_gof.netis_selection <- function(object, group = NULL, ...) {
   })
   out <- do.call(rbind, rows)
   attr(out, "netis_caption") <- .gof_caption(out, object$R %||% 0L)
+  # THE DRAWS THE TABLE WAS REDUCED FROM, carried with it. The histogram panel
+  # draws each distribution rather than its two quantiles, and reading the
+  # draws from the same object the table came from is what keeps the picture
+  # and the numbers from being computed twice.
+  attr(out, "netis_draws") <- do.call(rbind, lapply(seq_along(parts), function(i) {
+    .gof_draws_one(parts[[i]]$gof, groups[i])
+  }))
   out
+}
+
+#' One group's simulated statistics, one row per simulated network per statistic
+#'
+#' The same draws `.gof_table_one()` summarizes, with the same non-finite
+#' values removed, so a histogram of them has exactly `n_draws` observations.
+#'
+#' @param gof amen's GOF matrix: observed network in row 1, simulated in the rest.
+#' @param grouping the group label for the rows.
+#' @return a data frame with `grouping`, `statistic` and `value`.
+#' @noRd
+.gof_draws_one <- function(gof, grouping) {
+  draws <- gof[-1, , drop = FALSE]
+  out <- data.frame(
+    grouping = as.character(grouping),
+    statistic = rep(colnames(gof), each = nrow(draws)),
+    value = as.vector(draws),
+    stringsAsFactors = FALSE, row.names = NULL
+  )
+  out[is.finite(out$value), , drop = FALSE]
 }
 
 #' Refuse a fit whose posterior predictive draws were never kept
@@ -321,9 +351,9 @@ netis_gof.netis_selection <- function(object, group = NULL, ...) {
     # HOW TO READ IT, FIRST. The legend says what each mark is; this says what
     # their relationship means, which is the whole content of the figure and
     # the one thing a reader cannot work out from the marks themselves.
-    "Point inside its bar: the model reproduces that feature of the network. Point outside: it cannot.",
+    "Line inside the shaded band: the model reproduces that feature of the network. Line outside: it cannot.",
     sprintf(
-      "Each bar spans the 2.5%%-97.5%% quantiles of the statistic across %s networks simulated from the fitted model.",
+      "Each histogram is the statistic across %s networks simulated from the fitted model; the shaded band spans its 2.5%%-97.5%% quantiles.",
       if (length(n) == 1L) format(n[[1]]) else "the retained"
     ),
     sprintf(

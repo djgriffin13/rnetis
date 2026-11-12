@@ -192,7 +192,8 @@ came from.
 
 No reverse dependencies: this is a first release.
 
-`Imports` is four packages: `generics`, `ggplot2`, `lme4`, `reformulas`.
+`Imports` is five contributed packages -- `generics`, `ggplot2`, `lme4`,
+`lmerTest`, `reformulas` -- and base R's `methods`.
 
 Everything optional is in `Suggests` and guarded by
 `requireNamespace(..., quietly = TRUE)`, including a dependency's own

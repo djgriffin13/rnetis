@@ -10,8 +10,11 @@ test_that("confint() forwards to lme4 with a term named as coef() names it", {
   fit <- .irs_mixed()
   ci <- confint(fit, parm = "ex_x_tie", method = "Wald")
   expect_identical(rownames(ci), "ex_x_tie")
-  # lme4's Wald interval is the package's default interval.
-  expect_equal(unname(ci[1, ]), unname(confint(fit, parm = "ex_x_tie")[1, ]))
+  # lme4's normal-quantile interval, centred where the default one is and
+  # narrower than it: the default uses Satterthwaite's degrees of freedom.
+  dflt <- confint(fit, parm = "ex_x_tie")
+  expect_equal(mean(ci[1, ]), mean(dflt[1, ]))
+  expect_lt(ci[1, 2] - ci[1, 1], dflt[1, 2] - dflt[1, 1])
 })
 
 test_that("confint() forwards a term with a backticked backend name", {
