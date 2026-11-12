@@ -1,0 +1,5 @@
+          coefficient parameter  estimate      lower    upper
+1           intercept        mu -1.161174 -1.2924606 -1.02231
+2           intercept       tau  0.056502  0.0025904  0.17373
+3 dyd_affect_gap_lag1        mu -0.635184 -0.7667789 -0.50480
+4 dyd_affect_gap_lag1       tau  0.068298  0.0049655  0.21426

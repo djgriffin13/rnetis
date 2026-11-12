@@ -1,8 +1,0 @@
-  family                                code   level
-1 design contemporaneous_selection_covariate WARNING
-2 design contemporaneous_selection_covariate WARNING
-3 design contemporaneous_selection_covariate WARNING
-                                                                             summary
-1   sender(tenure) is measured at the same wave as the tie outcome, not a prior one.
-2 receiver(tenure) is measured at the same wave as the tie outcome, not a prior one.
-3  dyad(same_unit) is measured at the same wave as the tie outcome, not a prior one.

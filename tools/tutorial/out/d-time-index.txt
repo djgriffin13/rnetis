@@ -1,3 +1,0 @@
-  group wave_position wave_label time_value time_unit time_source
-1     1             1          1         NA      <NA>      absent
-2     1             2          2         NA      <NA>      absent

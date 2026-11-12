@@ -213,6 +213,10 @@
 #' @return invisible `NULL`, called for its printed side effect.
 #' @noRd
 .print_conditional_table <- function(cond, moderator, predicted_change) {
+  # A moderator whose own values include zero -- a 0/1 indicator, most often --
+  # has the reference row and an observed-value row at the same place. Print it
+  # once: the same line twice reads as two different conditions.
+  cond <- cond[!duplicated(signif(cond$z, 12)), , drop = FALSE]
   for (i in seq_len(nrow(cond))) {
     label <- if (isTRUE(all.equal(cond$z[i], 0))) {
       sprintf("%s = 0 (reference)", moderator)

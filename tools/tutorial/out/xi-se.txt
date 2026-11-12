@@ -1,0 +1,4 @@
+                term se_model se_robust   ratio pct_change df_satterthwaite
+1        (Intercept) 0.193758  0.194480 1.00373    0.37251           7.7776
+2        affect_lag1 0.031255  0.029726 0.95108   -4.89221           8.0409
+3 ex_affect_confides 0.059410  0.063019 1.06075    6.07550           7.1563

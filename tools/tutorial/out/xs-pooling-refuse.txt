@@ -1,0 +1,1 @@
+Error: pool_beta and pooling were both supplied, and they select different models: pool_beta combines per-group fits afterwards, while pooling fits one hierarchical model over all groups. Remove pool_beta to fit the hierarchical model, or remove pooling to fit the groups separately.

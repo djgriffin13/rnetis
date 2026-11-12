@@ -1,7 +1,0 @@
-<netis_data>
-  42 nodes in 4 groups, 55 ties, directed, 2 waves, self-ties prohibited
-  node variables: dynamic: y, x, x_within, x_between
-  tie variables: dynamic: tie
-  tie network semantics:
-    tie: binary (inferred), row_presence (inferred)
-  no group_data supplied

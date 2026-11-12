@@ -1,8 +1,0 @@
-  group node tenure wave wellbeing
-1     1  Ada      8    1        50
-2     1  Ada      8    2        44
-3     1  Ben      1    1        10
-  group source target strength
-1     1    Ben    Ada        1
-2     1    Cyd    Ada        3
-3     1    Dev    Ada        2

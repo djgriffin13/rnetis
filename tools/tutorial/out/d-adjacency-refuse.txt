@@ -1,1 +1,0 @@
-Error: adjacency matrix for group '1' has nonzero diagonal entries but self_ties = "prohibited". Set self_ties = "permitted" if these are genuine self-ties, or zero out the diagonal before conversion.

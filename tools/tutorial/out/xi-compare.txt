@@ -1,0 +1,3 @@
+              model rows r.squared  AIC  BIC
+1         ar() only   40     0.581 30.7 35.8
+2 ar() + exposure()   40     0.650 25.4 32.2

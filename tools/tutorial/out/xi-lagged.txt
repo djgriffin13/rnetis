@@ -1,0 +1,21 @@
+<netis_influence>
+  affect ~ ar() + exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row") + lagged(extraversion) + tenure
+  Estimator: pooled ordinary least squares (the formula declares no random-effects term)  [backend: stats]
+  Waves: analyzed 1 -> 2 of 2 present; 0 waves not used
+  40 rows in the estimating sample
+
+Coefficients:
+               Term Estimate     SE      95% interval df t value Pr(>|t|)    
+        (Intercept)   0.2664 0.4986 [-0.7459, 1.2786] 35   0.534    0.597    
+        affect_lag1   0.4199 0.0848  [0.2478, 0.5920] 35   4.953   <0.001 ***
+  extraversion_lag1   0.0418 0.0522 [-0.0642, 0.1477] 35   0.801    0.429    
+ ex_affect_confides   0.4939 0.1833  [0.1217, 0.8660] 35   2.694    0.011   *
+             tenure  -0.0008 0.0207 [-0.0428, 0.0412] 35  -0.039    0.969    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.3187 on 35 degrees of freedom
+R-squared: 0.6567, adjusted: 0.6175
+Assumptions: this fit rests on 8 assumptions (2 not testable). netis_assumptions(fit)
+  lists them.
+Fit-time findings: 1; netis_diagnostics(fit) lists them. More: summary(fit).

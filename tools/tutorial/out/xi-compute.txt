@@ -1,0 +1,7 @@
+  group node ex_affect_confides
+1  team  p01             3.0080
+2  team  p02             3.1783
+3  team  p03             2.8200
+4  team  p04             3.7200
+5  team  p05             3.0578
+6  team  p06             2.6900

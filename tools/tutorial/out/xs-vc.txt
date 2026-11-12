@@ -1,0 +1,6 @@
+                              term    estimate
+1                  sender variance  0.04890304
+2       sender-receiver covariance -0.00046577
+3                receiver variance  0.05840169
+4 within-dyad residual correlation -0.04459937
+5         dyadic residual variance  1.00000000

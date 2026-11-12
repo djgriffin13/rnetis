@@ -1,3 +1,0 @@
-  grouping        term     kind estimate variance      sd residual_variance_share
-1    group (Intercept) variance  0.38355  0.38355 0.61931                 0.51196
-2 Residual  (residual) variance  0.36563  0.36563 0.60467                 0.48804

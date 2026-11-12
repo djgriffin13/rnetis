@@ -1,0 +1,3 @@
+        (Intercept) affect_lag1 ex_affect_bin_talk
+dropped       1.009       0.457              0.202
+as_zero       1.486       0.548             -0.051

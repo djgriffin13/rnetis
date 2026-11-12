@@ -832,7 +832,7 @@ page(
     p("That is the Influence sequence: a model you can fit, read, plot, "
       "adjust for selection, and extend to several groups. The Selection "
       "sequence asks the other question of the same data: who comes to "
-      "confide in whom. For anything not covered here, start with "
-      "[formula terms at a glance](#p-formula-terms-at-a-glance) and "
-      "[the rest of the package](#p-the-rest-of-the-package)."),
+      "confide in whom. For the choices these pages made for you, and "
+      "what the alternatives change, read the "
+      "[advanced walkthrough](#p-advanced-walkthrough-influence)."),
 )

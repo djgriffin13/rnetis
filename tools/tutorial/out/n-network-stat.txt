@@ -1,4 +1,0 @@
-  group net_density_contact
-1     1             0.26667
-  group net_reciprocity_contact
-1     1                     0.5

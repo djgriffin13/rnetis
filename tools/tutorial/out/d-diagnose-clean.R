@@ -1,1 +1,0 @@
-diagnose_data(demo_influence)

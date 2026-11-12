@@ -1,0 +1,20 @@
+<netis_influence>
+  affect ~ ar() + exposure(affect, via = confides, x_lag = 1, w_lag = 1, normalize = "row") + exposure(affect, via = advice, x_lag = 1, w_lag = 1, normalize = "row")
+  Estimator: pooled ordinary least squares (the formula declares no random-effects term)  [backend: stats]
+  Waves: analyzed 1 -> 2 of 2 present; 0 waves not used
+  40 rows in the estimating sample
+
+Coefficients:
+               Term Estimate     SE      95% interval df t value Pr(>|t|)    
+        (Intercept)  -0.1863 0.7634 [-1.7344, 1.3619] 36  -0.244    0.809    
+        affect_lag1   0.4412 0.0779  [0.2831, 0.5992] 36   5.662   <0.001 ***
+ ex_affect_confides   0.5031 0.1817  [0.1347, 0.8716] 36   2.769    0.009  **
+   ex_affect_advice   0.1222 0.1768 [-0.2363, 0.4807] 36   0.691    0.494    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.3151 on 36 degrees of freedom
+R-squared: 0.6547, adjusted: 0.6259
+Assumptions: this fit rests on 8 assumptions (2 not testable). netis_assumptions(fit)
+  lists them.
+Fit-time findings: none. More: summary(fit).

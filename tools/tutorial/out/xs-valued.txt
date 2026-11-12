@@ -1,0 +1,29 @@
+<netis_selection>
+  talk ~ dyad(same_project, lag = 1) + dyad(confides, lag = 1) + sender(remote, lag = 1) + receiver(remote, lag = 1)
+  Outcome family: valued tie (normal)
+  Groups: 1 (team)
+  Backend: amen::ame(), one observed network per group
+  Waves: analyzed 1 -> 2 of 2 present; 0 waves not used
+
+Coefficients:
+                  Term Estimate Post.SD      95% interval Est/SD Tail prob.   
+             intercept   0.6837  0.1075  [0.4806, 0.8992]  6.360     <0.007 **
+       snd_remote_lag1   0.0702  0.1592 [-0.2819, 0.3911]  0.441      0.600   
+       rcv_remote_lag1   0.0105  0.1558 [-0.2739, 0.3007]  0.068      0.953   
+ dyd_same_project_lag1   0.6605  0.0601  [0.5432, 0.7851] 10.997     <0.007 **
+     dyd_confides_lag1   2.0566  0.0817  [1.8891, 2.2207] 25.163     <0.007 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Posterior summaries, not tests. Estimate is the posterior mean; Est/SD is its ratio to
+  the posterior SD; Tail prob. is twice the posterior probability that the coefficient
+  has the opposite sign, and the marks are on that. It is counted from the retained
+  draws, so its resolution is 2 / (number of draws).
+
+1560 observed dyads among 40 actors
+Pseudo R-squared: latent-scale variance share 0.320 [0.286, 0.354]. What each measures:
+  pseudo_r2(fit).
+Posterior predictive check (300 simulated networks): the observed network is inside the
+  simulated 95% range on 3 of 5 statistics. Outside: sd.rowmean (ppp 1.00), sd.colmean
+  (ppp 0.99).
+  Table: netis_gof(fit). Histograms: plot(fit, what = "gof").
+Fit-time findings: 0 WARNING, 3 NOTE; netis_diagnostics(fit) lists them. More: summary(fit).

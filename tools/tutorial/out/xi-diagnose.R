@@ -1,0 +1,1 @@
+diagnose_data(team)

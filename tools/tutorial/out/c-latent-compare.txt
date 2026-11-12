@@ -1,3 +1,0 @@
-           estimate conf.low conf.high
-unadjusted 0.074937 -0.38057   0.53044
-adjusted   0.131719 -0.38123   0.64467

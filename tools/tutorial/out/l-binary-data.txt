@@ -1,8 +1,0 @@
-<netis_data>
-  6 nodes in 1 group, 8 ties, directed, 2 waves, self-ties prohibited
-  node variables: dynamic: y
-  tie variables: dynamic: contact, met
-  tie network semantics:
-    contact: weighted (inferred), row_presence (inferred)
-    met: binary, row_presence (inferred)
-  no group_data supplied

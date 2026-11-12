@@ -1,1 +1,0 @@
-plot(separate, what = "groups")

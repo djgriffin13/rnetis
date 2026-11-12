@@ -1,7 +1,0 @@
-             loss_id         severity overridable
-1     isolate_roster         semantic       FALSE
-2 tie_value_collapse         semantic       FALSE
-3  presence_metadata representational        TRUE
-4 foreign_attributes representational        TRUE
-5     schema_records representational        TRUE
-6 derived_provenance representational        TRUE

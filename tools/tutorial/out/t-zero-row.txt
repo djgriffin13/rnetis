@@ -1,7 +1,0 @@
-  group source target r
-1     1      a      b 1
-2     1      a      c 0
-3     1      b      a 1
-4     1      b      c 0
-5     1      c      a 0
-6     1      c      b 0

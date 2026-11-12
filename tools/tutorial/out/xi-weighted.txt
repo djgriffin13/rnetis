@@ -1,0 +1,5 @@
+                          estimate std.error conf.low conf.high
+talk, as hours                0.62      0.40    -0.19      1.44
+talk, any at all             -0.02      0.65    -1.33      1.29
+talk, 2 hours or more         0.15      0.16    -0.18      0.48
+talk, above the team mean     0.45      0.29    -0.14      1.03

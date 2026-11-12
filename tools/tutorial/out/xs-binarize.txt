@@ -1,0 +1,4 @@
+            intercept       snd_remote_lag1       rcv_remote_lag1 dyd_same_project_lag1 
+                -1.85                  0.06                 -0.03                  0.75 
+    dyd_confides_lag1 
+                 1.65 

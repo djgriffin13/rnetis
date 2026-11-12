@@ -1,3 +1,0 @@
-              model nobs     r2   rmse   AIC   BIC
-1         ar() only   30 0.3529 0.7403 73.09 77.30
-2 ar() + exposure()   30 0.3556 0.7387 74.97 80.57

@@ -1,1 +1,0 @@
-plot(fit, what = "effects")

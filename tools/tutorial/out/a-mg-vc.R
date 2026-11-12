@@ -1,1 +1,0 @@
-netis_variance_components(mg)

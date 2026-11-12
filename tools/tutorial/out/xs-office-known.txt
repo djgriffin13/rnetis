@@ -1,0 +1,6 @@
+   statistic observed predicted_lower predicted_upper     ppp
+1 sd.rowmean 0.049621        0.052046         0.10034 0.98833
+2 sd.colmean 0.077965        0.054761         0.10495 0.44000
+3   dyad.dep 0.432682        0.255374         0.60644 0.52000
+4  cycle.dep 0.206186        0.106226         0.27484 0.32000
+5  trans.dep 0.197207        0.107930         0.27861 0.40167

@@ -1,0 +1,3 @@
+  grouping        term variance      sd
+1    group (Intercept) 0.029283 0.17112
+2 Residual  (residual) 0.091838 0.30305

@@ -243,3 +243,13 @@ test_that("the F line carries summary.lm()'s p-value", {
   expect_match(.rte_out(summary(fit)),
                sprintf("DF, p-value: %s", format.pval(p, digits = 4)), fixed = TRUE)
 })
+
+test_that("a 0/1 moderator's reference row is printed once", {
+  fit <- fit_influence(
+    affect ~ ar() + exposure(affect, via = confides, normalize = "row") * remote,
+    data = demo_affect
+  )
+  out <- utils::capture.output(print(influence_effect(fit)))
+  expect_identical(sum(grepl("remote = 0 (reference)", out, fixed = TRUE)), 1L)
+  expect_true(any(grepl("remote = 1:", out, fixed = TRUE)))
+})

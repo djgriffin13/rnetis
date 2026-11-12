@@ -1,0 +1,5 @@
+ICC(1): 0.5311   [one-way ANOVA, unconditional]
+  grouping: group (10 groups, 200 observations, n0 = 20)
+  Share of outcome variance associated with group membership BEFORE
+  conditioning on this model's predictors. Not the same quantity as
+  netis_variance_components()'s conditional share.

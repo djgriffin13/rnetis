@@ -1,1 +1,0 @@
-netis_estimand(fit)

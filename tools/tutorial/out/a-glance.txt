@@ -1,4 +1,0 @@
-     family          estimand estimator backend nobs n_groups n_transitions r.squared
-1 influence single transition    pooled   stats   30       NA             1   0.35561
-    sigma    rmse n_error n_warning n_note netis_version
-1 0.77867 0.73871       0         0      0         0.1.0

@@ -1,6 +1,0 @@
-           term group estimate std.error conf.low conf.high      role         scale
-1     intercept  <NA> -1.56956   0.22156 -2.03353  -1.18503 intercept latent probit
-2    snd_tenure  <NA>  0.52203   0.13346  0.25529   0.77365    sender latent probit
-3    rcv_tenure  <NA>  0.40678   0.11863  0.18978   0.64807  receiver latent probit
-4 dyd_same_unit  <NA>  0.12744   0.18906 -0.21377   0.53922    dyadic latent probit
-5     prior_tie  <NA>  1.74094   0.24786  1.27049   2.23540 prior tie latent probit

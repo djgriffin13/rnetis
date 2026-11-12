@@ -1,0 +1,28 @@
+<netis_selection>
+  mutual ~ dyad(affect_gap, lag = 1) + dyad(same_project, lag = 1) + prior_tie(lag = 1)
+  Outcome family: binary tie (probit)
+  Groups: 1 (team)
+  Backend: amen::ame(), one observed network per group
+  Waves: analyzed 1 -> 2 of 2 present; 0 waves not used
+
+Coefficients:
+                  Term Estimate Post.SD       95% interval Est/SD Tail prob.   
+             intercept  -2.3152  0.3114 [-2.9363, -1.7772] -7.436     <0.007 **
+   dyd_affect_gap_lag1  -0.7956  0.2776 [-1.3160, -0.2827] -2.866     <0.007 **
+ dyd_same_project_lag1   0.6731  0.2405   [0.1654, 1.1349]  2.799     <0.007 **
+             prior_tie   1.5042  0.4848   [0.5126, 2.4308]  3.102     <0.007 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Posterior summaries, not tests. Estimate is the posterior mean; Est/SD is its ratio to
+  the posterior SD; Tail prob. is twice the posterior probability that the coefficient
+  has the opposite sign, and the marks are on that. It is counted from the retained
+  draws, so its resolution is 2 / (number of draws).
+
+780 observed dyads among 40 actors
+Pseudo R-squared: latent-scale variance share 0.237 [0.102, 0.392]; Tjur's D 0.136.
+  What each measures: pseudo_r2(fit).
+Posterior predictive check (300 simulated networks): the observed network is inside the
+  simulated 95% range on 2 of 2 statistics. Not counted: 1 constant under the model, 2
+  identical to another statistic.
+  Table: netis_gof(fit). Histograms: plot(fit, what = "gof").
+Fit-time findings: 0 WARNING, 2 NOTE; netis_diagnostics(fit) lists them. More: summary(fit).

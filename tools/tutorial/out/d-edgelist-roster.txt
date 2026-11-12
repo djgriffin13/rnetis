@@ -1,7 +1,0 @@
-<netis_data>
-  4 nodes in 1 group, 2 ties, directed, self-ties prohibited
-  node variables: (none)
-  tie variables: static: w
-  tie network semantics:
-    w: binary (inferred), row_presence (inferred)
-  no group_data supplied

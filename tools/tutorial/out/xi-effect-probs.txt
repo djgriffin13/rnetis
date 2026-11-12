@@ -1,0 +1,5 @@
+Influence effect sizes
+  Predicted change across the observed 25-to-75 percentile of each exposure, on the outcome's scale.
+
+  ex_affect_confides (contrast 2.875 to 3.163)
+      coef 0.4828 (95% CI [0.1221, 0.8435]), predicted change 0.1390

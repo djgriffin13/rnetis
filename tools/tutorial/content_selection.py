@@ -840,7 +840,7 @@ page(
       "Together with the Influence sequence it answers both questions "
       "about the same team: people's affect moved toward that of their "
       "confiders, and people came to confide in others whose affect was "
-      "like theirs. For anything not covered here, start with "
-      "[formula terms at a glance](#p-formula-terms-at-a-glance) and "
-      "[the rest of the package](#p-the-rest-of-the-package)."),
+      "like theirs. For the choices these pages made for you, and what "
+      "the alternatives change, read the "
+      "[advanced walkthrough](#p-advanced-walkthrough-selection)."),
 )

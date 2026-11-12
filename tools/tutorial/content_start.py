@@ -103,6 +103,11 @@ page(
        "data page shows how to build it from two ordinary data frames."),
 
     h3("Where everything else is"),
+    p("After either sequence, the two **advanced walkthroughs** go back "
+      "over the same steps and show the alternatives at each one: "
+      "[Influence in depth](#p-advanced-walkthrough-influence) and "
+      "[Selection in depth](#p-advanced-walkthrough-selection). Each ends "
+      "with a table of the functions for that kind of analysis."),
     p("Reference material sits at the end: the "
       "[formula terms](#p-formula-terms-at-a-glance), "
       "[importing and exporting](#p-importing-exporting-and-deriving), "

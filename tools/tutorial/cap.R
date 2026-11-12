@@ -25,6 +25,10 @@ suppressPackageStartupMessages({
   library(lme4)
   if (requireNamespace("amen", quietly = TRUE)) library(amen)
   if (requireNamespace("latentnet", quietly = TRUE)) library(latentnet)
+  # clubSandwich registers an S3 method over sandwich's when it first loads,
+  # and says so, in the middle of whichever block first asks for a
+  # cluster-robust standard error.
+  if (requireNamespace("clubSandwich", quietly = TRUE)) loadNamespace("clubSandwich")
 })
 
 # .wl(): writeLines with LF endings, whatever the platform.

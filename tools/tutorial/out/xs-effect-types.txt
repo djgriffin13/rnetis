@@ -1,0 +1,4 @@
+            estimate lower upper
+conditional      8.3   5.0  12.2
+population       8.4   5.1  12.3
+reference        8.3   4.9  12.2

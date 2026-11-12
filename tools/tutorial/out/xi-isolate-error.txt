@@ -1,0 +1,1 @@
+Error: Row-normalization requested but 10 node(s) have no reference-set members (isolates), so their normalized exposure denominator is undefined: p02, p03, p08, p14, p25. Set isolate_rule to "na" or "zero", or use normalize = "none".

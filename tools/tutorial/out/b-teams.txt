@@ -1,7 +1,0 @@
-<netis_data>
-  96 nodes in 12 groups, 672 ties, directed, 2 waves, self-ties prohibited
-  node variables: static: extraversion
-  tie variables: dynamic: tie
-  tie network semantics:
-    tie: binary (inferred), complete_dyadic (inferred)
-  no group_data supplied

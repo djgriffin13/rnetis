@@ -1,4 +1,0 @@
-         term se_model se_robust   ratio pct_change df_satterthwaite
-1 (Intercept) 0.329783   0.34665 1.05116     5.1157           2.9740
-2      y_lag1 0.128634   0.10044 0.78080   -21.9200           2.8328
-3    ex_x_tie 0.090917   0.07212 0.79325   -20.6751           2.1766

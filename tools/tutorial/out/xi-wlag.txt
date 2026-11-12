@@ -1,0 +1,3 @@
+                              (Intercept) affect_lag1 ex_affect_confides
+network at wave 1 (w_lag = 1)       0.219       0.446              0.483
+network at wave 2 (w_lag = 0)       0.443       0.361              0.494

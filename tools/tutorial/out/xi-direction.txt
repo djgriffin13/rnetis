@@ -1,0 +1,4 @@
+                               estimate std.error conf.low conf.high
+from those who confide in me       0.48      0.18     0.12      0.84
+either direction (symmetrized)     0.38      0.29    -0.20      0.97
+confides or advice (union)         0.52      0.34    -0.17      1.20

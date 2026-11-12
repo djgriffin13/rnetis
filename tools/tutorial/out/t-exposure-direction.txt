@@ -1,7 +1,0 @@
-  group node ex_wellbeing_strength
-1     1  Ada                    50
-2     1  Ben                    70
-3     1  Cyd                   160
-4     1  Dev                   140
-5     1  Eli                    50
-6     1  Fay                     0

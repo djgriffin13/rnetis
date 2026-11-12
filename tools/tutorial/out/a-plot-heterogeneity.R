@@ -1,1 +1,0 @@
-plot(mg, what = "heterogeneity")

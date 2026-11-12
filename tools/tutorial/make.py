@@ -3,10 +3,7 @@
   python make.py            # build into the repo's pkgdown/assets
   python make.py --dry      # build beside this script instead
 
-THE PUBLISHED BUILD. Pages come from content.py, with the draft markers off:
-`TUTORIAL_DRAFT` is left unset, so figtodo() renders nothing and a figure that
-is specified but not yet drawn leaves no trace on the page. Use
-make_preview.py to see what is outstanding.
+Pages come from content.py and the modules it imports.
 """
 
 import os
@@ -52,7 +49,8 @@ captured = {
     for f in os.listdir(build.OUT)
     if f.endswith(".txt")
 }
-unused = sorted(captured - set(build.USED))
+# A figure capture writes a .txt too, and fig() does not read it.
+unused = sorted(captured - set(build.USED) - set(build.FIGURES))
 
 print("pages:    %d" % len(build.PAGES))
 print("captures: %d used" % len(set(build.USED) & captured))

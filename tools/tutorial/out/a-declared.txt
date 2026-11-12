@@ -1,2 +1,0 @@
-[1] "exogenous"
-[1] TRUE

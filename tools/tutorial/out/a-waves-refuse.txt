@@ -1,1 +1,0 @@
-Error: This data has 3 waves (1, 2, 3), and this version fits one transition at a time. rnetis will not choose which one for you: analysing a 3-wave study through a single transition is a decision about your design, and leaving it to a default is how it goes unnoticed. Name the transition, e.g. waves = c(2, 3).

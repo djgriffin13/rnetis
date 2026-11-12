@@ -1,9 +1,0 @@
-  group node     tenure
-1     1  p01 -0.4011698
-2     1  p02  0.0052744
-3     1  p03 -0.2393547
-  group source target wave tie
-1     1    p02    p01    1   0
-2     1    p02    p01    2   0
-3     1    p03    p01    1   0
-4     1    p03    p01    2   0

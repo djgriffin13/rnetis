@@ -1,7 +1,0 @@
-<netis_data>
-  30 nodes in 1 group, 118 ties, directed, 2 waves, self-ties prohibited
-  node variables: dynamic: y, x
-  tie variables: static: tie
-  tie network semantics:
-    tie: binary (inferred), row_presence (inferred)
-  no group_data supplied

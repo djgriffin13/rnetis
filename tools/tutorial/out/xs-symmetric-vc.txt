@@ -1,0 +1,3 @@
+                                             term estimate
+1 actor variance (symmetric: one additive effect)   0.2075
+2                        dyadic residual variance   1.0000

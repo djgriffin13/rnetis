@@ -1,5 +1,0 @@
-Influence effect sizes
-  Predicted change across the observed 10-to-90 percentile of each exposure, on the outcome's scale.
-
-  ex_y_tie (contrast -0.3766 to 1.19)
-      coef 0.0749 (95% CI [-0.3806, 0.5304]), predicted change 0.1174

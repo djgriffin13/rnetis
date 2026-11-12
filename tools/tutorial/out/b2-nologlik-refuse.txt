@@ -1,1 +1,0 @@
-Error: A Selection fit has no log-likelihood: amen::ame() returns none, and reconstructing one from posterior draws would be a different quantity under the same name, so logLik(), AIC() and BIC() are not defined. For how much variation the predictors account for, use pseudo_r2().

@@ -3,78 +3,29 @@
 Imported for its side effects: every `page()` call runs at import time and
 appends to `build.PAGES`, so the import order IS the page order.
 
-TWO BUILDS, ONE SOURCE. `make.py` publishes this into pkgdown/assets;
-`make_preview.py` writes a review copy with the outstanding work marked. The
-only difference is the DRAFT flag below -- with it set, `figtodo()` renders a
-visible "New figure" marker, and without it the marker renders as nothing.
-Everything else is identical, so what gets reviewed is what ships.
-
 NO CAPTURED OUTPUT IS TYPED HERE. `block()`, `result()` and `refusal()` read
 what R actually printed into out/, and the build refuses to emit a page whose
 capture is missing. The only code written by hand is `codeonly()`, which is
 illustrative by construction and never shows a result.
 
-The Welcome page, Getting started and the Influence sequence live in
-content_start.py and content_influence.py and are imported below, in page
-order, together with the Selection sequence in content_selection.py. This
-file holds Feedback, Reference and Help.
+Welcome and Getting started, the Influence and Selection sequences, and the
+two advanced walkthroughs live in their own modules and are imported below, in
+page order. This file holds Feedback, Reference and Help.
 """
-
-import os
 
 import build
 from build import (block, card, cards, codeonly, eq, fig, h3, h4, note, p,
                    page, quote, rare, refusal, table, ul)
 
-import diagrams
-
 # ---------------------------------------------------------------------------
-# draft markers
-# ---------------------------------------------------------------------------
-# READ FROM THE ENVIRONMENT, not set as an attribute afterwards. Every page()
-# call runs at import time, so figtodo() has already decided what to render
-# before an importer gets a chance to assign anything. make_preview.py sets
-# the variable before it imports this module; make.py leaves it unset.
-#
-# Keeping the marker out of the published page while leaving it in the copy
-# being reviewed is the whole point: a reviewer who cannot see what is missing
-# will not notice that it is.
-DRAFT = os.environ.get("TUTORIAL_DRAFT") == "1"
-
-# Appended to the shared stylesheet by make_preview.py rather than committed
-# into build.py's CSS: the published page emits no marker, and a rule for a
-# class that never appears is dead weight in every copy of it.
-EXTRA_CSS = """
-.todo{border-left:3px solid var(--accent);padding:.35rem 0 .35rem .7rem;
-margin:.6rem 0;color:var(--muted);font-size:15px}
-.todo b{color:var(--ink);font-weight:600}
-"""
-
-
-def figtodo(what, where):
-    """A figure that is specified but not yet drawn.
-
-    Renders as nothing unless DRAFT is set, so the same source publishes and
-    reviews. The arguments stay in the source either way, which is the point:
-    they are the specification for the figure, and deleting the marker would
-    delete the brief along with it.
-    """
-    if not DRAFT:
-        return ""
-    return (
-        '<p class="todo"><b>New figure:</b> %s <span class="note">(%s)</span></p>'
-        % (build.inline(what), build.inline(where))
-    )
-
-
-# ---------------------------------------------------------------------------
-# Welcome, Getting started, the Influence sequence and the Selection sequence
+# Everything before Feedback
 # ---------------------------------------------------------------------------
 # In their own modules, imported HERE because the import order is the page
 # order: these pages come before everything below.
 import content_start  # noqa: E402,F401
 import content_influence  # noqa: E402,F401
 import content_selection  # noqa: E402,F401
+import content_advanced  # noqa: E402,F401
 
 GS = content_start.GS
 
