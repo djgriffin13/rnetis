@@ -71,6 +71,19 @@
     stringsAsFactors = FALSE
   )
   out <- .netis_plot_table(d, required = c("node", "x", "y", "outcome", "dims"))
+  # The ties the positions were fitted to, as segments between the two actors'
+  # points. A fit made before the ties were kept has none, and draws without.
+  edges <- resolved[[nm]]$edges
+  segs <- NULL
+  if (is.data.frame(edges) && nrow(edges)) {
+    edges <- edges[as.character(edges$group) == group, , drop = FALSE]
+    from <- match(edges$source, d$node)
+    to <- match(edges$target, d$node)
+    ok <- !is.na(from) & !is.na(to)
+    segs <- data.frame(x = d$x[from[ok]], y = d$y[from[ok]],
+                       xend = d$x[to[ok]], yend = d$y[to[ok]])
+  }
+  attr(out, "netis_edges") <- segs
   out <- .netis_caption(out, sprintf(
     "Each point is an actor at its estimated position in the latent space fitted to %s (wave %s)%s.",
     resolved[[nm]]$selection_formula, as.character(resolved[[nm]]$feature_wave),
@@ -85,9 +98,30 @@
       "Read the spacing along the position axis, not its direction or origin: a one-dimensional latent space is identified only up to reflection and shift."
     }
   )
+  if (!is.null(segs) && nrow(segs)) {
+    out <- .netis_caption(
+      out, "Grey lines are the observed ties of the network the positions were fitted to."
+    )
+  }
   .netis_caption(
     out,
     "Positions are point estimates from the stage-one model; their uncertainty is not drawn."
+  )
+}
+
+#' The observed ties, as a light layer under the points
+#'
+#' Thin and pale on purpose: the ties are context for the positions, and a
+#' network of any density drawn at full weight would be the whole figure.
+#' @noRd
+.netis_latent_edge_layer <- function(d) {
+  segs <- attr(d, "netis_edges")
+  if (is.null(segs) || !nrow(segs)) return(NULL)
+  ggplot2::geom_segment(
+    data = segs,
+    mapping = ggplot2::aes(x = x, y = y, xend = xend, yend = yend),
+    inherit.aes = FALSE, colour = "grey55", alpha = 0.3, linewidth = 0.25,
+    na.rm = TRUE
   )
 }
 
@@ -95,6 +129,7 @@
 .netis_plot_latent <- function(d) {
   two <- isTRUE(d$dims[[1]] >= 2L)
   p <- ggplot2::ggplot(d, ggplot2::aes(x = x, y = y)) +
+    .netis_latent_edge_layer(d) +
     ggplot2::geom_point(ggplot2::aes(colour = outcome), size = 3, na.rm = TRUE) +
     ggplot2::geom_text(ggplot2::aes(label = node), size = 2.6, vjust = -1.1,
                        colour = "grey30", na.rm = TRUE) +
@@ -186,6 +221,18 @@
     )
   }
   out <- .netis_plot_table(d, required = c("node", "role", "x", "y", "dims"))
+  # The observed ties of the network that was modeled: each one runs from the
+  # sender's sending position to the receiver's receiving position, which are
+  # the two points whose product the model uses for that tie.
+  segs <- NULL
+  y_obs <- fit$designs[[g]]$Y
+  if (k >= 2L && is.matrix(y_obs) && identical(dim(y_obs), dim(uv))) {
+    at <- which(!is.na(y_obs) & y_obs != 0, arr.ind = TRUE)
+    at <- at[at[, 1L] != at[, 2L], , drop = FALSE]
+    segs <- data.frame(x = snd[at[, 1L], 1L], y = snd[at[, 1L], 2L],
+                       xend = rcv[at[, 2L], 1L], yend = rcv[at[, 2L], 2L])
+  }
+  attr(out, "netis_edges") <- segs
   out <- .netis_caption(out, sprintf(
     "Coordinates from the posterior mean product U V' (R = %d): %s, which carry %.0f%% of it.",
     as.integer(fit$R),
@@ -195,8 +242,11 @@
   out <- .netis_caption(
     out,
     if (k >= 2L) {
-      c("A sender is likelier to have a tie to a receiver whose point lies in the same direction from the centre, and less likely where it lies opposite; points near the centre add little either way.",
-        "Read directions and distances from the centre across the two panels, not the axes: only the product is identified, and this is one frame for it.")
+      c("Each actor is drawn twice in one frame: at its position as a sender and at its position as a receiver.",
+        "A sender is likelier to have a tie to a receiver whose point lies in the same direction from the centre,",
+        "and less likely where it lies opposite; points near the centre add little either way.",
+        if (!is.null(segs) && nrow(segs)) "Grey lines are the observed ties, each from the sender's sending position to the receiver's receiving position.",
+        "Read directions and distances from the centre, not the axes: only the product is identified, and this is one frame for it.")
     } else {
       "The multiplicative effect for a pair is the sender's horizontal value times the receiver's vertical value: same signs make a tie likelier, opposite signs less likely. Only that product is identified."
     }
@@ -210,21 +260,34 @@
 #' @noRd
 .netis_plot_selection_latent <- function(d) {
   two <- isTRUE(d$dims[[1]] >= 2L)
-  p <- ggplot2::ggplot(d, ggplot2::aes(x = x, y = y)) +
-    ggplot2::geom_point(colour = "#0072B2", size = 2.6, na.rm = TRUE) +
-    ggplot2::geom_text(ggplot2::aes(label = node), size = 2.6, vjust = -1.1,
-                       colour = "grey30", na.rm = TRUE) +
-    ggplot2::labs(
-      x = if (two) "dimension 1" else "sending coordinate",
-      y = if (two) "dimension 2" else "receiving coordinate"
-    ) +
-    .netis_theme() +
-    .netis_caption_lab(d)
   if (two) {
+    # ONE PANEL, TWO COLOURS. Both sets of points live in the same frame, and
+    # the model's quantity is a relation between a sending point and a
+    # receiving point, so they are read against each other and drawn together.
+    segs <- attr(d, "netis_edges")
     d$role <- factor(d$role, levels = c("as sender", "as receiver"))
-    p$data <- d
-    # One frame for both panels: a direction means the same thing in each.
-    p <- p + ggplot2::facet_wrap(~role) + ggplot2::coord_equal()
+    attr(d, "netis_edges") <- segs
+    p <- ggplot2::ggplot(d, ggplot2::aes(x = x, y = y, colour = role)) +
+      .netis_latent_edge_layer(d) +
+      ggplot2::geom_point(size = 2.6, na.rm = TRUE) +
+      ggplot2::geom_text(ggplot2::aes(label = node), size = 2.6, vjust = -1.1,
+                         show.legend = FALSE, na.rm = TRUE) +
+      ggplot2::scale_colour_manual(
+        values = c("as sender" = "#0072B2", "as receiver" = "#D55E00"),
+        name = "position"
+      ) +
+      ggplot2::labs(x = "dimension 1", y = "dimension 2") +
+      ggplot2::coord_equal() +
+      .netis_theme() +
+      .netis_caption_lab(d)
+  } else {
+    p <- ggplot2::ggplot(d, ggplot2::aes(x = x, y = y)) +
+      ggplot2::geom_point(colour = "#0072B2", size = 2.6, na.rm = TRUE) +
+      ggplot2::geom_text(ggplot2::aes(label = node), size = 2.6, vjust = -1.1,
+                         colour = "grey30", na.rm = TRUE) +
+      ggplot2::labs(x = "sending coordinate", y = "receiving coordinate") +
+      .netis_theme() +
+      .netis_caption_lab(d)
   }
   .netis_declare_references(p, .netis_references())
 }

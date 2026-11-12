@@ -445,7 +445,7 @@ latent <- function(network, d = 1L, homophily = character(0),
       out <- stats::setNames(data.frame(character(0), character(0), stringsAsFactors = FALSE),
                              c(schema$group_col, schema$node_col))
       for (nm in cols) out[[nm]] <- numeric(0)
-      return(list(columns = out, n_actors = 0L))
+      return(list(columns = out, n_actors = 0L, edges = NULL))
     }
 
     # The adjacency the selection model is fitted to, built by the same
@@ -494,13 +494,19 @@ latent <- function(network, d = 1L, homophily = character(0),
     for (nm in cols) out[[nm]] <- 0
     mine <- .latent_colnames(term, groups, group = gid)
     for (k in seq_along(mine)) out[[mine[k]]] <- unname(pos[, k])
-    list(columns = out, n_actors = fit$n_actors)
+    # The ties the selection model was fitted to, kept so the positions can be
+    # drawn with them: source to target, in declared orientation.
+    at <- which(adj != 0, arr.ind = TRUE)
+    edges <- data.frame(group = rep(gid, nrow(at)), source = ids[at[, 1L]],
+                        target = ids[at[, 2L]], stringsAsFactors = FALSE)
+    list(columns = out, n_actors = fit$n_actors, edges = edges)
   })
 
   list(
     columns = do.call(rbind, lapply(per_group, function(x) x$columns)),
     formula = paste("network ~", .latent_ergmm_rhs(term)),
     n_actors = vapply(per_group, function(x) x$n_actors, integer(1)),
+    edges = do.call(rbind, lapply(per_group, function(x) x$edges)),
     seed = seed
   )
 }

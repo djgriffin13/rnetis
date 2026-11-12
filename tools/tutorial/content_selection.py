@@ -690,19 +690,22 @@ page(
 
     h3("See the space"),
     codeonly('plot(fit_latent, what = "latent")'),
-    fig("s7-latent", "Each person appears twice: on the left at their "
-        "position as a sender, on the right at their position as a "
-        "receiver. The two panels share one frame."),
-    p("Read the picture across the two panels. A person on the left is "
-      "likelier to confide in a person on the right who lies in the **same "
-      "direction from the centre**, and less likely where they lie in "
-      "opposite directions. People near the centre are barely affected. "
-      "The axes themselves mean nothing, because the space can be rotated "
-      "without changing the model."),
-    p("Here the points form one cloud around the centre with no separate "
-      "groups, which is what *not needed* looks like. Clusters of senders "
-      "sitting in the same direction as clusters of receivers would be the "
-      "sign of structure."),
+    fig("s7-latent", "Each person appears twice: in blue at their "
+        "position as a sender and in orange at their position as a "
+        "receiver. Each grey line is an observed confiding tie, drawn from "
+        "the sender's blue point to the receiver's orange point."),
+    p("Read a blue point against an orange point. A person is likelier to "
+      "confide in someone whose orange point lies in the **same direction "
+      "from the centre** as their own blue point, and less likely where "
+      "the two lie in opposite directions. People near the centre are "
+      "barely affected. The axes themselves mean nothing, because the "
+      "space can be rotated without changing the model."),
+    p("The grey lines show the ties the model was fitted to. If the latent "
+      "factors were capturing structure, the lines would mostly join blue "
+      "and orange points on the same side of the centre, and few would "
+      "cross it. Here the points form one cloud with no separate groups "
+      "and the lines run in every direction, which is what *not needed* "
+      "looks like."),
 
     rare("How many dimensions?",
          p("Start with `R = 1` or `R = 2` and look at the fit check. Raise "

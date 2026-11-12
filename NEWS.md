@@ -78,11 +78,12 @@
 * `plot(fit, what = "latent")` on an Influence fit with a `latent()` term draws
   each actor at its estimated position in the latent space, coloured by the
   outcome. The distances between actors are what the stage-one model
-  identifies; the axes are not, and the caption says so.
+  identifies; the axes are not, and the caption says so. Both latent panels
+  draw the observed ties as light lines under the points.
 
 * `plot(fit, what = "latent")` on a Selection fit with `R > 0` draws each actor
   in the first two dimensions of the multiplicative effects, once as a sender
-  and once as a receiver. The coordinates are a decomposition of the posterior
+  and once as a receiver, in one frame and two colours. The coordinates are a decomposition of the posterior
   mean of the product `U V'`, which is identified, and not an average of `U`
   and `V`, which are not.
 

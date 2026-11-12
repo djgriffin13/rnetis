@@ -95,7 +95,8 @@
 #'   with the central 95% of them shaded and the observed network's value drawn
 #'   as a line, via [netis_gof()]; `"latent"` each actor's coordinates in the
 #'   first two dimensions of the multiplicative effects, once as a sender and
-#'   once as a receiver, derived from the posterior mean of the product `U V'`
+#'   once as a receiver in one frame, with the observed ties drawn as light
+#'   lines from sending to receiving positions, derived from the posterior mean of the product `U V'`
 #'   (a fit with `R > 0`; see **Latent coordinates**).
 #' @param terms Optional character vector selecting which terms to show, on
 #'   `"coefficients"`, `"posterior"` and `"trace"`. The other panels ignore it.

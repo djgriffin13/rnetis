@@ -37,4 +37,5 @@ utils::globalVariables(c(
   "ppp_label",
   # The latent-positions panel.
   "x", "y", "outcome", "node", "role"
+  # (its tie segments reuse `xend` and `yend` from the network drawings)
 ))

@@ -25,7 +25,8 @@ histogram of its value across the networks simulated from the posterior,
 with the central 95\% of them shaded and the observed network's value drawn
 as a line, via \code{\link[=netis_gof]{netis_gof()}}; \code{"latent"} each actor's coordinates in the
 first two dimensions of the multiplicative effects, once as a sender and
-once as a receiver, derived from the posterior mean of the product \verb{U V'}
+once as a receiver in one frame, with the observed ties drawn as light
+lines from sending to receiving positions, derived from the posterior mean of the product \verb{U V'}
 (a fit with \code{R > 0}; see \strong{Latent coordinates}).}
 
 \item{terms}{Optional character vector selecting which terms to show, on

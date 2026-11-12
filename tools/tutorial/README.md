@@ -29,6 +29,7 @@ last section.
 Rscript cap.R            # sourced by the run scripts; not run directly
 Rscript run-inf.R out    # the Influence sequence, A1 to A8, and its figures (~7 min)
 Rscript run-sel.R out    # the Selection sequence, B1 to B8, and its figures (~25 min)
+Rscript run-latent-figs.R out  # only when a latent-coordinates panel changed (~4 min)
 Rscript run-a.R out      # Getting started and the reference pages' data blocks (~10 s)
 Rscript run-c.R out      # reference pages                       (~1 s)
 Rscript run-g.R out      # the hand-built team data, fit statistics, interop (~30 s)

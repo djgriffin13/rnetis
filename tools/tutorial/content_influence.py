@@ -664,11 +664,15 @@ page(
     codeonly('plot(fit_latent, what = "latent")'),
     fig("i7-latent", "Each point is a person at their estimated position. "
         "People close together are those the model found likely to confide "
-        "in one another. Colour is affect at the second survey."),
+        "in one another. Colour is affect at the second survey, and each "
+        "grey line is a confiding tie at the first survey."),
     p("Read **distances**, not axes. Whether a point is on the left or the "
       "right means nothing; who it is near does. If the colours cluster, "
       "with similar moods sitting together, position and mood are related, "
-      "which is exactly the situation the adjustment is for."),
+      "which is exactly the situation the adjustment is for. The grey "
+      "lines are the ties the positions were estimated from: most of them "
+      "should be short, because the model places people who confide in "
+      "each other close together."),
 
     rare("What is `homophily =` for, and what should I put in it?",
          p("By default the positions are estimated from the network alone. "

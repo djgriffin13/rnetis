@@ -34,8 +34,8 @@ test_that("the panel draws each actor at the position the model used", {
   p <- plot(fit, what = "latent")
   expect_s3_class(p, "ggplot")
   built <- ggplot2::ggplot_build(p)
-  expect_equal(built$data[[1]]$x, d$x)
-  expect_equal(built$data[[1]]$y, d$y)
+  expect_equal(built$data[[2]]$x, d$x)
+  expect_equal(built$data[[2]]$y, d$y)
   # A map of distances: both axes in the same units.
   expect_equal(p$coordinates$ratio, 1)
 })
@@ -109,6 +109,31 @@ test_that("two dimensions place every actor twice, in one frame", {
   p <- plot(fit, what = "latent")
   expect_s3_class(p, "ggplot")
   expect_identical(p$coordinates$ratio, 1)
+  # One panel: the two roles are overlaid, not faceted.
+  expect_s3_class(p$facet, "FacetNull")
+  # One segment per observed tie, from a sending point to a receiving point.
+  segs <- attr(d, "netis_edges")
+  y_obs <- fit$designs[[1]]$Y
+  expect_identical(nrow(segs), sum(y_obs != 0, na.rm = TRUE))
+  at <- which(!is.na(y_obs) & y_obs != 0, arr.ind = TRUE)[1, ]
+  expect_equal(unlist(segs[1, ], use.names = FALSE),
+               c(snd[at[[1]], ], rcv[at[[2]], ]), ignore_attr = TRUE)
+})
+
+test_that("an Influence fit's positions carry the ties they were fitted to", {
+  fit <- .pl_fit(2L)
+  d <- plot_data(fit, what = "latent")
+  segs <- attr(d, "netis_edges")
+  edges <- fit$resolved_latent[[1]]$edges
+  expect_gt(nrow(edges), 0L)
+  expect_identical(nrow(segs), nrow(edges))
+  first <- edges[1, ]
+  expect_equal(c(segs$x[1], segs$y[1]),
+               unlist(d[d$node == first$source, c("x", "y")], use.names = FALSE))
+  expect_equal(c(segs$xend[1], segs$yend[1]),
+               unlist(d[d$node == first$target, c("x", "y")], use.names = FALSE))
+  expect_match(paste(attr(d, "netis_caption"), collapse = " "),
+               "observed ties", fixed = TRUE)
 })
 
 test_that("a fit with R = 0 is refused, and told what would give coordinates", {

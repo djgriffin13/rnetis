@@ -1701,7 +1701,7 @@ fit_influence <- function(formula, data, waves = NULL,
     resolved_latent[[lat_term$name]] <- list(
       term = lat_term, feature_wave = lat_wave,
       selection_formula = lat_result$formula, n_actors = lat_result$n_actors,
-      seed = lat_result$seed
+      seed = lat_result$seed, edges = lat_result$edges
     )
     table <- merge(table, lat_result$columns, by = c(s$group_col, s$node_col),
                    all.x = TRUE)
