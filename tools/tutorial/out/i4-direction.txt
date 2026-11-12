@@ -1,0 +1,2 @@
+       (Intercept)        affect_lag1 ex_affect_confides 
+         1.3894507          0.5384725          0.0049653 

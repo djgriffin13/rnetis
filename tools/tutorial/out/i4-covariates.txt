@@ -1,0 +1,21 @@
+<netis_influence>
+  affect ~ ar() + exposure(affect, via = confides, normalize = "row") + extraversion + remote
+  Estimator: pooled ordinary least squares (the formula declares no random-effects term)  [backend: stats]
+  Waves: analyzed 1 -> 2 of 2 present; 0 waves not used
+  40 rows in the estimating sample
+
+Coefficients:
+               Term Estimate     SE      95% interval df t value Pr(>|t|)    
+        (Intercept)   0.2108 0.5028 [-0.8099, 1.2316] 35   0.419    0.678    
+        affect_lag1   0.3992 0.0911  [0.2144, 0.5841] 35   4.384   <0.001 ***
+ ex_affect_confides   0.5373 0.1952  [0.1411, 0.9336] 35   2.753    0.009  **
+       extraversion   0.0473 0.0511 [-0.0565, 0.1511] 35   0.925    0.362    
+             remote  -0.0806 0.1335 [-0.3517, 0.1905] 35  -0.604    0.550    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.317 on 35 degrees of freedom
+R-squared: 0.6602, adjusted: 0.6214
+Assumptions: this fit rests on 8 assumptions (2 not testable). netis_assumptions(fit)
+  lists them.
+Fit-time findings: none. More: summary(fit).

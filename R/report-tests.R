@@ -501,6 +501,16 @@
   list(lines = lines, table = table)
 }
 
+#' A formula as one line of text
+#'
+#' `deparse()` breaks a long formula across several strings, each continuation
+#' indented; pasted back together that prints as a run of spaces in the middle
+#' of the formula.
+#' @noRd
+.formula_text <- function(f) {
+  gsub("\\s+", " ", paste(deparse(f), collapse = " "))
+}
+
 #' Print fit lines, wrapped
 #' @noRd
 .cat_fit_lines <- function(lines) {

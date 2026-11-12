@@ -34,5 +34,7 @@ utils::globalVariables(c(
   # those names.
   "grouping", "statistic", "observed", "predicted_lower", "predicted_upper",
   # The same panel's in-panel label, built from `ppp`.
-  "ppp_label"
+  "ppp_label",
+  # The latent-positions panel.
+  "x", "y", "outcome", "node"
 ))

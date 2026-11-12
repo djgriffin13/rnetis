@@ -1,0 +1,2 @@
+       (Intercept)        affect_lag1 ex_affect_confides     lat_confides_1 
+           0.19054            0.44948            0.48907            0.01118 

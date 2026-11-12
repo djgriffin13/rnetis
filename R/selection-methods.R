@@ -147,7 +147,7 @@ NULL
 #' @export
 print.netis_selection <- function(x, ...) {
   cat("<netis_selection>\n")
-  cat("  ", paste(deparse(x$call$formula), collapse = " "), "\n", sep = "")
+  cat("  ", .formula_text(x$call$formula), "\n", sep = "")
   cat("  Outcome family: ", .selection_family_label(x$family), "\n", sep = "")
   cat("  Groups: ", length(x$groups), " (", paste(utils::head(x$groups, 4), collapse = ", "),
       if (length(x$groups) > 4) ", ..." else "", ")\n", sep = "")
@@ -322,7 +322,7 @@ summary.netis_selection <- function(object, ...) {
 #' @export
 print.summary.netis_selection <- function(x, ...) {
   fit <- x$fit
-  cat("  Formula: ", paste(deparse(fit$call$formula), collapse = " "), "\n", sep = "")
+  cat("  Formula: ", .formula_text(fit$call$formula), "\n", sep = "")
   cat("  Family:  ", .selection_family_label(fit$family), "\n", sep = "")
   cat("  Groups:  ", length(fit$groups), "\n", sep = "")
   cat("  ", .selection_backend_line(fit), "\n", sep = "")

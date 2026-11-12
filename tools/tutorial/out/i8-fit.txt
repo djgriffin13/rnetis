@@ -1,0 +1,31 @@
+Influence model
+  Formula:   affect ~ ar() + exposure(affect, via = confides, normalize = "row") + (1 | group)
+  Estimator: mixed-effects (lme4) (the formula declares a random-effects term)
+  Backend:   lme4 2.1.0
+  Waves: analyzed 1 -> 2 of 2 present; 0 waves not used
+  Estimand:  single transition
+
+Coefficients:
+               Term Estimate     SE      95% interval    df t value Pr(>|t|)    
+        (Intercept)   0.0700 0.1938 [-0.3138, 0.4538] 115.3   0.361    0.718    
+        affect_lag1   0.4138 0.0313  [0.3521, 0.4754] 190.9  13.239   <0.001 ***
+ ex_affect_confides   0.5721 0.0594  [0.4549, 0.6893] 184.6   9.629   <0.001 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+t tests and intervals use Satterthwaite's degrees of freedom, as lmerTest reports them.
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr
+ group    (Intercept) 0.02928  0.1711       
+ Residual             0.09184  0.303        
+
+Residual SD: 0.303; 200 rows; groups: group, 10
+R-squared (Nakagawa-Schielzeth): marginal 0.6823, conditional 0.7591
+logLik: -59.91 (REML) on 5 parameters; AIC: 129.82; BIC: 146.31
+
+Assumptions: this fit rests on 8 assumptions (2 not testable). netis_assumptions(fit)
+  lists them.
+
+As data: netis_estimates(), netis_glance(), netis_variance_components().
+Computed on request: netis_dependence(), netis_assumptions(), pseudo_r2(), influence_effect().
+Design and estimation findings recorded at fit time: none.

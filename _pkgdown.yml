@@ -236,6 +236,8 @@ reference:
   - demo_influence
   - demo_influence_groups
   - demo_selection
+  - demo_affect
+  - demo_affect_teams
 
 articles:
 - title: The models

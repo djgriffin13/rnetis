@@ -100,3 +100,69 @@ test_that("demo_influence_groups records its network at wave 1 only", {
   expect_identical(a1["a01", "a02"], 1)   # the ring a01 -> a02
   expect_identical(sum(a2), 0)
 })
+
+# ---- the affect datasets ------------------------------------------------------
+
+test_that("the affect datasets have the structure their documentation claims", {
+  for (d in list(demo_affect, demo_affect_teams)) {
+    expect_s3_class(d, "netis_data")
+    expect_true(all(c("affect", "extraversion", "tenure", "remote", "project") %in%
+                      names(netis_nodes(d))))
+    expect_true(all(c("confides", "advice", "talk", "same_project", "affect_gap") %in%
+                      names(netis_ties(d))))
+  }
+  one <- netis_nodes(demo_affect)
+  expect_identical(length(unique(one$node)), 40L)
+  expect_identical(length(unique(one$group)), 1L)
+  expect_equal(sort(unique(one$wave)), c(1, 2))
+  # Every ordered pair at both waves, and a binary tie.
+  ties <- netis_ties(demo_affect)
+  expect_identical(nrow(ties), 2L * 40L * 39L)
+  expect_true(all(ties$confides %in% c(0, 1)))
+
+  many <- netis_nodes(demo_affect_teams)
+  expect_identical(length(unique(many$group)), 10L)
+  expect_true(all(table(unique(many[c("group", "node")])$group) == 20L))
+  # No tie crosses a team.
+  mt <- netis_ties(demo_affect_teams)
+  team_of <- function(x) sub("_p[0-9]+$", "", x)
+  expect_true(all(team_of(mt$source) == mt$group & team_of(mt$target) == mt$group))
+})
+
+test_that("everyone in the affect datasets has a confider at wave 1", {
+  # The tutorial's first model row-normalizes the exposure, which is undefined
+  # for a person nobody confides in. The generator guarantees there is none.
+  for (d in list(demo_affect, demo_affect_teams)) {
+    t1 <- netis_ties(d)
+    t1 <- t1[t1$wave == 1 & t1$confides == 1, ]
+    expect_setequal(unique(t1$target), unique(netis_nodes(d)$node))
+  }
+})
+
+test_that("demo_affect recovers the contagion that was planted in it", {
+  truth <- attr(demo_affect, "truth")$influence
+  fit <- fit_influence(
+    affect ~ ar() + exposure(affect, via = confides, normalize = "row"),
+    data = demo_affect
+  )
+  ci <- confint(fit)
+  # The generating values sit inside the fit's own 95% intervals.
+  expect_true(ci["affect_lag1", 1] < truth$ar && truth$ar < ci["affect_lag1", 2])
+  expect_true(ci["ex_affect_confides", 1] < truth$exposure &&
+                truth$exposure < ci["ex_affect_confides", 2])
+  # And the exposure interval excludes zero: the first page of the tutorial
+  # reads this coefficient as evidence of contagion.
+  expect_gt(ci["ex_affect_confides", 1], 0)
+})
+
+test_that("the multi-team data carries the same contagion, and teams that differ", {
+  skip_if_not_installed("lme4")
+  fit <- suppressMessages(fit_influence(
+    affect ~ ar() + exposure(affect, via = confides, normalize = "row") + (1 | group),
+    data = demo_affect_teams
+  ))
+  ci <- confint(fit)
+  expect_gt(ci["ex_affect_confides", 1], 0)
+  vc <- fit$var_corr
+  expect_gt(vc$vcov[vc$grp == "group"], 0)
+})

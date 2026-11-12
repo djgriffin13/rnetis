@@ -1,0 +1,33 @@
+Influence model
+  Formula:   affect ~ ar() + exposure(affect, via = confides, normalize = "row") + latent(confides, d = 2, seed = 1)
+  Estimator: pooled ordinary least squares (the formula declares no random-effects term)
+  Backend:   stats 4.6.2
+  Waves: analyzed 1 -> 2 of 2 present; 0 waves not used
+  Estimand:  single transition
+  Latent-space adjustment lat_confides_1 (Xu 2018, 2021): network ~ euclidean(d = 2), at wave 1 (stage-one seed 1).
+    Positions are ESTIMATED, and their scale and location are arbitrary: a
+    position coefficient is not the effect of the unobserved trait. The
+    adjustment is plug-in -- the selection model's uncertainty does not enter
+    these standard errors.
+
+Coefficients:
+               Term Estimate     SE      95% interval df t value Pr(>|t|)    
+        (Intercept)   0.9414 0.6180 [-0.3133, 2.1961] 35   1.523    0.137    
+        affect_lag1   0.3912 0.0813  [0.2261, 0.5563] 35   4.809   <0.001 ***
+ ex_affect_confides   0.2994 0.1997 [-0.1060, 0.7048] 35   1.499    0.143    
+  lat_confides_1_d1  -0.0600 0.0671 [-0.1963, 0.0763] 35  -0.894    0.378    
+  lat_confides_1_d2   0.2706 0.1370 [-0.0077, 0.5488] 35   1.974    0.056   .
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.3036 on 35 degrees of freedom
+R-squared: 0.6885, adjusted: 0.6529
+F-statistic: 19.34 on 4 and 35 DF, p-value: 1.782e-08
+logLik: -6.40 on 6 parameters; AIC: 24.80; BIC: 34.94
+
+Assumptions: this fit rests on 8 assumptions (2 not testable). netis_assumptions(fit)
+  lists them.
+
+As data: netis_estimates(), netis_glance(), netis_variance_components().
+Computed on request: netis_dependence(), netis_assumptions(), pseudo_r2(), influence_effect().
+Design and estimation findings recorded at fit time: none.

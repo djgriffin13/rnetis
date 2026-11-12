@@ -1,0 +1,7 @@
+  node extraversion tenure remote project affect
+1  p01        -0.84    9.4      0   south   2.53
+2  p02         1.38    8.2      1    east   2.37
+3  p03        -1.26    2.1      1   south   2.04
+4  p04         0.07    0.9      1   south   3.80
+5  p05         1.71    4.7      0    east   3.11
+6  p06        -0.60    0.5      0    east   3.73

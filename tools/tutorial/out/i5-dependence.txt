@@ -1,0 +1,9 @@
+Residual dependence structure:
+  Within-unit serial correlation: not applicable (one outcome row per unit).
+  Residual network autocorrelation ('ex_affect_confides', source_influences_target, normalize = "row"): median I = 0.095 over 1 snapshot(s). On a directed operator this is not confined to [-1, 1].
+    Reported as a described quantity: rnetis ships no reference distribution for a directed operator, so there is no p-value to read here.
+  Residual eta-squared on group: undefined -- there is one group, so there is no between-group sum of squares. Undefined is not zero.
+
+<netis_diagnostics: 0 ERROR, 0 WARNING, 2 NOTE>
+  [NOTE/dependence] This influence specification conditions on the observed network. The fit does not establish whether the network can be treated as exogenous; that depends on the network's formation and design process, which this specification does not model. An experimentally assigned or physically determined structure may well be exogenous -- the fit simply has no way to tell, so it reports what it did rather than what is true of the world.
+  [NOTE/dependence] A lagged exposure to the outcome introduces a distinct potential endogeneity route -- separate from the temporal one, and present whether or not ar() is in the formula -- unless network assignment or formation can be treated as exogenous, or is modeled. Note also that this is regressor coupling, not disturbance dependence: one node's observed outcome is literally an input to another node's exposure, so the rows are linked through the predictors even under conditionally independent errors. A cluster-robust standard error addresses some of the second kind and none of the first.

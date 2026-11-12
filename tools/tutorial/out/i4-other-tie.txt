@@ -1,0 +1,2 @@
+   (Intercept)    affect_lag1 ex_affect_talk 
+      -0.36673        0.50814        0.62263 

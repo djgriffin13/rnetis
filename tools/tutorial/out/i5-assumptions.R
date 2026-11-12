@@ -1,0 +1,1 @@
+netis_assumptions(fit)

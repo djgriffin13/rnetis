@@ -1,0 +1,23 @@
+boundary (singular) fit: see help('isSingular')
+Warning message:
+Model failed to converge with 1 negative eigenvalue: -5.7e-03
+<netis_influence>
+  affect ~ ar() + exposure(affect, via = confides, normalize = "row") + (1 + ex_affect_confides | group)
+  Estimator: mixed-effects (lme4) (the formula declares a random-effects term)  [backend: lme4]
+  Waves: analyzed 1 -> 2 of 2 present; 0 waves not used
+  200 rows in the estimating sample
+
+Coefficients:
+               Term Estimate     SE      95% interval    df t value Pr(>|t|)    
+        (Intercept)   0.0579 0.1848 [-0.3072, 0.4230] 153.0   0.313    0.754    
+        affect_lag1   0.4158 0.0313  [0.3541, 0.4775] 190.6  13.287   <0.001 ***
+ ex_affect_confides   0.5698 0.0618  [0.4457, 0.6940]  50.3   9.216   <0.001 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+t tests and intervals use Satterthwaite's degrees of freedom, as lmerTest reports them.
+
+Residual SD: 0.3035; 200 rows; groups: group, 10
+R-squared: not computed for this random-effects structure (see ?pseudo_r2)
+Assumptions: this fit rests on 8 assumptions (2 not testable). netis_assumptions(fit)
+  lists them.
+Fit-time findings: 2; netis_diagnostics(fit) lists them. More: summary(fit).

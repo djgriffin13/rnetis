@@ -27,7 +27,8 @@ last section.
 
 ```
 Rscript cap.R            # sourced by the run scripts; not run directly
-Rscript run-a.R out      # data pages and the Influence path     (~10 s)
+Rscript run-inf.R out    # the Influence sequence, A1 to A8, and its figures (~3 min)
+Rscript run-a.R out      # Getting started and the reference pages' data blocks (~10 s)
 Rscript run-c.R out      # reference pages                       (~1 s)
 Rscript run-g.R out      # the hand-built team data, fit statistics, interop (~30 s)
 Rscript run-b.R out      # the Selection path                    (~5 min)
@@ -56,8 +57,10 @@ committed; without it `run-e.R` skips the hierarchical panel and says so.
 - `build.py` — the block constructors and the page template. `code()`,
   `result()` and `block()` read `out/`; `fig()` places a captured ggplot;
   `dia()` places a hand-drawn SVG; `eq()` places a display equation.
-- `content_a.py`, `content_b.py` — the prose, in page order. Importing them
-  registers the pages.
+- `content.py` — the pages, in order. It imports `content_start.py` (Welcome
+  and Getting started) and `content_influence.py` (the Influence sequence, A1
+  to A8) at the point where their pages belong, and holds the Selection pages,
+  Feedback, Reference and Help itself. Importing registers the pages.
 - `diagrams.py` — the SVG diagrams. These are *conceptual* figures and carry
   no number from a fit; anything reporting an estimate is a captured ggplot,
   so no drawing on the page can disagree with a result.
@@ -101,3 +104,29 @@ Which is why **`run-e.R` has to be the last script you run**. `run-a.R` and
 by-product; re-running either on its own silently replaces the publication
 renders in `out/png/` with clipped ones, and nothing errors. If you re-run
 anything, finish with `run-e.R`.
+
+## The Influence sequence, and what is still to come
+
+The Influence sequence (A1 to A8) is in its rewritten form: each page runs code
+first, explains it a piece at a time, and keeps the detail in expandable boxes.
+It uses `demo_affect` and `demo_affect_teams`, which ship with the package;
+page A3 rebuilds `demo_affect` from scratch, and `run-inf.R` stops if what the
+page builds is not identical to the shipped object. That check is what keeps
+the page's code and `data-raw/demo-affect.R` the same code.
+
+`run-inf.R` needs the **installed** rnetis to be the version in this checkout
+(`devtools::install(".")`), because the captures call `library(rnetis)`.
+
+Not yet done:
+
+- **Selection** keeps its earlier pages, on the earlier example data, with
+  output captured before `print()` and `summary()` changed. It is to be
+  rewritten to the Influence plan, page for page, on the same team data.
+- **The advanced walkthroughs** (one per family, each ending in a table of the
+  functions worth knowing) are not written. The material the earlier Influence
+  pages held on moderation, missing data, simulation, sensitivity and
+  binary-versus-weighted ties is in git history, and belongs there.
+- `run-a.R`, `run-g.R` and `run-h.R` to `run-l.R` still produce captures that
+  only the earlier Influence pages showed. `make.py` lists them as unused.
+  They stay until the advanced walkthrough decides which of them it reuses.
+- `OUTLINE.md` describes the earlier plan.

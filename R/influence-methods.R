@@ -61,7 +61,7 @@ NULL
 #' @export
 print.netis_influence <- function(x, ...) {
   cat('<netis_influence>\n')
-  cat('  ', deparse(x$spec$formula), '\n', sep = '')
+  cat('  ', .formula_text(x$spec$formula), '\n', sep = '')
   cat('  ', .format_estimator(x$spec$estimator, x$spec$estimator_reason),
       '  [backend: ', x$backend, ']\n', sep = '')
   cat('  ', .format_wave_selection(x$spec), '\n', sep = '')
@@ -525,7 +525,7 @@ summary.netis_influence <- function(object, ...) {
 print.summary.netis_influence <- function(x, ...) {
   fit <- x$fit
   cat('Influence model\n')
-  cat('  Formula:   ', deparse(fit$spec$formula), '\n', sep = '')
+  cat('  Formula:   ', .formula_text(fit$spec$formula), '\n', sep = '')
   cat('  ', .format_estimator(fit$spec$estimator, fit$spec$estimator_reason), '\n', sep = '')
   cat('  Backend:   ', fit$backend, ' ', fit$backend_version, '\n', sep = '')
   cat('  ', .format_wave_selection(fit$spec), '\n', sep = '')

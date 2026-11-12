@@ -5,9 +5,9 @@
 \alias{plot_data.netis_influence}
 \title{Plot a fitted Influence model}
 \usage{
-\method{plot}{netis_influence}(x, what = NULL, terms = NULL, ...)
+\method{plot}{netis_influence}(x, what = NULL, terms = NULL, group = NULL, ...)
 
-\method{plot_data}{netis_influence}(x, what = NULL, terms = NULL, ...)
+\method{plot_data}{netis_influence}(x, what = NULL, terms = NULL, group = NULL, ...)
 }
 \arguments{
 \item{x}{A \code{netis_influence} fit.}
@@ -16,12 +16,19 @@
 and interval; \code{"effects"} the predicted outcome change across a meaningful
 exposure contrast, on the outcome's own scale (on a simultaneous fit, the
 coefficient times that contrast; see above); \code{"heterogeneity"} the
-random-effect standard deviations (fits with random effects only).
+random-effect standard deviations (fits with random effects only);
+\code{"latent"} each actor at its estimated position in the latent space of a
+\code{\link[=latent]{latent()}} term (see \strong{The latent space}).
 \code{"dependence"} and \code{"groups"} are not panels of an Influence fit and
 refuse with a message saying where the quantity lives.}
 
 \item{terms}{Optional character vector selecting which terms to show, on
 \code{"coefficients"} and \code{"effects"}. \code{"heterogeneity"} ignores it.}
+
+\item{group}{On \code{"latent"} with a multi-group fit, which group's latent space
+to draw. Each group's space is fitted separately and they are not
+comparable, so the panel refuses a multi-group fit without one. Ignored by
+the other panels.}
 
 \item{...}{Ignored, present for S3 consistency.}
 }
@@ -31,7 +38,8 @@ A ggplot object. \code{\link[=plot_data]{plot_data()}} returns the table behind 
 \code{role}, \code{scale} and \code{group} on \code{"coefficients"}, \code{coefficient}, \code{contrast_low}
 and \code{contrast_high} on \code{"effects"}, and \code{kind} and \code{icc} (the
 \code{residual_variance_share} of \code{\link[=netis_variance_components]{netis_variance_components()}}) on
-\code{"heterogeneity"}.
+\code{"heterogeneity"}. On \code{"latent"} the columns are \code{node}, \code{group}, \code{x}, \code{y},
+\code{outcome} and \code{dims}.
 }
 \description{
 Draws one panel of a fitted Influence model: its coefficients, the predicted
@@ -68,6 +76,18 @@ On a simultaneous (\code{sna::lnam}) fit the panel does not show a change in the
 Each value is the coefficient times the contrast, the coefficient-scale quantity
 \code{\link[=influence_effect]{influence_effect()}} reports as \code{coefficient_times_contrast}, and the axis and
 caption say that it excludes the feedback through \code{(I - rho * W1)^-1}.
+}
+
+\section{The latent space}{
+\code{"latent"} draws the positions a \code{\link[=latent]{latent()}} term estimated and entered into
+the model: one point per actor, at its first two latent coordinates, coloured
+by the outcome. With one dimension the position is drawn against the outcome
+instead. What the stage-one model identifies is the \strong{distances} between
+actors, so read which actors sit close together and which far apart. The
+axes carry no meaning: the same configuration rotated, reflected or shifted
+is the same solution, and the caption says so. The positions are point
+estimates and their uncertainty is not drawn. A fit with no \code{latent()} term
+refuses.
 }
 
 \section{Missing values}{

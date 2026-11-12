@@ -1,0 +1,11 @@
+<netis_data>
+  200 nodes in 10 groups, 3800 ties, directed, 2 waves, self-ties prohibited
+  node variables: static: extraversion, tenure, remote, project; dynamic: affect
+  tie variables: static: same_project, affect_gap, advice, talk; dynamic: confides
+  tie network semantics:
+    same_project: binary (inferred), complete_dyadic (inferred)
+    affect_gap: weighted, complete_dyadic (inferred)
+    confides: binary (inferred), value_rule
+    advice: binary (inferred), value_rule
+    talk: weighted, value_rule
+  no group_data supplied

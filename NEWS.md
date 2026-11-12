@@ -69,6 +69,17 @@
   `netis_draws` attribute. The previous figure drew only the 95% range as a
   bar.
 
+* `demo_affect` and `demo_affect_teams` are two new example datasets: affect in
+  one team of forty, and in ten teams of twenty, each measured twice, with
+  several node and tie variables. One object serves both model families, and a
+  known contagion effect and a known selection process are planted in it and
+  recorded as its `truth`. The tutorial is built on them.
+
+* `plot(fit, what = "latent")` on an Influence fit with a `latent()` term draws
+  each actor at its estimated position in the latent space, coloured by the
+  outcome. The distances between actors are what the stage-one model
+  identifies; the axes are not, and the caption says so.
+
 * `netis_gof()` reports the posterior predictive check on a Selection fit: for
   each of five network statistics, the value in the observed network against
   its distribution across networks simulated from the posterior. `amen` was

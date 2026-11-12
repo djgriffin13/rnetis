@@ -1,6 +1,6 @@
 # Panels over a fitted Influence model.
 
-.NETIS_INFLUENCE_PANELS <- c("coefficients", "effects", "heterogeneity")
+.NETIS_INFLUENCE_PANELS <- c("coefficients", "effects", "heterogeneity", "latent")
 
 #' Panels an Influence fit does not draw, and where the quantity lives instead
 #'
@@ -68,6 +68,18 @@
 #' [influence_effect()] reports as `coefficient_times_contrast`, and the axis and
 #' caption say that it excludes the feedback through `(I - rho * W1)^-1`.
 #'
+#' # The latent space
+#'
+#' `"latent"` draws the positions a [latent()] term estimated and entered into
+#' the model: one point per actor, at its first two latent coordinates, coloured
+#' by the outcome. With one dimension the position is drawn against the outcome
+#' instead. What the stage-one model identifies is the **distances** between
+#' actors, so read which actors sit close together and which far apart. The
+#' axes carry no meaning: the same configuration rotated, reflected or shifted
+#' is the same solution, and the caption says so. The positions are point
+#' estimates and their uncertainty is not drawn. A fit with no `latent()` term
+#' refuses.
+#'
 #' # Missing values
 #'
 #' An estimate whose backend could not produce an interval is drawn as a point
@@ -79,11 +91,17 @@
 #'   and interval; `"effects"` the predicted outcome change across a meaningful
 #'   exposure contrast, on the outcome's own scale (on a simultaneous fit, the
 #'   coefficient times that contrast; see above); `"heterogeneity"` the
-#'   random-effect standard deviations (fits with random effects only).
+#'   random-effect standard deviations (fits with random effects only);
+#'   `"latent"` each actor at its estimated position in the latent space of a
+#'   [latent()] term (see **The latent space**).
 #'   `"dependence"` and `"groups"` are not panels of an Influence fit and
 #'   refuse with a message saying where the quantity lives.
 #' @param terms Optional character vector selecting which terms to show, on
 #'   `"coefficients"` and `"effects"`. `"heterogeneity"` ignores it.
+#' @param group On `"latent"` with a multi-group fit, which group's latent space
+#'   to draw. Each group's space is fitted separately and they are not
+#'   comparable, so the panel refuses a multi-group fit without one. Ignored by
+#'   the other panels.
 #' @param ... Ignored, present for S3 consistency.
 #'
 #' @return A ggplot object. [plot_data()] returns the table behind it, with columns
@@ -91,7 +109,8 @@
 #'   `role`, `scale` and `group` on `"coefficients"`, `coefficient`, `contrast_low`
 #'   and `contrast_high` on `"effects"`, and `kind` and `icc` (the
 #'   `residual_variance_share` of [netis_variance_components()]) on
-#'   `"heterogeneity"`.
+#'   `"heterogeneity"`. On `"latent"` the columns are `node`, `group`, `x`, `y`,
+#'   `outcome` and `dims`.
 #'
 #' @seealso [netis_estimates()] for the numbers without the drawing;
 #'   [netis_variance_components()]; [plot_data()].
@@ -111,28 +130,30 @@
 #' plot_data(fit)[, c("term", "value", "lower", "upper", "missing_state")]
 #'
 #' @export
-plot.netis_influence <- function(x, what = NULL, terms = NULL, ...) {
+plot.netis_influence <- function(x, what = NULL, terms = NULL, group = NULL, ...) {
   .influence_redirect_panel(what)
   what <- .netis_what(what, .NETIS_INFLUENCE_PANELS, "a netis_influence fit")
-  d <- plot_data(x, what = what, terms = terms)
+  d <- plot_data(x, what = what, terms = terms, group = group)
   switch(
     what,
     coefficients  = .netis_estimates_panel(d, by = "role"),
     effects       = .netis_effects_panel(d, simultaneous = identical(x$backend, "lnam")),
-    heterogeneity = .netis_variance_panel(d)
+    heterogeneity = .netis_variance_panel(d),
+    latent        = .netis_plot_latent(d)
   )
 }
 
 #' @rdname plot.netis_influence
 #' @export
-plot_data.netis_influence <- function(x, what = NULL, terms = NULL, ...) {
+plot_data.netis_influence <- function(x, what = NULL, terms = NULL, group = NULL, ...) {
   .influence_redirect_panel(what)
   what <- .netis_what(what, .NETIS_INFLUENCE_PANELS, "a netis_influence fit")
   switch(
     what,
     coefficients  = .plot_data_estimates(x, terms),
     effects       = .plot_data_effects(x, terms),
-    heterogeneity = .plot_data_variance(x)
+    heterogeneity = .plot_data_variance(x),
+    latent        = .plot_data_latent(x, group)
   )
 }
 

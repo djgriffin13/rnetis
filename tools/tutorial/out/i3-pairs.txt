@@ -1,0 +1,7 @@
+  source target same_project affect_gap confides advice talk
+2    p02    p01            0       0.16        0      0    0
+3    p03    p01            1       0.49        0      0    3
+4    p04    p01            1       1.27        0      0    1
+5    p05    p01            0       0.58        0      0    0
+6    p06    p01            0       1.20        0      0    1
+7    p07    p01            0       1.84        0      0    4

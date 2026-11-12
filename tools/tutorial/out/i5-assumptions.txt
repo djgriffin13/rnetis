@@ -1,0 +1,20 @@
+Assumptions carrying this fit:
+  Network: timing time_varying (measured from the resolved conduit); exogeneity NOT DECLARED (rnetis assumes nothing about it).
+  [A1] The conditional mean is linear in the specified terms and the lag structure is deep enough that no omitted earlier state still predicts the outcome.
+      (source: maintained; handling: not applicable; bears on all coefficients)
+  [A2] Sequential exogeneity: the current innovation is mean-independent of the outcome, exposure and covariate history -- E[e_t | F_{t-1}] = 0. This is an assumption about the innovations; no estimator manufactures it.
+      (source: maintained; handling: unaddressed; bears on all coefficients)
+  [A3] The innovations are independent across actors given the model -- no common group-wave shock, no residual network dependence beyond what the exposure term already models.
+      (source: maintained; handling: unaddressed; bears on the reported standard errors)
+  [A4] No unmodeled time-varying process is related both to network position or exposure and to the outcome. This is a design question, not a testable one.
+      (source: maintained; handling: unaddressed; evidence: not testable; bears on the exposure coefficient)
+      no statistic computed from a fit can distinguish an omitted time-varying confounder from a genuine effect
+  [B] No actor effect is estimated, so persistent actor heterogeneity sits in the error term and is assumed unrelated to the regressors.
+      (source: maintained; handling: unaddressed; bears on the lagged-outcome and exposure coefficients)
+  [B2] Conditional on the terms in the fitted model -- the lagged outcome where ar() is in the formula, and the covariates -- the persistent actor heterogeneity left in the error term is uncorrelated with network exposure. No estimator in this package models or removes that heterogeneity, so the exposure coefficient rests on this assumption.
+      (source: default; handling: unaddressed; bears on the exposure coefficient)
+  [C] The network changes across the estimating waves. How the network came about has not been declared, so rnetis assumes nothing about it and reports the exposure coefficient as resting on an undeclared condition. Declare it if you can defend one.
+      (source: default; handling: unaddressed; bears on the exposure coefficient)
+  [T2] With two waves the lagged-outcome term adjusts for the baseline outcome and estimates persistence across the single observed transition. It should not be read as establishing a stable autoregressive process over time: across one transition, persistence and the initial-condition relation with persistent actor heterogeneity are not separately identified, so the coefficient is a composite of both. The exposure coefficient does not inherit this -- it is identified by cross-sectional variation in exposure among actors at the same baseline -- but it does rest on B2.
+      (source: maintained; handling: not applicable; evidence: not testable; bears on the lagged-outcome coefficient)
+      one transition supplies no repeated within-actor information with which to separate persistence from stable heterogeneity
